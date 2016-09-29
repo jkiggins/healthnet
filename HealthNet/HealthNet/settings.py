@@ -31,6 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'Calendar.apps.CalendarConfig',
+    'User.apps.UserConfig',
+    'dashboard.apps.DashboardConfig',
+    'hospital.apps.HospitalConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
