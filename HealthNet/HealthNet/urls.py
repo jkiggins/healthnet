@@ -20,5 +20,7 @@ urlpatterns = [
     # Calendar URL
     url(r'^Calendar/', include('Calendar.urls')),
     # End Calendar URL
+    # User URL
+    url(r'^User/', include('User.urls')),
     url(r'^admin/', admin.site.urls),
 ]
