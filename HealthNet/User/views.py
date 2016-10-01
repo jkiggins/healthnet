@@ -1,13 +1,37 @@
 from django.shortcuts import render, get_object_or_404
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from User.models import User
+from User.models import Nurse
+from User.models import Doctor
 from User.models import Patient
+
 
 # Create your views here.
 
-# This will display the patient's main view
-# This will include a link to add an appointment,
-# Change an appointment, or access their EMR info.
-# Also this will display the hospital and doctor assigned to them
-def patientIndex(request):
-    patientInfo = Patient.objects.all()
-    return render(request, 'Patient/index.html', {'patientInfo' : patientInfo})
+#This method determines which type of user is using the app
+#It will display the main page depending on which user is active
+def index(request):
+    type = request.session['User'].getType
+
+    if type == "nurse":
+        return render(request , 'User/nurseIndex.html')
+    elif type == "patient":
+        return render(request , 'User/patientIndex.html')
+    elif type == "doctor":
+        return render(request , 'User/doctorIndex.html')
+
+
+def patientList(request):
+    patientList = request.session['User'].patient_set.all()
+
+    return render(request , 'User/patientList.html' , patientList)
+
+
+def viewProfile(request , pk):
+    patient = get_object_or_404(Patient , pk=pk)
+
+    return render(request , 'User/profile.html' , patient)
+
+
+#def eventCreate(request):

@@ -29,6 +29,9 @@ class Nurse(User):
     hospital = models.OnetoOneField(Hospital , null = True , blank = True)
     trusted = models.ManyToManyField(Doctor , null = True , blank = True)
 
+    # TODO: add methods as they are needed,
+    def getType(self):
+        return "nurse"
 
 # this extension of User represents a patient
 class Patient(User):
@@ -41,10 +44,16 @@ class Patient(User):
     phone = models.CharField(max_length=10, default="")
 
 
+    # TODO: add methods as they are needed,
+    def getType(self):
+        return "patient"
+
+
 #this extension of User represents a doctor
 class Doctor(User):
     hospitals = models.ManyToManyField(Hospital)
-    patientCap = models.IntegerField(default=0)  # maximum number of patients a doctor can have
+    patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
 
     # TODO: add methods as they are needed,
-
+    def getType(self):
+        return "doctor"
