@@ -15,6 +15,7 @@ class User(models.Model):
 
     firstName = models.CharField(max_length=20, default="")
     lastName = models.CharField(max_length=20, default="")
+    name = models.CharField(max_length=30)
 
     def __str__(self):
         return self.firstName + ", " + self.lastName
