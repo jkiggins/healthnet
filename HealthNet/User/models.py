@@ -23,10 +23,12 @@ class User(models.Model):
     class Meta:
         abstract = True
 
+
 #this extension of User represents a nurse
 class Nurse(User):
     hospital = models.OnetoOneField(Hospital , null = True , blank = True)
     trusted = models.ManyToManyField(Doctor , null = True , blank = True)
+
 
 # this extension of User represents a patient
 class Patient(User):
@@ -37,6 +39,7 @@ class Patient(User):
     address = models.CharField(max_length=50, default="")
     email = models.CharField(max_length=50, default="")
     phone = models.CharField(max_length=10, default="")
+
 
 #this extension of User represents a doctor
 class Doctor(User):
