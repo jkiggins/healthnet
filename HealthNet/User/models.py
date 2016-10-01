@@ -30,7 +30,7 @@ class Nurse(User):
 
 # this extension of User represents a patient
 class Patient(User):
-    hospital = models.ForeignKey(Hospital, null=True, blank=True)
+    hospital = models.ForeignKey('Hospital', null=True, blank=True)
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
     insuranceNum = models.CharField(max_length=12, default="")
     emr = models.OneToOneField(EMR, null=True, blank=True)
