@@ -5,7 +5,7 @@ from User.models import User
 from User.models import Nurse
 from User.models import Doctor
 from User.models import Patient
-from Calendar.forms import EventForm
+#from Calendar.forms import EventForm
 
 # Create your views here.
 
