@@ -10,8 +10,22 @@
 	
 	<h2>Welcome, {% block name %} {% endblock %} to HealthNet</h2>
 	
-	{% block navbar %}
-	{% endblock %}
+    {% if type == "patient" %}
+        <ul>
+            <li><a href="{% url 'patientIndex' %}">Dashboard</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'emr/index.html' %}">EMR</a></li>
+        </ul>
+    {% elif type == "nurse" %}
+        <ul>
+            <li><a href="{% url 'nurseIndex' %}">Dashboard</a></li>
+        </ul>
+    {% elif type == "doctor" %}
+        <ul>
+            <li><a href="{% url 'doctorIndex' %}">Dashboard</a></li>
+            <li><a href="{% url 'patientList' %}">Patients</a></li>
+        </ul>
+    {% endif %}
 	
 	{% block calendar %}
 	{% endblock %}
