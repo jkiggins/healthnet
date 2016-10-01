@@ -17,6 +17,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
+    #login url
+    url(r'^', include('logIn.urls')),
     # Calendar URL
     url(r'^Calendar/', include('Calendar.urls')),
     # End Calendar URL
