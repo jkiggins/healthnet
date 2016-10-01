@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'User.apps.UserConfig',
     'dashboard.apps.DashboardConfig',
     'hospital.apps.HospitalConfig',
+    'emr.apps.EmrConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
