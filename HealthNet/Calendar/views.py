@@ -2,7 +2,7 @@ from Calendar.models import Event
 from django.shortcuts import render, get_list_or_404
 from django.views.generic.edit import CreateView, UpdateView
 from Calendar.models import Event
-from Calendar.forms import EventForm
+#from Calendar.forms import EventForm
 from django.http import HttpResponseRedirect
 
 
@@ -21,7 +21,7 @@ class CreateEvent(CreateView):
     model = Event
     template_name = 'events/event_form.html'
 
-    form_class = EventForm
+    #form_class = EventForm
 
 
 class EditEvent(UpdateView):
@@ -29,4 +29,4 @@ class EditEvent(UpdateView):
     model = Event
     template_name = 'events/event_form.html'
 
-    form_class = EventForm
+    #form_class = EventForm
