@@ -11,13 +11,14 @@ from Calendar.forms import EventForm
 
 #This method determines which type of user is using the app
 #It will display the main page depending on which user is active
-def index(request):
+def index(request, pk):
     type = request.session['User'].getType
 
     if type == "nurse":
         return render(request , 'User/nurseIndex.html')
     elif type == "patient":
-        return render(request , 'User/patientIndex.html')
+        patient = get_object_or_404(Patient, pk=pk)
+        return render(request , 'User/patientIndex.html', {'patient': patient})
     elif type == "doctor":
         return render(request , 'User/doctorIndex.html')
 
