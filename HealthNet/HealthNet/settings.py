@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'logIn.apps.logInConfig',
+    'logIn.apps.LoginConfig',
     'Calendar.apps.CalendarConfig',
     'User.apps.UserConfig',
     'hospital.apps.HospitalConfig',
