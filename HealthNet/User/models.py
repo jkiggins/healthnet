@@ -19,10 +19,13 @@ class User(models.Model):
     def __str__(self):
         return self.firstName + ", " + self.lastName
 
-
     class Meta:
         abstract = True
 
+#this extension of User represents a nurse
+class Nurse(User):
+    hospital = models.OnetoOneField(Hospital , null = True , blank = True)
+    trusted = models.ManyToManyField(Doctor , null = True , blank = True)
 
 # this extension of User represents a patient
 class Patient(User):
@@ -30,8 +33,11 @@ class Patient(User):
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
     insuranceNum = models.CharField(max_length=12, default="")
     emr = models.OneToOneField(EMR, null=True, blank=True)
+    address = models.CharField(max_length=50, default="")
+    email = models.CharField(max_length=50, default="")
+    phone = models.CharField(max_length=10, default="")
 
-
+#this extension of User represents a doctor
 class Doctor(User):
     hospitals = models.ManyToManyField(Hospital)
     patientCap = models.IntegerField(default=0)  # maximum number of patients a doctor can have
