@@ -5,7 +5,7 @@ from User.models import User
 from User.models import Nurse
 from User.models import Doctor
 from User.models import Patient
-
+from Calendar.forms import EventForm
 
 # Create your views here.
 
@@ -34,4 +34,12 @@ def viewProfile(request , pk):
     return render(request , 'User/profile.html' , patient)
 
 
-#def eventCreate(request):
+def eventCreate(request):
+    if request.method == 'POST':
+        event = EventForm(request.POST)
+        if event.is_valid():
+            return HttpResponseRedirect(reverse('User:index'))
+    else:
+        event = EventForm()
+
+    return render(request , 'html name')
