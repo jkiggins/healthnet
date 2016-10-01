@@ -15,7 +15,7 @@ class User(models.Model):
 
     firstName = models.CharField(max_length=20, default="")
     lastName = models.CharField(max_length=20, default="")
-    name = models.CharField(max_length=30)
+    # name = models.CharField(max_length=30)
 
     def __str__(self):
         return self.firstName + ", " + self.lastName
@@ -26,8 +26,8 @@ class User(models.Model):
 
 #this extension of User represents a nurse
 class Nurse(User):
-    hospital = models.OnetoOneField(Hospital , null = True , blank = True)
-    trusted = models.ManyToManyField(Doctor , null = True , blank = True)
+    hospital = models.OneToOneField(Hospital, null = True, blank = True)
+    trusted = models.ManyToManyField('Doctor', null = True, blank = True)
 
     # TODO: add methods as they are needed,
     def getType(self):
@@ -54,6 +54,6 @@ class Doctor(User):
     hospitals = models.ManyToManyField(Hospital)
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
 
-    # TODO: add methods as they are needed,
+    # TODO: add methods as they are needed
     def getType(self):
         return "doctor"
