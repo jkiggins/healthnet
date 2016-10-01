@@ -27,7 +27,7 @@ class User(models.Model):
 #this extension of User represents a nurse
 class Nurse(User):
     # hospital = models.OneToOneField(Hospital, null = True, blank = True)
-    trusted = models.ManyToManyField('Doctor', null = True, blank = True)
+    trusted = models.ManyToManyField('Doctor', blank = True)
 
     # TODO: add methods as they are needed,
     def getType(self):
