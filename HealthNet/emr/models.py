@@ -20,7 +20,7 @@ class EMRVitals(EMRItem):
     bloodPressure = models.CharField(max_length=10, default="")  # Blood pressure in format ###/###
     height = models.FloatField(default=0)  # Height of the patient in inches
     weight = models.FloatField(default=0)  # Weight of a person in Lbs
-    comments = models.CharField(max_length=200, default="")
+    comments = models.CharField(max_length=1000, default="")
     # TODO: add more vitals
 
 class EMRNote(EMRItem):

@@ -14,14 +14,14 @@ from User.models import Patient
 #This method determines which type of user is using the app
 #It will display the main page depending on which user is active
 def index(request, pk):
-    type = request.session['User'].getType
+    userType = request.session['User'].getType
 
-    if type == "nurse":
+    if userType == "nurse":
         return render(request , 'User/nurseIndex.html')
-    elif type == "patient":
+    elif userType == "patient":
         patient = get_object_or_404(Patient, pk=pk)
         return render(request , 'User/patientIndex.html', {'patient': patient})
-    elif type == "doctor":
+    elif userType == "doctor":
         return render(request , 'User/doctorIndex.html')
 
 

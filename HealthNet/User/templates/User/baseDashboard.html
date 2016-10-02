@@ -10,17 +10,17 @@
 	
 	<h2>Welcome, {% block name %} {% endblock %} to HealthNet</h2>
 	
-    {% if type == "patient" %}
+    {% if userType == "patient" %}
         <ul>
             <li><a href="{% url 'patientIndex' %}">Dashboard</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'emr/index.html' %}">EMR</a></li>
         </ul>
-    {% elif type == "nurse" %}
+    {% elif userType == "nurse" %}
         <ul>
             <li><a href="{% url 'nurseIndex' %}">Dashboard</a></li>
         </ul>
-    {% elif type == "doctor" %}
+    {% elif userType == "doctor" %}
         <ul>
             <li><a href="{% url 'doctorIndex' %}">Dashboard</a></li>
             <li><a href="{% url 'patientList' %}">Patients</a></li>
