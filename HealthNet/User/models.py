@@ -8,7 +8,7 @@ from emr.models import EMR
 class User(models.Model):
 
     Calendar = models.OneToOneField('Calendar', null=True, blank=True)
-    UserName = models.CharField(max_length=15, default="")
+    UserName = models.CharField(max_length=15, default="", unique=True)
     Password = models.CharField(max_length=20, default="")
 
     firstName = models.CharField(max_length=20, default="")
@@ -24,7 +24,7 @@ class User(models.Model):
 
 #this extension of User represents a nurse
 class Nurse(User):
-    hospital = models.OneToOneField(Hospital, null = True, blank = True)
+  #  hospital = models.OneToOneField(Hospital, null = True, blank = True)
     trusted = models.ManyToManyField('Doctor', blank = True)
 
     # TODO: add methods as they are needed,
@@ -35,7 +35,7 @@ class Nurse(User):
 class Patient(User):
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
-    insuranceNum = models.CharField(max_length=12, default="")
+    insuranceNum = models.CharField(max_length=12, default="", unique=True)
     emr = models.OneToOneField(EMR, null=True, blank=True)
     address = models.CharField(max_length=50, default="")
     email = models.CharField(max_length=50, default="")
