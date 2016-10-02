@@ -13,6 +13,21 @@ def index(request):
 
     return render(request, 'logIn/index.html')
 
+def authenticate(request):
+    response = 'neutral'
+    #queryset
+    patientquery = Patient.objects.filter(UserName=request.POST['UN'])
+
+    if patientquery.exists():
+        response = 'well the username exists'
+        passfromdb = patientquery.values('Password')[0]['Password']
+        if passfromdb == request.POST['PW']:
+            response = response +' hell yeah you in'
+        else:
+            response = response+ ' gettt outta here with that password tho'
+    else:
+        response = 'username does not exist'
+    return HttpResponse(response + str(passfromdb))
 
 class Register(CreateView):
     model = Patient
