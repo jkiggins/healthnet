@@ -20,6 +20,7 @@ urlpatterns = [
     #login url
     url(r'^', include('logIn.urls')),
     # User URL
-    url(r'^User/', include('User.urls')),
+    url(r'^user/', include('User.urls')),
+    url(r'emr/', include('emr.urls')),
     url(r'^admin/', admin.site.urls),
 ]

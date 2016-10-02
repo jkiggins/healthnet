@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+
+<body>
+	<h1>HealthNet</h1>
+
+	<h2>Welcome, {% block name %} {{ user.firstName }} {{ user.lastName }} {% endblock %} to HealthNet</h2>
+
+    <ul>
+
+     <li><a href="{% url 'User:dashboard' user.id %}">Dashboard</a></li>
+
+    {% if user.getType == "patient" %}
+
+        <li><a href="{% url 'User:vProfile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'emr:index' user.id %}">EMR</a></li>
+
+    {% elif user.getType == "nurse" %}
+
+        <li><a>Patients and Doctors</a></li>
+
+    {% elif user.getType == "doctor" %}
+
+            <li><a>Patients and Nurses</a></li>
+
+    {% endif %}
+     </ul>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+
+</html>

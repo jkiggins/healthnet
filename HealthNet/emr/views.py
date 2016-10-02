@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+def index(request, pk):
+    return HttpResponse("This is the emr index for user with id = " + pk)

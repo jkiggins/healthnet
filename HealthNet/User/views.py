@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from User.models import User
 from User.models import Nurse
 from User.models import Doctor
@@ -14,27 +14,19 @@ from User.models import Patient
 #This method determines which type of user is using the app
 #It will display the main page depending on which user is active
 def index(request, pk):
-    userType = request.session['User'].getType
-
-    if userType == "nurse":
-        return render(request , 'User/nurseIndex.html')
-    elif userType == "patient":
-        patient = get_object_or_404(Patient, pk=pk)
-        return render(request , 'User/patientIndex.html', {'patient': patient})
-    elif userType == "doctor":
-        return render(request , 'User/doctorIndex.html')
+    pass
 
 
 def patientList(request):
     patientList = request.session['User'].patient_set.all()
 
-    return render(request , 'User/patientList.html' , patientList)
+    return render(request , 'User/userList.html' , patientList)
 
 
 def viewProfile(request , pk):
     patient = get_object_or_404(Patient , pk=pk)
 
-    return render(request , 'User/profile.html' , patient)
+    return render(request, 'User/profile.html', patient)
 
 
 def eventCreate(request):
@@ -46,3 +38,15 @@ def eventCreate(request):
         event = EventForm()
 
     return render(request , 'html name')
+
+
+def dashboardView(request, pk):
+   pt = get_object_or_404(Patient, pk=pk)
+
+   events = pt.Calendar.allEvents.all().order_by('startTime')
+
+   context = { 'user': pt, 'events': events}
+   return render(request, 'User/dashboard.html', context)
+
+
+

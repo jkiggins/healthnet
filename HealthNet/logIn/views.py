@@ -33,3 +33,6 @@ class Register(CreateView):
     model = Patient
     template_name = 'login/register_form.html'
     form_class = PatientForm
+
+def testView(request):
+    return HttpResponse("Hello World")

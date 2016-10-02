@@ -1,0 +1,11 @@
+{% extends 'User/base.html' %}
+
+{% block content %}
+    <ul>
+        <li>Doctor: {{ event.doctor }}</li>
+        <li>Start Time: {{ event.startTime }}</li>
+        <li>End Time: {{ event.endTime }}</li>
+        <li>Description: {{ event.description }}</li>
+        <li>Calendar: <a href="{{ url 'User:viewCalendar' tuser.id }}">{{ tuser.firstName }} {{ tuser.lastName }}</a></li>
+    </ul>
+{% endblock %}
