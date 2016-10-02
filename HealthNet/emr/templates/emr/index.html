@@ -31,7 +31,7 @@
         <label>Comments:</label>
         <form action="{% url 'emr:index' emrinfo %}" method="POST">
         <p>
-            <input type="text" name="comment" value={{ emrinfo.comments }}
+            <input type="text" name="comment" style="height:200px;length:400" value={{ emrinfo.comments }}/>
         <input type="submit" value="Save"/>
         </p>
         </form>
