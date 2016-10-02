@@ -64,7 +64,6 @@ class Calendar(models.Model):
 
 
 class Event(models.Model):
-    doctor = models.ForeignKey('Doctor')
     hospital = models.ForeignKey('hospital.Hospital')
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField()
@@ -74,7 +73,6 @@ class Event(models.Model):
         return "event"
 
 class Appointment(Event):
-    patient = models.ForeignKey('Patient')
 
     def getType(self):
         return "appt"
