@@ -4,10 +4,10 @@
 <ul>
 {% for event in events %}
     {% if event.startTime.day != day %}
-        </ul><h1>{{  event.startTime }}</h1><ul>
+        </ul><h2>{{  event.startTime }}</h2><ul>
     {% endif %}
 
-    <li><span>{{ event.description }}</span> | {{ event.startTime }} | {{ event.endTime }} | {{ event.patient }} | {{ event.doctor }}</li>
+    <li><span>{{ event.description }}</span> | {{ event.startTime }} | {{ event.endTime }} | <a href="{% url 'User:vEvent' event.id %}">Details</a> </li>
 {% endfor %}
 </ul>
 {% endwith %}

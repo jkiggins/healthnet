@@ -64,7 +64,7 @@ class Calendar(models.Model):
 
 
 class Event(models.Model):
-    hospital = models.ForeignKey('hospital.Hospital')
+    hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField()
     description = models.CharField(max_length=200, default="")

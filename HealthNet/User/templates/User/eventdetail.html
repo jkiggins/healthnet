@@ -1,11 +1,14 @@
 {% extends 'User/base.html' %}
 
 {% block content %}
+    <h2>{{ event.description|truncatewords:10 }}</h2>
     <ul>
-        <li>Doctor: {{ event.doctor }}</li>
         <li>Start Time: {{ event.startTime }}</li>
         <li>End Time: {{ event.endTime }}</li>
         <li>Description: {{ event.description }}</li>
-        <li>Calendar: <a href="{{ url 'User:viewCalendar' tuser.id }}">{{ tuser.firstName }} {{ tuser.lastName }}</a></li>
+        {% for u in users %}
+            <li>{{ u.getType|upper }} Calendar: <a href="{% url 'User:vCalendar' u.id %}">{{ u.firstName }} {{ u.lastName }}</a></li>
+        {% endfor %}
+        <li><a href="{% url 'User:eEvent' event.id %}">Edit</a></li>
     </ul>
 {% endblock %}
