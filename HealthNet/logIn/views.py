@@ -28,7 +28,7 @@ def authenticate(request):
             response = response+ ' gettt outta here with that password tho'
     else:
         response = 'username does not exist'
-    return HttpResponse(response + str(passfromdb))
+    return HttpResponse(response )
 
 
 class Register(CreateView):
