@@ -1,10 +1,11 @@
 {% extends "User/baseDashboard.html" %}
 
 {% block content %}
-<form>
+
+<form >
 Username: <input type="text" name="UserName"><br>
 Password: <input type="password" name = "Password"><br>
-    <input type="button" name="LogIn">
+    <input type="button" value="Log In" name="LogIn"> <a class="btn btn-default" href="/Register/">Register</a>
 </form>
 
 {% endblock %}
