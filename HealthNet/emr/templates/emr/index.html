@@ -1,0 +1,44 @@
+{% extends 'User/baseDashboard.html' %}
+
+{% block calendar %}
+{% endblock %}
+
+{% block content %}
+    <table>
+        <tr>
+            <th>Info Type</th>
+            <th>Data</th>
+        </tr>
+        <tr>
+            <td>Resting BPM</td>
+            <td>emrinfo.restingBPM</td>
+        </tr>
+        <tr>
+            <td>Blood Pressure</td>
+            <td>emrinfo.bloodPressure</td>
+        </tr>
+        <tr>
+            <td>Height</td>
+            <td>emrinfo.height</td>
+        </tr>
+        <tr>
+            <td>Weight</td>
+            <td>emrinfo.weight</td>
+        </tr>
+    </table>
+
+    {% if userType == "doctor" %}
+        <label>Comments:</label>
+        <form action="{% url 'emr:index' emrinfo %}" method="POST">
+        <p>
+            <input type="text" name="comment" value={{ emrinfo.comments }}
+        <input type="submit" value="Save"/>
+        </p>
+        </form>
+    {% else %}
+        <label>Comments:</label>
+        <p>
+            {{ emrinfo.comments }}
+        </p>
+    {% endif %}
+{% endblock %}
