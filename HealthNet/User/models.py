@@ -24,7 +24,7 @@ class User(models.Model):
 
 #this extension of User represents a nurse
 class Nurse(User):
-    # hospital = models.OneToOneField(Hospital, null = True, blank = True)
+    hospital = models.OneToOneField(Hospital, null = True, blank = True)
     trusted = models.ManyToManyField('Doctor', blank = True)
 
     # TODO: add methods as they are needed,
@@ -33,7 +33,7 @@ class Nurse(User):
 
 # this extension of User represents a patient
 class Patient(User):
-    # hospital = models.ForeignKey('Hospital', null=True, blank=True)
+    hospital = models.ForeignKey('Hospital', null=True, blank=True)
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
     insuranceNum = models.CharField(max_length=12, default="")
     emr = models.OneToOneField(EMR, null=True, blank=True)
@@ -49,7 +49,7 @@ class Patient(User):
 
 #this extension of User represents a doctor
 class Doctor(User):
-    # hospitals = models.ManyToManyField(Hospital)
+    hospitals = models.ManyToManyField(Hospital)
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
 
     # TODO: add methods as they are needed

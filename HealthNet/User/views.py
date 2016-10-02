@@ -6,6 +6,9 @@ from User.models import Nurse
 from User.models import Doctor
 from User.models import Patient
 
+#from Calendar.forms import EventForm
+
+
 # Create your views here.
 
 #This method determines which type of user is using the app
