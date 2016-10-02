@@ -13,6 +13,7 @@ def index(request):
 
     return render(request, 'logIn/index.html')
 
+
 def authenticate(request):
     response = 'neutral'
     #queryset
@@ -29,10 +30,12 @@ def authenticate(request):
         response = 'username does not exist'
     return HttpResponse(response + str(passfromdb))
 
+
 class Register(CreateView):
     model = Patient
     template_name = 'login/register_form.html'
     form_class = PatientForm
+
 
 def testView(request):
     return HttpResponse("Hello World")

@@ -1,5 +1,8 @@
-{% extends 'logIn/index.html' %}
+{% extends 'logIn/banner.html' %}
 {% block content %}
+
+<h2>Please Register</h2>
+
 <div class="container">
   <form enctype="multipart/form-data" action="" method="post">{% csrf_token %}
       {{ form.as_p }}

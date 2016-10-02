@@ -14,6 +14,7 @@ class EMRItem(models.Model):
     class Meta:
         abstract = True
 
+
 class EMRVitals(EMRItem):
     """This model will store a set of vital sign readings as well as height, weight ...etc"""
     restingBPM = models.IntegerField(default=0)  # Resting pulse in beats/min

@@ -1,12 +1,12 @@
-{% extends "User/baseDashboard.html" %}
-
+{% extends 'logIn/banner.html' %}
 {% block content %}
 
+<h2>Please Log In</h2>
+
 <form >
-Username: <input type="text" name="UserName"><br>
-Password: <input type="password" name = "Password"><br>
-    <input type="button" value="Log In" name="LogIn"> <a class="btn btn-default" href="/Register/">Register</a>
+	Username: <input type="text" name="UserName"><br>
+	Password: <input type="password" name = "Password"><br>
+		<input type="button" value="Log In" name="LogIn"> <a class="btn btn-default" href="/Register/">Register</a>
 </form>
 
 {% endblock %}
-

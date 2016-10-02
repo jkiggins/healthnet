@@ -5,5 +5,5 @@ from User.models import *
 admin.site.register(Patient)
 admin.site.register(Nurse)
 admin.site.register(Doctor)
-admin.site.register(Event)
-admin.site.register(Calendar)
+#admin.site.register(Event)
+#admin.site.register(Calendar)
