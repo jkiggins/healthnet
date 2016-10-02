@@ -19,9 +19,6 @@ from django.contrib import admin
 urlpatterns = [
     #login url
     url(r'^', include('logIn.urls')),
-    # Calendar URL
-    url(r'^Calendar/', include('Calendar.urls')),
-    # End Calendar URL
     # User URL
     url(r'^User/', include('User.urls')),
     url(r'^admin/', admin.site.urls),

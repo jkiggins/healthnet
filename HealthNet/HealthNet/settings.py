@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'User',
-    'Calendar',
     'logIn.apps.LoginConfig',
     'hospital.apps.HospitalConfig',
     'syslogging.apps.SysloggingConfig',

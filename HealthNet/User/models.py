@@ -1,6 +1,5 @@
 from django.db import models
-
-from Calendar.models import Calendar, Notification
+from django.utils import timezone
 from hospital.models import Hospital
 from emr.models import EMR
 
@@ -8,10 +7,9 @@ from emr.models import EMR
 # Create your models here.
 class User(models.Model):
 
-    Calendar = models.OneToOneField(Calendar, null=True, blank=True)
+    Calendar = models.OneToOneField('Calendar', null=True, blank=True)
     UserName = models.CharField(max_length=15, default="")
     Password = models.CharField(max_length=20, default="")
-    Notification = models.ManyToManyField(Notification, null=True, blank=True)
 
     firstName = models.CharField(max_length=20, default="")
     lastName = models.CharField(max_length=20, default="")
@@ -57,3 +55,19 @@ class Doctor(User):
     # TODO: add methods as they are needed
     def getType(self):
         return "doctor"
+
+
+######################################################################################
+####################  Calendar Classes and work        ###############################
+######################################################################################
+
+class Calendar(models.Model):
+    allEvents = models.ManyToManyField('Event')
+
+
+class Event(models.Model):
+    patient = models.ForeignKey('Patient')
+    doctor = models.ForeignKey('Doctor')
+#    hospital = models.ForeignKey('Hospital')
+    startTime = models.DateTimeField(default=timezone.now)
+    endTime = models.DateTimeField()
