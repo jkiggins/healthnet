@@ -27,7 +27,7 @@ class Nurse(models.Model):
     trusted = models.ManyToManyField('Doctor', blank = True)
 
     def __str__(self):
-        return user.get_full_name()
+        return self.user.get_full_name()
 
     # TODO: add methods as they are needed,
     def getType(self):
@@ -45,7 +45,7 @@ class Patient(models.Model):
     phone = models.CharField(max_length=10, default="")
 
     def __str__(self):
-        return user.get_full_name()
+        return self.user.get_full_name()
 
 
     # TODO: add methods as they are needed,
@@ -61,7 +61,7 @@ class Doctor(models.Model):
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
 
     def __str__(self):
-        return user.get_full_name()
+        return self.user.get_full_name()
 
     # TODO: add methods as they are needed
     def getType(self):

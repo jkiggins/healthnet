@@ -1,15 +1,14 @@
 from django import forms
 from User.models import *
+import re
 from django.contrib.auth.models import User
 
 
 
 class RegistrationForm(forms.Form):
 
-    username = forms.CharField(max_length=30)
-    first_name = forms.CharField(max_length=30)
-    last_name = forms.CharField(max_length=30)
-    email = forms.EmailField(widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label="Email address")
+    username = forms.CharField(max_length=30, label='User Name')
+    insuranceNum = forms.CharField(max_length=12, label='Insurance Number')
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)), label="Password")
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)), label="Password (again)")
 
@@ -18,15 +17,10 @@ class RegistrationForm(forms.Form):
         if not valid:
             return valid
 
-        return self.cleaned_data['password1'] == self.cleaned_data['password2']
+        pattern = re.compile("^([A-Z][0-9]+)$")
 
 
-class PatientForm(forms.ModelForm):
-    class Meta:
-        model = Patient
-        # from patient class
-        insuranceNum = forms.CharField() # TODO: Check valid
-        fields = ['insuranceNum']
+        return (self.cleaned_data['password1'] == self.cleaned_data['password2']) and pattern.match(self.cleaned_data['insuranceNum'])
 
 
 class LoginForm(forms.Form):

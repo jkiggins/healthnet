@@ -1,10 +1,14 @@
 from User.models import *
 from hospital.models import Hospital
+from emr.models import *
 from django.contrib.auth.models import Permission, User
 
 Hospital.objects.all().delete()
 h = Hospital.objects.create(name="The Hospital")
 h.save()
+
+emr = EMR.objects.create()
+emr.save()
 
 User.objects.all().delete()
 
@@ -33,7 +37,7 @@ up = User.objects.create_user(
             last_name="Zero")
 up.save()
 
-p = Patient.objects.create(user=up, doctor = d, hospital=h)
+p = Patient.objects.create(user=up, doctor = d, hospital=h, emr=emr)
 p.save()
 
 

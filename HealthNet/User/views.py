@@ -51,18 +51,19 @@ def viewCalendar(request, ut, pk):
 class EditProfile(View):
 
     def post(self, request):
-        user=get_user_or_404(request, ("patient"))
+        user = get_user_or_404(request, ("patient"))
         form = EditProfileForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            form.save_user(user)
             return HttpResponseRedirect(reverse('User:dashboard'))
         else:
             return HttpResponseRedirect(reverse('User:eProfile'))
 
     def get(self, request):
-        form = EditProfileForm()
         user = get_user_or_404(request, ("patient"))
+        form = EditProfileForm()
+        form.set_defaults(user)
 
         return render(request, 'User/editprofile.html', {'user': user, 'form': form})
 
@@ -81,7 +82,7 @@ class ViewEditEvent(View):
 
 
         if event.is_valid():
-            if self.cleaned_data['delete']:
+            if event.cleaned_data['delete']:
                 Syslog.deleteEvent(old_event, user)
                 old_event.delete()
 

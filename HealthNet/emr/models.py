@@ -4,6 +4,7 @@ from django.utils import timezone
 class EMR(models.Model):
     """This model will be used to link test results, vitals, diagnosis, medications, and notee"""
     # TODO: determine if there are any fields that should be in this model
+    emergency = models.CharField(max_length=10, default="")  # emergency contact
 
 class EMRItem(models.Model):
     """This is generic item which can be stored in the EMR, other models will extend this"""
@@ -21,6 +22,7 @@ class EMRVitals(EMRItem):
     bloodPressure = models.CharField(max_length=10, default="")  # Blood pressure in format ###/###
     height = models.FloatField(default=0)  # Height of the patient in inches
     weight = models.FloatField(default=0)  # Weight of a person in Lbs
+    age = models.IntegerField(default=0)
     comments = models.CharField(max_length=1000, default="")
     # TODO: add more vitals
 

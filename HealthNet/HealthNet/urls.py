@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # register user url
-    url(r'^register/$', register),
+    url(r'^register/$', Register.as_view(), name='register'),
     # succesful registration url
     url(r'^register/success/$', register_success),
     # where you are sent after login

@@ -5,6 +5,7 @@ from django.utils import timezone
 from syslogging.models import *
 import datetime
 import logging
+from emr.models import *
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -126,21 +127,67 @@ class EventUpdateForm(forms.ModelForm):
         fields = ['startTime', 'endTime', 'description']
 
 
-class EditProfileForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=20)
-    last_name = forms.CharField(max_length=20)
-    email = forms.CharField(max_length=50)
+class EditProfileForm(forms.Form):
+    first_name = forms.CharField(max_length=20, required=False)
+    last_name = forms.CharField(max_length=20, required=False)
+    email = forms.CharField(max_length=50, required=False)
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
+    phone = forms.CharField(max_length=10, label="Phone Number", required=False)
+    address = forms.CharField(max_length=50, label="Your Address", required=False)
+    emergency = forms.CharField(max_length=10, label="Emergency", required=False)
 
-    def save(self):
-        m = super(EditProfileForm, self).save(commit=True)
+    height = forms.IntegerField(label="Height in Inches", required=False)
+    weight = forms.IntegerField(label="Weight in Lbs", required=False)
+    age = forms.IntegerField(label="Age in Years", required=False)
+    restingBpm = forms.IntegerField(label="Usual Resting BPM", required=False)
+    bloodPressure = forms.CharField(max_length=20, label="Blood pressure (###/###)", required=False)
+    comments = forms.CharField(label="Comments", widget=forms.Textarea(), required=False)
+
+    def save(self, commit=True):
+        pass
+
+    def set_defaults(self, user):
+        self.fields['first_name'].initial = user.user.first_name
+        self.fields['last_name'].initial = user.user.last_name
+        self.fields['email'].initial = user.user.email
+
+        if(user.doctor != None):
+            self.fields['doctor'].initial = user.doctor
+            self.fields['doctor'].disabled=True
+
+        self.fields['phone'].initial = user.phone
+        self.fields['address'].initial = user.address
+
+        if(user.emr.emergency != None):
+            self.fields['emergency'].initial = user.emr.emergency
+
+        if(user.emr.emrvitals_set.all().count() != 0):
+            self.fields['height'].disabled = True
+            self.fields['weight'].disabled = True
+            self.fields['age'].disabled = True
+            self.fields['restingBpm'].disabled = True
+            self.fields['bloodPressure'].disabled = True
+
+
+    def save_user(self, m):
         m.user.first_name = self.cleaned_data['first_name']
         m.user.last_name = self.cleaned_data['last_name']
         m.user.email = self.cleaned_data['email']
+        #m.doctor = self.cleaned_data['doctor']
+        #m.hospital = m.doctor.hosptial
+        m.address = self.cleaned_data['address']
+        m.phone = self.cleaned_data['phone']
+        m.emr.emergency = self.cleaned_data['emergency']
+        m.emr.save()
         m.user.save()
         m.save()
 
+        emrItem = EMRVitals.objects.create(emr = m.emr,
+                                           height=self.cleaned_data['height'],
+                                           weight=self.cleaned_data['weight'],
+                                           age=self.cleaned_data['age'],
+                                           bloodPressure=self.cleaned_data['bloodPressure'],
+                                           restingBpm=self.cleaned_data['restingBpm'],
+                                           comments=self.cleaned_data['comments']
+        )
 
-    class Meta:
-        model = Patient
-        fields = ['hospital', 'doctor', 'address', 'phone']
-        exclude = ['insuranceNum', 'user', 'emr']
