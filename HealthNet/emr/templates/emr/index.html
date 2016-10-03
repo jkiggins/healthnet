@@ -11,34 +11,34 @@
         </tr>
         <tr>
             <td>Resting BPM</td>
-            <td>{{ emrinfo.restingBPM }}</td>
+            <td>{{ vitals.restingBPM }}</td>
         </tr>
         <tr>
             <td>Blood Pressure</td>
-            <td>{{ emrinfo.bloodPressure }}</td>
+            <td>{{ vitals.bloodPressure }}</td>
         </tr>
         <tr>
             <td>Height</td>
-            <td>{{ emrinfo.height }}</td>
+            <td>{{ vitals.height }}</td>
         </tr>
         <tr>
             <td>Weight</td>
-            <td>{{ emrinfo.weight }}</td>
+            <td>{{ vitals.weight }}</td>
         </tr>
     </table>
 
     {% if userType == "doctor" %}
         <label>Comments:</label>
-        <form action="{% url 'emr:index' emrinfo %}" method="POST">
+        <form action="{% url 'emr:index' vitals %}" method="POST">
         <p>
-            <input type="text" name="comment" style="height:200px;length:400" value={{ emrinfo.comments }}/>
+            <input type="text" name="comment" style="height:200px;length:400" value={{ vitals.comments }}/>
         <input type="submit" value="Save"/>
         </p>
         </form>
     {% else %}
         <label>Comments:</label>
         <p>
-            {{ emrinfo.comments }}
+            {{ vitals.comments }}
         </p>
     {% endif %}
 {% endblock %}
