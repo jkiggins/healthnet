@@ -68,7 +68,7 @@ class CreateEvent(View):
             user.doctor.Calendar.save()
             return True
 
-    def handleNurse(self, request, user):
+    def handleNurse(self, request):
         event = EventCreationFormNurse(request.POST)
 
         if event.is_valid():
@@ -77,15 +77,27 @@ class CreateEvent(View):
         else:
             return False
 
+    def handleDoctor(self, request, user):
+        event = EventCreationFormDoctor(request.POST)
+
+        if event.is_valid():
+            event.save_with_doctor(doctor=user, commit=True)
+            return True
+        else:
+            return False
+
 
     def get(self, request):
         # user = Patient.objects.get(pk=3)  # TODO: delete this after login works
-        user = Nurse.objects.get(pk=1)
+        user = Doctor.objects.get(pk=1)
 
         if(user.getType() == "patient"):
             event = EventCreationFormPatient()
         elif(user.getType() == "nurse"):
             event = EventCreationFormNurse()
+        else:
+            event = EventCreationFormDoctor()
+            event.fields["patient"].queryset = Patient.objects.filter(doctor__id = user.id)
 
 
         return render(request, 'User/eventhandle.html', {'form': event, 'user': user})
@@ -93,17 +105,24 @@ class CreateEvent(View):
 
     def post(self, request):
         # user = Patient.objects.get(pk=3)  # TODO: delete this after login works
-        user = Nurse.objects.get(pk=1)
+        user = Doctor.objects.get(pk=1)
         if (user.getType() == "patient"):
             self.handlePatient(request, user)
             return HttpResponseRedirect(reverse('User:dashboard', args=(user.id,)))
 
         elif (user.getType() == "nurse"):
-            print("######AT NURSE POST#####")
-            if self.handleNurse(request, user):
+            if self.handleNurse(request):
                 return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change this to not a constant
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
+
+        else:
+            if self.handleDoctor(request, user):
+                return HttpResponseRedirect(reverse('User:dashboard', args=(3,)))  # TODO: change this to not a constant
+            else:
+                return HttpResponseRedirect(reverse('User:cEvent'))
+
+
 
 
 

@@ -59,20 +59,19 @@ class Doctor(User):
 ####################  Calendar Classes and work        ###############################
 ######################################################################################
 
-class Calendar(models.Model):
-    allEvents = models.ManyToManyField('Event')
-
-
 class Event(models.Model):
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField()
     description = models.CharField(max_length=200, default="")
+    appointment = models.BooleanField(default=False)
 
     def getType(self):
         return "event"
 
-class Appointment(Event):
+class Calendar(models.Model):
+    allEvents = models.ManyToManyField(Event)
 
-    def getType(self):
-        return "appt"
+
+
+
