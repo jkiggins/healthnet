@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/viewProfile/$', views.viewProfile, name='vProfile'),
     url(r'^(?P<ut>p|d)/(?P<pk>[0-9]+)/viewCalendar/$', views.viewCalendar, name='vCalendar'),
     url(r'^(?P<pk>[0-9]+)/viewEditEvent/$', views.ViewEditEvent, name='veEvent'),
-    url(r'^editProfile/$', EditProfile.as_view, name = 'eProfile')
+    url(r'^editProfile/$', views.EditProfile.as_view, name = 'eProfile'),
     url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
     url(r'^(?P<pk>[0-9]+)/dashboard', views.dashboardView, name='dashboard')
 ]

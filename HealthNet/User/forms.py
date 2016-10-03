@@ -2,6 +2,7 @@ from django import forms
 from User.models import *
 from hospital.models import *
 from django.utils import timezone
+from syslogging.models import *
 import datetime
 
 import logging
@@ -88,6 +89,19 @@ class EventCreationFormDoctor(forms.ModelForm):
 
 
 class EventUpdateForm(forms.ModelForm):
+
+    delete = forms.CheckboxInput().render('Delete>', False)
+
+    def save_user(self, user, commit=True):
+        m = super(EventUpdateForm, self).save(commit=False)
+
+        if self.cleaned_data['delete']:
+            Syslog.deleteEvent(m, user)
+
+        if commit:
+            m.save()
+        return m
+
     class Meta:
         model=Event
         fields = ['startTime', 'endTime', 'description', 'hospital']

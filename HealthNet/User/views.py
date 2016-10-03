@@ -61,9 +61,10 @@ class ViewEditEvent(View):
         event = EventUpdateForm(request.POST)
 
         if event.is_valid():
-            event.save(commit=True)
+            event.save_user(request.user, commit=True)
         else:
             return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change from constant
+
 
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
