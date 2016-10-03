@@ -17,7 +17,7 @@ class RegistrationForm(forms.Form):
         if not valid:
             return valid
 
-        pattern = re.compile("^([A-Z][0-9]+)$")
+        pattern = re.compile('^([A-Z]|[a-z]|[0-9]+)$')
 
 
         return (self.cleaned_data['password1'] == self.cleaned_data['password2']) and pattern.match(self.cleaned_data['insuranceNum'])

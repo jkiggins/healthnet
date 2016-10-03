@@ -161,13 +161,6 @@ class EditProfileForm(forms.Form):
         if(user.emr.emergency != None):
             self.fields['emergency'].initial = user.emr.emergency
 
-        if(user.emr.emrvitals_set.all().count() != 0):
-            self.fields['height'].disabled = True
-            self.fields['weight'].disabled = True
-            self.fields['age'].disabled = True
-            self.fields['restingBpm'].disabled = True
-            self.fields['bloodPressure'].disabled = True
-
 
     def save_user(self, m):
         m.user.first_name = self.cleaned_data['first_name']
@@ -187,7 +180,7 @@ class EditProfileForm(forms.Form):
                                            weight=self.cleaned_data['weight'],
                                            age=self.cleaned_data['age'],
                                            bloodPressure=self.cleaned_data['bloodPressure'],
-                                           restingBpm=self.cleaned_data['restingBpm'],
+                                           restingBPM=self.cleaned_data['restingBpm'],
                                            comments=self.cleaned_data['comments']
         )
 
