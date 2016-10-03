@@ -15,12 +15,24 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from logIn.views import *
 
 urlpatterns = [
+
     #login url
-    url(r'^', include('logIn.urls')),
-    # User URL
-    url(r'^user/', include('User.urls')),
-    url(r'emr/', include('emr.urls')),
+    url(r'^$', 'django.contrib.auth.views.login'),
     url(r'^admin/', admin.site.urls),
+
+    # register user url
+    url(r'^register/$', register),
+    # succesful registration url
+    url(r'^register/success/$', register_success),
+    # where you are sent after login
+    url(r'^accounts/profile/$', home),
+    # call to logout
+    url(r'^logout/$', logout_page),
+
+    url(r'^user/', include('User.urls')), # User URL
+    url(r'emr/', include('emr.urls')),
+
 ]
