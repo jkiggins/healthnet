@@ -20,7 +20,7 @@ from logIn.views import *
 urlpatterns = [
 
     #login url
-    url(r'^$', 'django.contrib.auth.views.login'),
+    url(r'^$', LoginView.as_view() , name='loginIndex'),
     url(r'^admin/', admin.site.urls),
 
     # register user url
