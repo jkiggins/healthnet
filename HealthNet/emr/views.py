@@ -1,13 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render , get_object_or_404
 from django.http import HttpResponse , HttpResponseRedirect
 from emr.models import EMRVitals, EMRNote, EMRTrackedMetric
 from emr.forms import EMRVitalsForm
 from django.views.generic.edit import CreateView, UpdateView , View
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
+from User.models import Patient
 
 def index(request, pk):
-    return HttpResponse("This is the emr index for user with id = " + pk)
+    currPatient = get_object_or_404(Patient , pk)
+    vitals = currPatient.emr
+
+    return render(request , 'emr/index.html' , vitals)
 
 
 class CreateEMR(CreateView):
