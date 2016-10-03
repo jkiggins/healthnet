@@ -11,19 +11,19 @@
         </tr>
         <tr>
             <td>Resting BPM</td>
-            <td>{{ vitals.restingBPM }}</td>
+            <td>{{ patEMR.restingBPM }}</td>
         </tr>
         <tr>
             <td>Blood Pressure</td>
-            <td>{{ vitals.bloodPressure }}</td>
+            <td>{{ patEMR.bloodPressure }}</td>
         </tr>
         <tr>
             <td>Height</td>
-            <td>{{ vitals.height }}</td>
+            <td>{{ patEMR.height }}</td>
         </tr>
         <tr>
             <td>Weight</td>
-            <td>{{ vitals.weight }}</td>
+            <td>{{ patEMR.weight }}</td>
         </tr>
     </table>
 
@@ -31,14 +31,14 @@
         <label>Comments:</label>
         <form action="{% url 'emr:index' vitals %}" method="POST">
         <p>
-            <input type="text" name="comment" style="height:200px;length:400" value={{ vitals.comments }}/>
+            <input type="text" name="comment" style="height:200px;length:400" value={{ patEMR.comments }}/>
         <input type="submit" value="Save"/>
         </p>
         </form>
     {% else %}
         <label>Comments:</label>
         <p>
-            {{ vitals.comments }}
+            {{ patEMR.comments }}
         </p>
     {% endif %}
 {% endblock %}
