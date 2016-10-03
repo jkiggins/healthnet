@@ -91,3 +91,23 @@ class EventUpdateForm(forms.ModelForm):
     class Meta:
         model=Event
         fields = ['startTime', 'endTime', 'description', 'hospital']
+
+
+class EditProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=20)
+    last_name = forms.CharField(max_length=20)
+    email = forms.CharField(max_length=50)
+
+    def save(self):
+        m = super(EditProfileForm, self).save(commit=True)
+        m.user.first_name = self.cleaned_data['first_name']
+        m.user.last_name = self.cleaned_data['last_name']
+        m.user.email = self.cleaned_data['email']
+        m.user.save()
+        m.save()
+
+
+    class Meta:
+        model = Patient
+        fields = ['hospital', 'doctor', 'address', 'phone']
+        exclude = ['insuranceNum', 'user', 'emr']

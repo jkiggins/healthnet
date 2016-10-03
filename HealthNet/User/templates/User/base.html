@@ -8,7 +8,7 @@
 <body>
 	<h1>HealthNet</h1>
 
-	<h2>Welcome, {% block name %} {{ user.user.first_name }} {{ user.user.last_name }} {% endblock %} to HealthNet</h2>
+	<h2>Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2>
 
     <ul>
 

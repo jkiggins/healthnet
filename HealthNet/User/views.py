@@ -26,6 +26,7 @@ def viewProfile(request , pk):
 
     return render(request, 'User/profile.html', patient)
 
+
 def viewCalendar(request, ut, pk):
     if ut == "p":
         user = get_object_or_404(Patient, pk=pk)
@@ -36,7 +37,25 @@ def viewCalendar(request, ut, pk):
 
     render(request, 'viewcalendar.html', {'events': user.event_set.all()})
 
-class viewEditEvent(View):
+
+class EditProfile(View):
+
+    def post(self, request):
+        form = EditProfileForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id)))
+        else:
+            return HttpResponseRedirect(reverse('User:eProfile'))
+
+    def get(self, request):
+        form = EditProfileForm()
+
+        return render(request, 'User/editprofile.html', {'user': request.user, 'form': form})
+
+
+class ViewEditEvent(View):
 
     def post(self, request):
         event = EventUpdateForm(request.POST)
