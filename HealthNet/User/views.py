@@ -1,11 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, Http404
 from User.models import *
 from .forms import *
 from django.views.generic import View
 
-#from Calendar.forms import EventForm
 
 
 # Create your views here.
@@ -27,51 +26,60 @@ def viewProfile(request , pk):
 
     return render(request, 'User/profile.html', patient)
 
-def viewCalendar(request, pk):
-    calendar = get_object_or_404(Calendar, pk=pk)
-    context = {'events': calendar.allEvents}
-
-    render(request, 'viewcalendar.html', context)
-
-def viewEvent(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    users = []
-
-    for cal in event.calendar_set.all():
-        if hasattr(cal, 'nurse'):
-            users.append(cal.nurse)
-        elif hasattr(cal, 'patient'):
-            users.append(cal.patient)
-        elif hasattr(cal, 'doctor'):
-            users.append(cal.doctor)
-
-    context = {'event': event, 'users': users}
-
-    if ('User' in request.session):
-        context['user'] = request.session['User']
+def viewCalendar(request, ut, pk):
+    if ut == "p":
+        user = get_object_or_404(Patient, pk=pk)
+    elif ut == "d":
+        user = get_object_or_404(Doctor, pk=pk)
     else:
-        context['user'] = Patient.objects.all()[0] # TODO: remove this before release
+        return Http404()
 
-    return render(request, 'User/eventdetail.html', context)
+    render(request, 'viewcalendar.html', {'events': user.event_set.all()})
+
+class viewEditEvent(View):
+
+    def post(self, request):
+        event = EventUpdateForm(request.POST)
+
+        if event.is_valid():
+            event.save(commit=True)
+        else:
+            return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change from constant
+
+    def get(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+
+        if(request.group != "nurse" and request.group != "doctor" and request.user != event.patient):
+            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id,)))
+
+        form = EventUpdateForm()
+
+        context = {'form': form, 'event': event}
+
+        if ('User' in request.session):
+            context['user'] = request.session['User']
+        else:
+            context['user'] = Patient.objects.all()[0] # TODO: remove this before release
+
+        return render(request, 'User/eventdetail.html', context)
 
 
 class CreateEvent(View):
 
     def handlePatient(self, request, user):
         event = EventCreationFormPatient(request.POST)
+
         if event.is_valid():
             e = event.save_with_hosptial(user.hospital)
+            e.patient = user
+            e.save()
 
-            user.Calendar.allEvents.add(e)
-            user.doctor.Calendar.allEvents.add(e)
-            user.Calendar.save()
-            user.doctor.Calendar.save()
             return True
 
     def handleNurse(self, request):
         event = EventCreationFormNurse(request.POST)
 
-        if event.is_valid():
+        if event.is_valid_hospital():
             event.save(commit=True)
             return True
         else:
@@ -88,53 +96,41 @@ class CreateEvent(View):
 
 
     def get(self, request):
-        # user = Patient.objects.get(pk=3)  # TODO: delete this after login works
-        user = Doctor.objects.get(pk=1)
 
-        if(user.getType() == "patient"):
+        if(request.user.getType() == "patient"):
             event = EventCreationFormPatient()
-        elif(user.getType() == "nurse"):
+        elif(request.user.getType() == "nurse"):
             event = EventCreationFormNurse()
         else:
             event = EventCreationFormDoctor()
-            event.fields["patient"].queryset = Patient.objects.filter(doctor__id = user.id)
+            event.fields["patient"].queryset = Patient.objects.filter(doctor__id = request.user.id)
 
 
-        return render(request, 'User/eventhandle.html', {'form': event, 'user': user})
+        return render(request, 'User/eventhandle.html', {'form': event, 'user': request.user})
 
 
     def post(self, request):
-        # user = Patient.objects.get(pk=3)  # TODO: delete this after login works
-        user = Doctor.objects.get(pk=1)
-        if (user.getType() == "patient"):
-            self.handlePatient(request, user)
-            return HttpResponseRedirect(reverse('User:dashboard', args=(user.id,)))
+        if (request.user.getType() == "patient"):
+            self.handlePatient(request, request.user)
+            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id,)))
 
-        elif (user.getType() == "nurse"):
+        elif (request.user.getType() == "nurse"):
             if self.handleNurse(request):
                 return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change this to not a constant
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
         else:
-            if self.handleDoctor(request, user):
+            if self.handleDoctor(request, request.user):
                 return HttpResponseRedirect(reverse('User:dashboard', args=(3,)))  # TODO: change this to not a constant
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
 
-
-
-
-
-def editEvent(request, pk):
-    pass
-
-
 def dashboardView(request, pk):
    pt = get_object_or_404(Patient, pk=pk)
 
-   events = pt.Calendar.allEvents.all().order_by('startTime')
+   events = pt.event_set.all().order_by('startTime')
 
    context = { 'user': pt, 'events': events}
    return render(request, 'User/dashboard.html', context)
