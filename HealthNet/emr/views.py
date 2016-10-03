@@ -8,8 +8,8 @@ from django.core.urlresolvers import reverse
 from User.models import Patient
 
 def index(request, pk):
-    currPatient = get_object_or_404(Patient , pk)
-    vitals = currPatient.emr
+    currPatient = get_object_or_404(Patient , pk=pk)
+    vitals = {'patEMR':currPatient.emr}
 
     return render(request , 'emr/index.html' , vitals)
 
