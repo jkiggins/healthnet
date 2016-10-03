@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect, Http404
 from User.models import *
 from .forms import *
 from django.views.generic import View
-
+#from Calendar.forms import EventForm
 
 
 # Create your views here.
@@ -24,7 +24,7 @@ def patientList(request):
 def viewProfile(request , pk):
     patient = get_object_or_404(Patient , pk=pk)
 
-    return render(request, 'User/profile.html', patient)
+    return render(request, 'User/dashboard.html', patient)
 
 
 def viewCalendar(request, ut, pk):
@@ -155,5 +155,11 @@ def dashboardView(request, pk):
    context = { 'user': pt, 'events': events}
    return render(request, 'User/dashboard.html', context)
 
+"""responsible for updating a patient profile
+class UpadateProfile(UpdateView):
 
+    model = Patient
 
+    template_name = 'User/userForm.html'
+
+    form_class = ProfileForm"""

@@ -4,11 +4,37 @@ from hospital.models import *
 from django.utils import timezone
 from syslogging.models import *
 import datetime
-
 import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
+
+
+"""This will create and update a user profile
+class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(initial="")
+    last_name = forms.CharField(initial="")
+    email = forms.EmailField()
+
+    def save(self, commit=True):
+        m=super(ProfileForm, self).save(commit=False)
+        m.user.first_name = self.cleaned_data['first_name']
+        m.user.last_name = self.cleaned_data['last_name']
+        m.user.email = self.cleaned_data['email']
+        m.user.save()
+        m.save()
+
+    class Meta:
+        model = Patient
+        #first_name = forms.CharField()
+        #last_name = forms.CharField()
+        #hospital = forms.ModelChoiceField()
+        #doctor = forms.ModelChoiceField()
+        address = forms.CharField()
+        #email = forms.CharField()
+        phone = forms.CharField()
+        fields = ['address', 'phone']"""
+
 
 
 class EventCreationFormPatient(forms.ModelForm):

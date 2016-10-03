@@ -2,9 +2,25 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+# Create your models here.
+""""class User(models.Model):
+    Calendar = models.OneToOneField('Calendar', null=true, on_delete=models.CASCADE)
+    UserName = models.CharField(max_length=15, default="")
+    Password = models.CharField(max_length=20, default="")
+
+    firstName = models.CharField(max_length=20, default="")
+    lastName = models.CharField(max_length=20, default="")
+    # name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.firstName + ", " + self.lastName
+
+    class Meta:
+        abstract = True"""
 
 
 #this extension of User represents a nurse
+
 class Nurse(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospital = models.OneToOneField('hospital.Hospital', null=True, blank=True)
@@ -15,6 +31,7 @@ class Nurse(models.Model):
         return "nurse"
 
 # this extension of User represents a patient
+
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
@@ -31,6 +48,7 @@ class Patient(models.Model):
 
 
 #this extension of User represents a doctor
+
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospitals = models.ManyToManyField('hospital.Hospital')
