@@ -1,0 +1,15 @@
+<! login.html >
+{% extends "logIn/banner.html" %}
+
+{% block content %}
+    <! todo include error handling >
+
+    <form method="post" action="." >
+        {% csrf_token %}
+        <input type="text" placeholder="Username" name="username">
+        <input type="password" placeholder="Password" name="password">
+        <button type="submit" value="Login" id="login-button">Log In</button>
+        <button type="button" onclick="window.location.href='register/' ">Register</button>
+    </form>
+
+{% endblock %}
