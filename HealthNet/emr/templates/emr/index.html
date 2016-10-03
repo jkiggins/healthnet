@@ -1,4 +1,4 @@
-{% extends 'User/baseDashboard.html' %}
+{% extends 'User/base.html' %}
 
 {% block calendar %}
 {% endblock %}
@@ -11,19 +11,19 @@
         </tr>
         <tr>
             <td>Resting BPM</td>
-            <td>emrinfo.restingBPM</td>
+            <td>{{ emrinfo.restingBPM }}</td>
         </tr>
         <tr>
             <td>Blood Pressure</td>
-            <td>emrinfo.bloodPressure</td>
+            <td>{{ emrinfo.bloodPressure }}</td>
         </tr>
         <tr>
             <td>Height</td>
-            <td>emrinfo.height</td>
+            <td>{{ emrinfo.height }}</td>
         </tr>
         <tr>
             <td>Weight</td>
-            <td>emrinfo.weight</td>
+            <td>{{ emrinfo.weight }}</td>
         </tr>
     </table>
 
