@@ -41,14 +41,14 @@ class EventCreationFormPatient(forms.ModelForm):
 
     duration = forms.IntegerField(label="Duration (min)", initial=30)
 
-    def save_with_hosptial_patient(self, h, p, d, commit=True):
+    def save_with_patient(self, p, commit=True):
         m = super(EventCreationFormPatient, self).save(commit=False)
 
         m.appointment = True
         m.endTime = m.startTime + datetime.timedelta(minutes=self.cleaned_data['duration'])
-        m.hospital = h
+        m.hospital = p.hospital
         m.patient = p
-        m.doctor = d
+        m.doctor = p.doctor
 
         if commit:
             m.save()
@@ -116,21 +116,14 @@ class EventCreationFormDoctor(forms.ModelForm):
 
 class EventUpdateForm(forms.ModelForm):
 
-    delete = forms.CheckboxInput().render('Delete>', False)
+    delete = forms.BooleanField(label="Delete?", initial=False)
 
-    def save_user(self, user, commit=True):
-        m = super(EventUpdateForm, self).save(commit=False)
-
-        if self.cleaned_data['delete']:
-            Syslog.deleteEvent(m, user)
-
-        if commit:
-            m.save()
-        return m
+    def save(self):
+        pass
 
     class Meta:
         model=Event
-        fields = ['startTime', 'endTime', 'description', 'hospital']
+        fields = ['startTime', 'endTime', 'description']
 
 
 class EditProfileForm(forms.ModelForm):

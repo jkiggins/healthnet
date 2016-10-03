@@ -3,10 +3,10 @@
 
 <h2>Please Log In</h2>
 
-<form >
-	Username: <input type="text" name="UserName"><br>
-	Password: <input type="password" name = "Password"><br>
-		<input type="button" value="Log In" name="LogIn"> <a class="btn btn-default" href="/Register/">Register</a>
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_ul }}
+	<input type="submit" value="Log In" /> <a class="btn btn-default" href="/Register/">Register</a>
 </form>
 
 {% endblock %}

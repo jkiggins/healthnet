@@ -8,9 +8,8 @@ urlpatterns = [
     url(r'^patientList/$', views.patientList, name='pList'),
     url(r'^(?P<pk>[0-9]+)/viewProfile/$', views.viewProfile, name='vProfile'),
     url(r'^(?P<ut>p|d)/(?P<pk>[0-9]+)/viewCalendar/$', views.viewCalendar, name='vCalendar'),
-    url(r'^(?P<pk>[0-9]+)/viewEditEvent/$', views.ViewEditEvent, name='veEvent'),
-    url(r'^editProfile/$', views.EditProfile.as_view, name = 'eProfile'),
+    url(r'^(?P<pk>[0-9]+)/viewEditEvent/$', views.ViewEditEvent.as_view(), name='veEvent'),
+    url(r'^editProfile/$', views.EditProfile.as_view(), name = 'eProfile'),
     url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
-    url(r'^(?P<pk>[0-9]+)/dashboard', views.dashboardView, name='dashboard'),
-    #url(r'^edit/$', views.UpadateProfile.as_view(success_url="/User/"), name='update'),
+    url(r'^dashboard/', views.dashboardView, name='dashboard')
 ]

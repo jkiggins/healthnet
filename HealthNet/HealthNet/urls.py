@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^accounts/profile/$', home),
     # call to logout
     url(r'^logout/$', logout_page),
-
+    url(r'^login/', LoginView.as_view(), name='login'),
     url(r'^user/', include('User.urls')), # User URL
     url(r'emr/', include('emr.urls')),
 

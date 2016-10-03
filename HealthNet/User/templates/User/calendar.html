@@ -7,7 +7,7 @@
         </ul><h2>{{  event.startTime }}</h2><ul>
     {% endif %}
 
-    <li><span>{{ event.description }}</span> | {{ event.startTime }} | {{ event.endTime }} | <a href="{% url 'User:vEvent' event.id %}">Details</a> </li>
+    <li><span>{{ event.description }}</span> | {{ event.startTime }} | {{ event.endTime }} | <a href="{% url 'User:veEvent' event.id %}">Details</a> </li>
 {% endfor %}
 </ul>
 {% endwith %}

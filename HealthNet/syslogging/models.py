@@ -18,7 +18,6 @@ class Syslog(models.Model):
     @staticmethod
     def deleteEvent(event, user):
         Syslog.objects.create(type="Delete", message = "User: {0} deleted event: {1}".format(user.user.get_full_name(), event.description))
-        event.delete()
 
     @staticmethod
     def modifyEvent(event, user):

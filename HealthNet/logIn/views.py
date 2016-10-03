@@ -17,6 +17,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from User.models import *
+from django.core.urlresolvers import reverse
+from django.views.generic import View
 
 
 #todo see if needed
@@ -38,24 +41,45 @@ def register(request):
             last_name=form.cleaned_data['last_name']
         )
 
-        #assign things to the patient form
-        Patient.user.username = form.cleaned_data['username']
-        Patient.user.password = form.cleaned_data['password1']
-        Patient.user.email = form.cleaned_data['email']
-        Patient.user.first_name = form.cleaned_data['first_name']
-        Patient.user.last_name = form.cleaned_data['last_name']
-        Patient.user.is_active = True
+        p = Patient.objects.create(user=user)
+        p.save()
+        login(request, user)
+        request.session['user_model'] = p
 
-        #save db changes
-        Patient.user.save()
-        Patient.save()
-
-        #TODO redirect to eProfile for specific patient
-        return HttpResponseRedirect('/register/success/')
+        return HttpResponseRedirect(reverse('User:dashboard'), args=(p.id,))
     else:
         form = RegistrationForm()
         variables = RequestContext(request, {'form': form})
         return render_to_response('registration/register.html', variables)
+
+class LoginView(View):
+
+    def post(self, request):
+        lform = LoginForm(request.POST)
+
+        if(lform.is_valid()):
+            user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                if hasattr(user, 'patient'):
+                    request.session['user_type'] = 'patient'
+                elif hasattr(user, 'nurse'):
+                    request.session['user_type'] = 'nurse'
+                elif hasattr(user, 'doctor'):
+                    request.session['user_type'] = 'doctor'
+
+                uid = getattr(user, request.session['user_type']).id
+
+                return HttpResponseRedirect(reverse('User:dashboard'))
+
+        return HttpResponseRedirect(reverse('login'))
+
+    def get(self, request):
+        form = LoginForm()
+
+        return render(request, 'logIn/index.html', {'form': form})
+
+
 
 def register_success(request):
     return render_to_response('registration/success.html')
@@ -86,31 +110,6 @@ def home(request):
 # def index(request):
 #
 #     return render(request, 'logIn/index.html')
-"""
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('logIn/registerComplete')
-
-    else:
-        form = UserCreationForm()
-    token = {}
-    token.update(csrf(request))
-    token['form'] = form
-
-    return render_to_response('logIn/registrationForm.html', token)
-
-
-def registrationCompletion(request):
-    return render_to_response('logIn/registerComplete.html')"""
-
-
-class Register(CreateView):
-    model = Patient
-    template_name = 'login/register_form.html'
-    form_class = PatientForm
 
 
 # def authenticate(request):

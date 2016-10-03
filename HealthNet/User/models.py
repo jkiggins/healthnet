@@ -26,6 +26,9 @@ class Nurse(models.Model):
     hospital = models.OneToOneField('hospital.Hospital', null=True, blank=True)
     trusted = models.ManyToManyField('Doctor', blank = True)
 
+    def __str__(self):
+        return user.get_full_name()
+
     # TODO: add methods as they are needed,
     def getType(self):
         return "nurse"
@@ -41,6 +44,9 @@ class Patient(models.Model):
     address = models.CharField(max_length=50, default="")
     phone = models.CharField(max_length=10, default="")
 
+    def __str__(self):
+        return user.get_full_name()
+
 
     # TODO: add methods as they are needed,
     def getType(self):
@@ -53,6 +59,9 @@ class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospitals = models.ManyToManyField('hospital.Hospital')
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
+
+    def __str__(self):
+        return user.get_full_name()
 
     # TODO: add methods as they are needed
     def getType(self):

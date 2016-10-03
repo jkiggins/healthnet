@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from User.models import *
+from syslogging.models import *
 from .forms import *
 from django.views.generic import View
 #from Calendar.forms import EventForm
@@ -11,6 +12,15 @@ from django.views.generic import View
 
 #This method determines which type of user is using the app
 #It will display the main page depending on which user is active
+
+def get_user_or_404(request, requiredType):
+    """Returns the user if they are logged in and their type is part of the requiredType tuple, if no a 404 is raised"""
+    if request.user.is_authenticated():
+        if (request.session['user_type'] in requiredType) or (request.user.username in requiredType):
+            return getattr(request.user, request.session['user_type'])
+    raise Http404()
+
+
 def index(request, pk):
     pass
 
@@ -41,45 +51,62 @@ def viewCalendar(request, ut, pk):
 class EditProfile(View):
 
     def post(self, request):
+        user=get_user_or_404(request, ("patient"))
         form = EditProfileForm(request.POST)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id)))
+            return HttpResponseRedirect(reverse('User:dashboard'))
         else:
             return HttpResponseRedirect(reverse('User:eProfile'))
 
     def get(self, request):
         form = EditProfileForm()
+        user = get_user_or_404(request, ("patient"))
 
-        return render(request, 'User/editprofile.html', {'user': request.user, 'form': form})
+        return render(request, 'User/editprofile.html', {'user': user, 'form': form})
 
 
 class ViewEditEvent(View):
 
-    def post(self, request):
+    def post(self, request, pk):
         event = EventUpdateForm(request.POST)
+        old_event = get_object_or_404(Event, pk=pk)
+
+        evpu = "-1"
+        if old_event.patient != None:
+            evpu = old_event.patient.user.username
+
+        user = get_user_or_404(request, (evpu, old_event.doctor.user.username))
+
 
         if event.is_valid():
-            event.save_user(request.user, commit=True)
+            if self.cleaned_data['delete']:
+                Syslog.deleteEvent(old_event, user)
+                old_event.delete()
+
+            old_event = Events.objects.get(pk=pk)
+            old_event.startTime = event.cleaned_data['startTime']
+            old_event.endTime = event.cleaned_data['endTime']
+            old_event.description = "This is a new description"
+            old_event.save(force_update=True)
+
+            return HttpResponseRedirect(reverse('User:dashboard'))
         else:
-            return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change from constant
+            return HttpResponseRedirect(reverse('User:dashboard'))
 
 
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
 
-        if(request.group != "nurse" and request.group != "doctor" and request.user != event.patient):
-            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id,)))
+        evpu = "-1"
+        if event.patient != None:
+            evpu = event.patient.user.username
 
-        form = EventUpdateForm()
+        user = get_user_or_404(request, (evpu, event.doctor.user.username)) # TODO: fix no doctor bug
 
-        context = {'form': form, 'event': event}
-
-        if ('User' in request.session):
-            context['user'] = request.session['User']
-        else:
-            context['user'] = Patient.objects.all()[0] # TODO: remove this before release
+        form = EventUpdateForm(initial=event.__dict__)
+        context = {'form': form, 'event': event, 'user': user}
 
         return render(request, 'User/eventdetail.html', context)
 
@@ -90,7 +117,7 @@ class CreateEvent(View):
         event = EventCreationFormPatient(request.POST)
 
         if event.is_valid():
-            e = event.save_with_hosptial(user.hospital)
+            e = event.save_with_patient(user)
             e.patient = user
             e.save()
 
@@ -116,39 +143,42 @@ class CreateEvent(View):
 
 
     def get(self, request):
+        user = get_user_or_404(request, ("patient", "doctor", "nurse"))
 
-        if(request.user.getType() == "patient"):
+        if(user.getType() == "patient"):
             event = EventCreationFormPatient()
-        elif(request.user.getType() == "nurse"):
+        elif(user.getType() == "nurse"):
             event = EventCreationFormNurse()
         else:
             event = EventCreationFormDoctor()
-            event.fields["patient"].queryset = Patient.objects.filter(doctor__id = request.user.id)
+            event.fields["patient"].queryset = Patient.objects.filter(doctor__id = user.id)
 
 
-        return render(request, 'User/eventhandle.html', {'form': event, 'user': request.user})
+        return render(request, 'User/eventhandle.html', {'form': event, 'user': user})
 
 
     def post(self, request):
-        if (request.user.getType() == "patient"):
-            self.handlePatient(request, request.user)
-            return HttpResponseRedirect(reverse('User:dashboard', args=(request.user.id,)))
+        user = get_user_or_404(request, ("patient", "doctor", "nurse"))
 
-        elif (request.user.getType() == "nurse"):
+        if (user.getType() == "patient"):
+            self.handlePatient(request, user)
+            return HttpResponseRedirect(reverse('User:dashboard'))
+
+        elif (user.getType() == "nurse"):
             if self.handleNurse(request):
-                return HttpResponseRedirect(reverse('User:dashboard', args=(3,))) # TODO: change this to not a constant
+                return HttpResponseRedirect(reverse('User:dashboard')) # TODO: change this to not a constant
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
         else:
-            if self.handleDoctor(request, request.user):
-                return HttpResponseRedirect(reverse('User:dashboard', args=(3,)))  # TODO: change this to not a constant
+            if self.handleDoctor(request, user):
+                return HttpResponseRedirect(reverse('User:dashboard'))  # TODO: change this to not a constant
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
 
-def dashboardView(request, pk):
-   pt = get_object_or_404(Patient, pk=pk)
+def dashboardView(request):
+   pt = get_user_or_404(request, ("doctor", "patient", "nurse"))
 
    events = pt.event_set.all().order_by('startTime')
 
