@@ -1,1 +1,38 @@
-{% extends "baseDashboard.html" %}
+ <h2>Profile</h2>
+    <ul>
+        <li>{{ user.user.get_full_name }}</li>
+        <li>Email:{{ user.user.email }}</li>
+
+    {% if user.getType == "patient" %}
+
+        <li>Phone: {{ user.phone }}</li>
+        <li>Emergency Contact: {{ user.emergency }}</li>
+        <li>Address: {{ user.address }}</li>
+        <li>Insurance #: {{ user.insuranceNum }}</li>
+        <li>Hospital: {{ user.hospital.name }}</li>
+        <li>Doctor: <a href = "{% url 'User:vProfile' 'doctor' user.doctor.id %}">{{ user.doctor.user.get_full_name }}</a></li>
+        <li><a href="">EMR</a></li>
+
+    {% elif user.getType == "doctor" %}
+
+{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S HOSPITALS %%%%%%%%%%{% endcomment %}
+        <h3>Patients</h3>
+
+        {% for p in user.patient_set.all %}
+
+            <li><a href = "{% url 'User:vProfile' 'patient' p.id %}">{{ p.user.get_full_name }}</a></li>
+
+        {% endfor %}
+
+{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S HOSPITALS %%%%%%%%%%{% endcomment %}
+        <h3>Hosptials</h3>
+
+        {% for h in user.hospitals.all %}
+
+            <li>{{ h.name }}</li>
+
+        {% endfor %}
+
+        <li>Hospital: {{ user.hospital.name }}</li>
+    {% endif %}
+    </ul>

@@ -6,19 +6,6 @@
         {% include 'User/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
     {% endif %}
 
-    {% if user.getType != "patient" %}
-        <h2>Patients</h2>
-        <ul>
-        {% for p in patients %}
-            <li>{{ p.user.get_full_name }} | <a href="{% url 'User:vProfile' p.getType p.id %}">Profile</a></li>
-        {% endfor %}
-        </ul>
+    {% include 'User/profile.html' %}
 
-        <h2>Doctors</h2>
-        <ul>
-        {% for d in doctors %}
-            <li>{{ d.user.get_full_name }} | <a href="{% url 'User:vProfile' d.getType d.id %}">Profile</a></li>
-        {% endfor %}
-        </ul>
-    {% endif %}
 {% endblock %}

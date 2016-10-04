@@ -185,6 +185,7 @@ def dashboardView(request):
         context['events'] = events
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
+        context['hosptials'] = user.hospitals.all()
     elif(user.getType() == "nurse"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
