@@ -8,10 +8,16 @@ from django.core.urlresolvers import reverse
 from User.models import Patient
 
 def index(request, pk):
-    currPatient = get_object_or_404(Patient , pk=pk)
-    vitals = {'emrv':currPatient.emr.emrvitals_set}
+    currUser = request.user
+    if currUser.getType == "doctor" or currUser.getType == "nurse":
+        currPatient = get_object_or_404(Patient , pk=pk)
+        vitals = {'emrv':currPatient.emr.emrvitals_set}
 
-    return render(request , 'emr/index.html' , vitals)
+        return render(request , 'emr/index.html' , vitals)
+    else:
+        vitals = {'emrv':currUser.emr.emrvitals_set}
+
+        return render(request , 'emr/index.html' , vitals)
 
 
 class CreateEMR(CreateView):
