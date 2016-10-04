@@ -12,11 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 def validate_event(m):
-    if (m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() != 0) or (m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() != 0):
+    if (m.doctor.event_set.filter(startTime__lte=m.endTime).filter(startTime__gte=m.startTime).count() != 0) or (m.doctor.event_set.filter(endTime__lte=m.endTime).filter(endTime__gte=m.startTime).count() != 0):
         return False
 
     if m.appointment:
-        if (m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() != 0) or (m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() != 0):
+        if (m.patient.event_set.filter(startTime__lte=m.endTime).filter(startTime__gte=m.startTime).count() != 0) or (m.patient.event_set.filter(endTime__lte=m.endTime).filter(endTime__gte=m.startTime).count() != 0):
             return False
 
     return True
