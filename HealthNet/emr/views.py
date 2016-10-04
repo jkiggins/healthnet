@@ -16,7 +16,8 @@ def index(request, pk):
 
         return render(request , 'emr/index.html' , vitals)
     else:
-        vitals = {'emrv':currUser.emr.emrvitals_set}
+        currPatient = get_object_or_404(Patient , currUser)
+        vitals = {'emrv':currPatient.emr.emrvitals_set}
 
         return render(request , 'emr/index.html' , vitals)
 
