@@ -101,8 +101,11 @@ class EventCreationFormNurse(forms.ModelForm):
         m.doctor = self.cleaned_data['doctor']
         m.hospital = self.cleaned_data['hospital']
 
+        if (m.doctor.hospitals.all().filter(pk=m.hospital.id).count() == 0):
+            return False
+
         if (self.cleaned_data['patient'] != None):
-            if(m.doctor.hospitals.filter(pk=self.cleaned_data['patient'].hospital.id).count() == 0):
+            if(m.doctor.hospitals.all().filter(pk=self.cleaned_data['patient'].hospital.id).count() == 0):
                 return False
             m.appointment = True
             m.patient = self.cleaned_data['patient']
@@ -169,6 +172,9 @@ class EventUpdateForm(forms.ModelForm):
         self.fields['startTime'].initial = get_dthtml(event.startTime)
         self.fields['endTime'].initial = get_dthtml(event.endTime)
         self.fields['description'].initial = event.description
+
+    def disable_delete(self):
+        self.fields['delete'].disabled=True
 
 
     def save_with_event(self, old_event):

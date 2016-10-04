@@ -43,7 +43,7 @@ def patientList(request):
 
 def viewProfile(request , ut, pk):
     cuser = get_user_or_404(request, ("nurse", "doctor"))
-    trusted = False
+    trusted = True
     user = None
     if ut == "patient":
         user = get_object_or_404(Patient, pk=pk)
@@ -92,7 +92,7 @@ class ViewEditEvent(View):
         if old_event.patient != None:
             evpu = old_event.patient.user.username
 
-        user = get_user_or_404(request, (evpu, old_event.doctor.user.username))
+        user = get_user_or_404(request, (evpu, "doctor", "nurse"))
 
 
         event.is_valid()
@@ -110,10 +110,14 @@ class ViewEditEvent(View):
         if event.patient != None:
             evpu = event.patient.user.username
 
-        user = get_user_or_404(request, (evpu, event.doctor.user.username)) # TODO: fix no doctor bug
+        user = get_user_or_404(request, (evpu, "doctor", "nurse")) # TODO: fix no doctor bug
 
         form = EventUpdateForm()
         form.set_defaults(event)
+
+        if user.getType() == "nurse":
+            form.disable_delete()
+
         context = {'form': form, 'event': event, 'user': user}
 
         return render(request, 'User/eventdetail.html', context)
