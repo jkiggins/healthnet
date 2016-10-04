@@ -182,7 +182,7 @@ def dashboardView(request):
 
     if(user.getType() == "patient"):
         events = user.event_set.all().order_by('startTime')
-        context['events': events]=events
+        context['events'] = events
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
     elif(user.getType() == "nurse"):
