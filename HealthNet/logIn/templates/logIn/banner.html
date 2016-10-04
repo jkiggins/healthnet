@@ -1,12 +1,14 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <title>WelcomeToHealthNet</title>
 </head>
 
 <body>
-	<h1>Welcome To HealthNet!</h1>
+	<h1 id="banner">Welcome To HealthNet!</h1>
 	
 	{% block content %}
 	{% endblock %}

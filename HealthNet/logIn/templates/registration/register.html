@@ -4,9 +4,9 @@
     <form method="post" action=".">
         <table border=""0">
             {% csrf_token %}
-            {{ form.as_table }}
+            {{ form.as_ul }}
         </table>
         <button type="submit" value="Register">Register</button>
-        <button type="button" onclick="window.location.href='/' ">Back</button>
+        <button type="button" onclick="window.location.href='/login' ">Back</button>
     </form>
 {% endblock %}

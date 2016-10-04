@@ -86,7 +86,7 @@ def logout_page(request):
     return HttpResponseRedirect(reverse('login'))
 
 
-"""this method will process a user's request to log in"""
+"""this method will process a user's request to log in
 def logIn(request):
     username = request.POST['username']
     password = request.POST['password']
@@ -99,7 +99,7 @@ def logIn(request):
         else:
             return messages.error(request, 'Your account has been disabled. Contact your administrator.')
     else:
-        return messages.error(request, 'Invalid login.')
+        return messages.error(request, 'Invalid login.')"""
 
 @login_required
 def home(request):

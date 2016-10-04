@@ -5,6 +5,8 @@ from User.models import *
 from syslogging.models import *
 from .forms import *
 from django.views.generic import View
+from logIn.models import *
+from django.contrib.auth import logout
 #from Calendar.forms import EventForm
 
 

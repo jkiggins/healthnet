@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/viewEditEvent/$', views.ViewEditEvent.as_view(), name='veEvent'),
     url(r'^editProfile/$', views.EditProfile.as_view(), name = 'eProfile'),
     url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
-    url(r'^dashboard/', views.dashboardView, name='dashboard')
+    url(r'^dashboard/', views.dashboardView, name='dashboard'),
+    url(r'^logout/', views.logout, name='logout'),
 ]

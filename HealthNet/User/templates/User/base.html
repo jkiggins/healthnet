@@ -13,7 +13,8 @@
     <ul>
 
      <li><a href="{% url 'User:dashboard'%}">Dashboard</a></li>
-
+	 <li><a href="/logout">Log Out</a></li>
+	
     {% if user.getType == "patient" %}
 
         <li><a href="{% url 'User:vProfile' user.getType user.id %}">Profile</a></li>

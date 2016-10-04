@@ -1,12 +1,14 @@
 {% extends 'logIn/banner.html' %}
 {% block content %}
 
-<h2>Please Log In</h2>
-
-<form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_ul }}
-	<input type="submit" value="Log In" /> <a class="btn btn-default" href="/Register/">Register</a>
-</form>
+<div id="centerBox">
+	<h2>Please Log In</h2>
+	
+	<form action="" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		{{ form.as_ul }}
+		<input type="submit" value="Log In" /> <a class="btn btn-default" href="/register/">Register</a>
+	</form>
+</div>
 
 {% endblock %}

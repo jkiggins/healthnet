@@ -30,7 +30,7 @@ urlpatterns = [
     # where you are sent after login
     url(r'^accounts/profile/$', home),
     # call to logout
-    url(r'^logout/$', logout_page),
+    url(r'^logout/$', logout_page, name='logout'),
     url(r'^login/', LoginView.as_view(), name='login'),
     url(r'^user/', include('User.urls')), # User URL
     url(r'emr/', include('emr.urls')),
