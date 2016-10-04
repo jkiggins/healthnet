@@ -15,16 +15,15 @@ from django.views.generic import View
 
 def get_user_or_404(request, requiredType):
     """Returns the user if they are logged in and their type is part of the requiredType tuple, if no a 404 is raised"""
-
-    if hasattr(request.user, 'patient'):
-        ut = 'patient'
-    elif hasattr(request.user, 'nurse'):
-        ut = 'nurse'
-    elif hasattr(request.user, 'doctor'):
-        ut = 'doctor'
-
     if request.user.is_authenticated():
-        if (request.session['user_type'] in requiredType) or (request.user.username in requiredType):
+        if hasattr(request.user, 'patient'):
+            ut = 'patient'
+        elif hasattr(request.user, 'nurse'):
+            ut = 'nurse'
+        elif hasattr(request.user, 'doctor'):
+            ut = 'doctor'
+
+        if (ut in requiredType) or (request.user.username in requiredType):
             return getattr(request.user, ut)
     raise Http404()
 
