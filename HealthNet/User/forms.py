@@ -132,6 +132,9 @@ class EventCreationFormDoctor(forms.ModelForm):
                                   initial=get_dthtml(timezone.now() + datetime.timedelta(minutes=30)),
                                   input_formats={'%Y-%m-%dT%H:%M'})
 
+    def save(self, commit=True):
+        pass
+
     def set_defaults(self, doct):
         self.fields['hospital'].queryset = doct.hospitals.all()
 
@@ -144,7 +147,6 @@ class EventCreationFormDoctor(forms.ModelForm):
             m.appointment = True
             m.patient = self.cleaned_data['patient']
             m.doctor = doctor
-            m.save()
 
         if not validate_event(m):
             return False
