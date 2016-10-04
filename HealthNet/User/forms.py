@@ -10,15 +10,20 @@ from emr.models import *
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+
 def validate_event(m):
-    if m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime) or m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime):
+    if (m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() == 1) or (m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() == 1):
         return False
 
     if m.appointment:
-        if m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime) or m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime):
+        if (m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() == 1) or (m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() == 1):
             return False
 
     return True
+
+def get_dthtml(dt):
+    return'{0}-{1:02d}-{2:02d}T{3:02d}:{4:02d}'.format(dt.year, dt.month, dt.day,
+                                                               dt.hour, dt.minute)
 
 
 
@@ -53,6 +58,8 @@ class EventCreationFormPatient(forms.ModelForm):
 
     duration = forms.IntegerField(label="Duration (min)", initial=30)
 
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time', initial=get_dthtml(timezone.now()))
+
     def save_with_patient(self, p, commit=True):
         m = super(EventCreationFormPatient, self).save(commit=False)
 
@@ -66,15 +73,12 @@ class EventCreationFormPatient(forms.ModelForm):
         if not validate_event(m):
             return False
 
+        Syslog.createEvent(m, p)
         m.save()
         return True
 
     class Meta:
         model = Event
-        # hospital = forms.ModelChoiceField(queryset=Hospital.objects.all())
-        # startTime = forms.DateTimeField(initial=timezone.now, label="Start Time")
-        # endTime = forms.DateTimeField(label="End Time (min)")
-        # description = forms.CharField(max_length=200, label="Description")
         fields = ['description', 'startTime']
         exclude = ['hospital', 'endTime']
 
@@ -82,6 +86,8 @@ class EventCreationFormPatient(forms.ModelForm):
 class EventCreationFormNurse(forms.ModelForm):
     doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
     patient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, empty_label="Not an Appointment")
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time', initial=get_dthtml(timezone.now()))
+    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time', initial=get_dthtml(timezone.now()+datetime.timedelta(minutes=30)))
 
     def save(self, commit=True):
         m = super(EventCreationFormNurse, self).save(commit=False)
@@ -96,6 +102,7 @@ class EventCreationFormNurse(forms.ModelForm):
         if not validate_event(m):
             return False
 
+        Syslog.createEvent(m, m.patient)
         m.save()
         return True
 
@@ -107,8 +114,16 @@ class EventCreationFormNurse(forms.ModelForm):
 class EventCreationFormDoctor(forms.ModelForm):
     patient = forms.ModelChoiceField(queryset=Patient.objects.all(), empty_label="Not an Appointment", required=False)
 
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time',
+                                    initial=get_dthtml(timezone.now()))
+
+    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time',
+                                  initial=get_dthtml(timezone.now() + datetime.timedelta(minutes=30)))
+
     def save_with_doctor(self, doctor, commit=True):
         m = super(EventCreationFormDoctor, self).save(commit=False)
+
+        m.doctor = doctor
 
         if(self.cleaned_data['patient'] != None):
             m.appointment = True
@@ -119,6 +134,7 @@ class EventCreationFormDoctor(forms.ModelForm):
         if not validate_event(m):
             return False
 
+        Syslog.createEvent(m, doctor)
         m.save()
         return True
 
@@ -130,9 +146,33 @@ class EventCreationFormDoctor(forms.ModelForm):
 class EventUpdateForm(forms.ModelForm):
 
     delete = forms.BooleanField(label="Delete?", initial=False, required=False)
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time')
+    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time')
 
-    def save(self):
+    def save(self, commit=False):
         pass
+
+    def set_defaults(self, event):
+        self.fields['startTime'].initial = get_dthtml(event.startTime)
+        self.fields['endTime'].initial = get_dthtml(event.endTime)
+        self.fields['description'].initial = event.description
+
+
+    def save_with_event(self, old_event):
+
+        if self.cleaned_data['delete']:
+            old_event.delete()
+            return True
+
+        old_event.startTime = self.cleaned_data['startTime']
+        old_event.endTime = self.cleaned_data['endTime']
+        old_event.description = self.cleaned_data['description']
+
+        if not validate_event(old_event):
+            return False
+
+        old_event.save()
+        return True
 
     class Meta:
         model=Event
@@ -178,8 +218,10 @@ class EditProfileForm(forms.Form):
         m.user.first_name = self.cleaned_data['first_name']
         m.user.last_name = self.cleaned_data['last_name']
         m.user.email = self.cleaned_data['email']
-        #m.doctor = self.cleaned_data['doctor']
-        #m.hospital = m.doctor.hosptial
+
+        if m.doctor == None:
+            m.doctor = self.cleaned_data['doctor']
+
         m.address = self.cleaned_data['address']
         m.phone = self.cleaned_data['phone']
         m.emr.emergency = self.cleaned_data['emergency']

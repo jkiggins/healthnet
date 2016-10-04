@@ -13,6 +13,7 @@ from django.views.generic import View
 from django.contrib.auth.models import User
 from emr.models import EMR
 from hospital.models import *
+from syslogging.models import *
 
 
 #todo see if needed
@@ -45,7 +46,7 @@ class Register(View):
                 request.session['user_type'] = 'nurse'
             elif hasattr(user, 'doctor'):
                 request.session['user_type'] = 'doctor'
-
+            Syslog.userCreate(p)
             return HttpResponseRedirect(reverse('User:eProfile'))
         return HttpResponseRedirect(reverse('login'))
 
@@ -63,7 +64,7 @@ class LoginView(View):
             user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
             if user is not None:
                 login(request, user)
-
+                Syslog.userLogin(user)
                 return HttpResponseRedirect(reverse('User:dashboard'))
 
         return HttpResponseRedirect(reverse('login'))

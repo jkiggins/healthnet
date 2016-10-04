@@ -4,41 +4,59 @@
 {% endblock %}
 
 {% block content %}
+
+    <style type = text/css>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr.editing
+        {
+            background-color:aqua;
+            height: 3em;
+        }
+
+        input
+        {
+            height:2em;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+
     <table>
         <tr>
-            <th>Info Type</th>
-            <th>Data</th>
+            <th>Resting BPM</th>
+            <th>BloodPressure</th>
+            <th>Height</th>
+            <th>Weight</th>
+            <th>Age</th>
+            <th>Comments</th>
         </tr>
-        <tr>
-            <td>Resting BPM</td>
-            <td>{{ emrv.restingBPM }}</td>
-        </tr>
-        <tr>
-            <td>Blood Pressure</td>
-            <td>{{ emrv.bloodPressure }}</td>
-        </tr>
-        <tr>
-            <td>Height</td>
-            <td>{{ emrv.height }}</td>
-        </tr>
-        <tr>
-            <td>Weight</td>
-            <td>{{ emrv.weight }}</td>
-        </tr>
-    </table>
 
-    {% if userType == "doctor" %}
-        <label>Comments:</label>
-        <form action="{% url 'emr:index' vitals %}" method="POST">
-        <p>
-            <input type="text" name="comment" style="height:200px;length:400" value={{ emrv.comments }}/>
-        <input type="submit" value="Save"/>
-        </p>
-        </form>
-    {% else %}
-        <label>Comments:</label>
-        <p>
-            {{ emrv.comments }}
-        </p>
-    {% endif %}
+    {% for vit in emruser.emr.emrvitals_set.all %}
+        <tr>
+            <td>{{ vit.restingBPM }}</td>
+            <td>{{ vit.bloodPressure }}</td>
+            <td>{{ vit.height }}</td>
+            <td>{{ vit.weight }}</td>
+            <td>{{ vit.age }}</td>
+            <td>{{ vit.comments }}</td>
+        </tr>
+    {% endfor %}
+
+    </table>
 {% endblock %}

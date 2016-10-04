@@ -16,26 +16,37 @@ class Syslog(models.Model):
         Syslog.log(_type, _message)
 
     @staticmethod
-    def logInUser(user):
-        Syslog.objects.create(type="LogIn", message = "User: {0} Logged In".format(user.get_full_name()))
-
-    @staticmethod
-    def viewEMR(emr, user):
-        Syslog.objects.create(type="View", message="User: {0} viewed emr log with primary key {1}".format(user.get_full_name(), emr.id))
-
-
-    @staticmethod
-    def createEvent(event, user):
-        Syslog.objects.create(type="Create", message="User: {0} created event with description: {1} and primary key {2}".format(user.get_full_name(), event.description, event.id))
-
-    @staticmethod
-    def modifyEvent(event, user):
-        Syslog.objects.create(type = "Modify", message = "User: {0} modified event: {1} with primary key: {2}".format(user.get_full_name(), event.description, event.id))
+    def unauth_acess(request):
+        Syslog.objects.create(type="Delete", message="Attemted unauthorized access at url: {0} by user {1}".format(request.path, request.user.username))
 
     @staticmethod
     def deleteEvent(event, user):
-        if event.appointment == True:
-            is_apppointment = "appointment"
-        else:
-            is_appointment = "event"
-        Syslog.objects.create(type="Delete", message = "User: {0} deleted {1}: {2}".format(user.get_full_name(), is_appointment ,event.description))
+        Syslog.objects.create(type="Delete", message = "User: {0} deleted event: {1}".format(user.user.get_full_name(), event.description))
+
+    @staticmethod
+    def modifyEvent(event, user):
+        Syslog.objects.create(type = "Modify", message = "User: {0} modified event: {1} with primary key: {2}".format(user.user.get_full_name(), event.description, event.id))
+
+    @staticmethod
+    def viewEMR(emr, user):
+        Syslog.objects.create(type="View", message="User: {0} viewed emr log with primary key {1}".format(user.user.get_full_name(), emr.id))
+
+    @staticmethod
+    def createEvent(event, user):
+        Syslog.objects.create(type="Create", message="User: {0} created event with description: {1} and primary key {2}".format(user.user.get_full_name(), event.description, event.id))
+
+    @staticmethod
+    def userLogin(user):
+        Syslog.objects.create(type="Login",
+                              message="User: {0} created event with pk: {1}".format(
+                                  user.get_full_name(), user.id))
+    @staticmethod
+    def userCreate(user):
+        Syslog.objects.create(type="Create",
+                              message="User: {0} registered, pk: {1}".format(
+                                  user.user.username, user.id))
+    @staticmethod
+    def editProfile(user):
+        Syslog.objects.create(type="Edit",
+                              message="User: {0} edited their profile, pk: {1}".format(
+                                  user.user.get_full_name(), user.id))

@@ -9,9 +9,12 @@
     </form>
     <ul>
         <li>Hospital: {{ event.hospital }}</li>
+
+    {% if user.getType != "patient" %}
         {% if event.patient != None %}
-        <li>Patient Calendar: <a href="{% url 'User:vCalendar' 'p' event.patient.id%}">{{ event.patient.firstName }} {{ event.patient.lastName }}</a></li>
+        <li>Patient Calendar: <a href="{% url 'User:vProfile' 'patient' event.patient.id%}">{{ event.patient.user.get_full_name }}</a></li>
         {% endif %}
-        <li>Doctor Calendar: <a href="{% url 'User:vCalendar' 'd' event.doctor.id %}">{{ event.doctor.firstName }} {{ event.doctor.lastName }}</a></li>
+        <li>Doctor Calendar: <a href="{% url 'User:vProfile' 'doctor' event.doctor.id %}">{{ event.doctor.user.get_full_name }}</a></li>
+    {% endif %}
     </ul>
 {% endblock %}

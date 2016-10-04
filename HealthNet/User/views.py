@@ -27,6 +27,7 @@ def get_user_or_404(request, requiredType):
 
         if (ut in requiredType) or (request.user.username in requiredType):
             return getattr(request.user, ut)
+    Syslog.unauth_acess(request)
     raise Http404()
 
 
@@ -68,6 +69,7 @@ class EditProfile(View):
 
         if form.is_valid():
             form.save_user(user)
+            Syslog.editProfile(user)
             return HttpResponseRedirect(reverse('User:dashboard'))
         else:
             return HttpResponseRedirect(reverse('User:eProfile'))
@@ -86,24 +88,16 @@ class ViewEditEvent(View):
         event = EventUpdateForm(request.POST)
         old_event = get_object_or_404(Event, pk=pk)
 
-        evpu = "-1"
+        evpu = ""
         if old_event.patient != None:
             evpu = old_event.patient.user.username
 
         user = get_user_or_404(request, (evpu, old_event.doctor.user.username))
 
 
-        if event.is_valid():
-            if event.cleaned_data['delete']:
-                Syslog.deleteEvent(old_event, user)
-                old_event.delete()
-
-            old_event = Event.objects.get(pk=pk)
-            old_event.startTime = event.cleaned_data['startTime']
-            old_event.endTime = event.cleaned_data['endTime']
-            old_event.description = event.cleaned_data['description']
-            old_event.save(force_update=True)
-
+        event.is_valid()
+        if event.save_with_event(old_event):
+            Syslog.modifyEvent(old_event, user)
             return HttpResponseRedirect(reverse('User:dashboard'))
         else:
             return HttpResponseRedirect(reverse('User:veEvent', args=(old_event.id,)))
@@ -118,7 +112,8 @@ class ViewEditEvent(View):
 
         user = get_user_or_404(request, (evpu, event.doctor.user.username)) # TODO: fix no doctor bug
 
-        form = EventUpdateForm(initial=event.__dict__)
+        form = EventUpdateForm()
+        form.set_defaults(event)
         context = {'form': form, 'event': event, 'user': user}
 
         return render(request, 'User/eventdetail.html', context)
@@ -128,7 +123,6 @@ class CreateEvent(View):
 
     def handlePatient(self, request, user):
         event = EventCreationFormPatient(request.POST)
-
         return event.save_with_patient(user)
 
     def handleNurse(self, request):
@@ -161,8 +155,10 @@ class CreateEvent(View):
         user = get_user_or_404(request, ("patient", "doctor", "nurse"))
 
         if (user.getType() == "patient"):
-            self.handlePatient(request, user)
-            return HttpResponseRedirect(reverse('User:dashboard'))
+            if self.handlePatient(request, user):
+                return HttpResponseRedirect(reverse('User:dashboard'))
+            else:
+                return HttpResponseRedirect(reverse('User:cEvent'))
 
         elif (user.getType() == "nurse"):
             if self.handleNurse(request):
@@ -172,7 +168,7 @@ class CreateEvent(View):
 
         else:
             if self.handleDoctor(request, user):
-                return HttpResponseRedirect(reverse('User:dashboard'))  # TODO: change this to not a constant
+                return HttpResponseRedirect(reverse('User:dashboard'))
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
@@ -182,7 +178,7 @@ def dashboardView(request):
 
     context = {'user': user}
 
-    if(user.getType() == "patient"):
+    if(user.getType() != "nurse"):
         events = user.event_set.all().order_by('startTime')
         context['events'] = events
     elif(user.getType() == "doctor"):

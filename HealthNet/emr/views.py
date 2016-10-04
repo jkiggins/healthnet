@@ -10,16 +10,14 @@ from User.views import get_user_or_404
 
 def index(request, pk):
     currUser = get_user_or_404(request , {"doctor" , "nurse" , "patient"})
+    user = None
+
     if currUser.getType() == "doctor" or currUser.getType() == "nurse":
-        currPatient = get_object_or_404(Patient , pk=pk)
-        vitals = {'emrv':currPatient.emr.emrvitals_set}
-
-        return render(request , 'emr/index.html' , vitals)
+        user = get_object_or_404(Patient, pk=pk)
     else:
-        currPatient = get_object_or_404(Patient , pk = currUser.id)
-        vitals = {'emrv':currPatient.emr.emrvitals_set}
+        user=currUser
 
-        return render(request , 'emr/index.html' , vitals)
+    return render(request, 'emr/index.html', {'user': currUser, 'emruser': user})
 
 
 class CreateEMR(CreateView):
