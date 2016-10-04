@@ -6,10 +6,11 @@ from django.views.generic.edit import CreateView, UpdateView , View
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from User.models import Patient
+from User.views import get_user_or_404
 
 def index(request, pk):
-    currUser = request.user
-    if currUser.getType == "doctor" or currUser.getType == "nurse":
+    currUser = get_user_or_404(request , {"doctor" , "nurse" , "patient"})
+    if currUser.getType() == "doctor" or currUser.getType() == "nurse":
         currPatient = get_object_or_404(Patient , pk=pk)
         vitals = {'emrv':currPatient.emr.emrvitals_set}
 
