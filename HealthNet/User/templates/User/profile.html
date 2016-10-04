@@ -44,5 +44,13 @@
             <li><a href = "{% url 'User:vProfile' 'patient' p.id %}">{{ p.user.get_full_name }}</a></li>
 
         {% endfor %}
+
+         <h2>Doctors</h2>
+
+        {% for d in user.hospital.doctor_set.all %}
+
+            <li><a href = "{% url 'User:vProfile' 'doctor' d.id %}">{{ d.user.get_full_name }}</a></li>
+
+        {% endfor %}
     {% endif %}
     </ul>

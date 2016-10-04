@@ -58,7 +58,8 @@ class EventCreationFormPatient(forms.ModelForm):
 
     duration = forms.IntegerField(label="Duration (min)", initial=30)
 
-    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time', initial=get_dthtml(timezone.now()))
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time',
+                                    initial=get_dthtml(timezone.now()), input_formats={'%Y-%m-%dT%H:%M'})
 
     def save_with_patient(self, p, commit=True):
         m = super(EventCreationFormPatient, self).save(commit=False)
@@ -86,8 +87,13 @@ class EventCreationFormPatient(forms.ModelForm):
 class EventCreationFormNurse(forms.ModelForm):
     doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
     patient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, empty_label="Not an Appointment")
-    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time', initial=get_dthtml(timezone.now()))
-    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time', initial=get_dthtml(timezone.now()+datetime.timedelta(minutes=30)))
+
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time',
+                                    initial=get_dthtml(timezone.now()), input_formats={'%Y-%m-%dT%H:%M'})
+
+    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time',
+                                  initial=get_dthtml(timezone.now()+datetime.timedelta(minutes=30)),
+                                  input_formats={'%Y-%m-%dT%H:%M'})
 
     def save(self, commit=True):
         m = super(EventCreationFormNurse, self).save(commit=False)
@@ -115,10 +121,11 @@ class EventCreationFormDoctor(forms.ModelForm):
     patient = forms.ModelChoiceField(queryset=Patient.objects.all(), empty_label="Not an Appointment", required=False)
 
     startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time',
-                                    initial=get_dthtml(timezone.now()))
+                                    initial=get_dthtml(timezone.now()), input_formats={'%Y-%m-%dT%H:%M'})
 
     endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time',
-                                  initial=get_dthtml(timezone.now() + datetime.timedelta(minutes=30)))
+                                  initial=get_dthtml(timezone.now() + datetime.timedelta(minutes=30)),
+                                  input_formats={'%Y-%m-%dT%H:%M'})
 
     def save_with_doctor(self, doctor, commit=True):
         m = super(EventCreationFormDoctor, self).save(commit=False)
@@ -146,8 +153,12 @@ class EventCreationFormDoctor(forms.ModelForm):
 class EventUpdateForm(forms.ModelForm):
 
     delete = forms.BooleanField(label="Delete?", initial=False, required=False)
-    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time')
-    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time')
+
+    startTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='Start Time',
+                                    input_formats={'%Y-%m-%dT%H:%M'})
+
+    endTime = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), label='End Time',
+                                  input_formats={'%Y-%m-%dT%H:%M'})
 
     def save(self, commit=False):
         pass
