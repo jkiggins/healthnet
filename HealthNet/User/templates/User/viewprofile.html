@@ -1,0 +1,35 @@
+{% extends 'User/base.html' %}
+
+{% block content %}
+    <h2>Calendar</h2>
+    {% if trusted %}
+        {% include 'User/calendar.html' %}
+    {% else %}
+        {% include 'User/viewcalendar.html' %}
+    {% endif %}
+
+    <h2>Profile</h2>
+    <ul>
+        <li>{{ user.user.get_full_name }}</li>
+        <li>Email:{{ user.user.email }}</li>
+        <li>Hospital: {{ user.hospital.name }}</li>
+
+    {% if user.getType == "patient" %}
+
+        <li>Phone: {{ user.phone }}</li>
+        <li>Emergency Contact: {{ user.emergency }}</li>
+        <li>Address: {{ user.address }}</li>
+        <li>Insurance #: {{ user.insuranceNum }}</li>
+        <li>Doctor: <a href = "{% url 'User:vProfile' doctor user.doctor.id %}">{{ user.doctor.user.get_full_name }}</a></li>
+        <li><a href="">EMR</a></li>
+
+    {% elif user.getType == "doctor" %}
+
+        <h3>Patients</h3>
+
+        {% for p in user.patient_set.all %}
+
+            <li><a href = "{% url 'User:vProfile' patient p.id %}">{{ p.user.get_full_name }}</a></li>
+
+        {% endfor %}
+    </ul>

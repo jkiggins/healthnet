@@ -10,6 +10,17 @@ from emr.models import *
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+def validate_event(m):
+    if m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime) or m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime):
+        return False
+
+    if m.appointment:
+        if m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime) or m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime):
+            return False
+
+    return True
+
+
 
 """This will create and update a user profile
 class ProfileForm(forms.ModelForm):
@@ -50,10 +61,13 @@ class EventCreationFormPatient(forms.ModelForm):
         m.hospital = p.hospital
         m.patient = p
         m.doctor = p.doctor
+        m.patient = p
 
-        if commit:
-            m.save()
-        return m
+        if not validate_event(m):
+            return False
+
+        m.save()
+        return True
 
     class Meta:
         model = Event
@@ -66,29 +80,24 @@ class EventCreationFormPatient(forms.ModelForm):
 
 
 class EventCreationFormNurse(forms.ModelForm):
-    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=True)
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
     patient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, empty_label="Not an Appointment")
 
-    def is_valid(self):
-        valid = super(EventCreationFormNurse, self).is_valid()
-        if not valid:
-            return valid
-
-        if self.cleaned_data['patient'] != None:
-            return self.cleaned_data['patient'].hospital == self.cleaned_data['doctor'].hospital
-
-    def save_with_hosptial(self, h, commit=True):
+    def save(self, commit=True):
         m = super(EventCreationFormNurse, self).save(commit=False)
+
+        m.doctor = self.cleaned_data['doctor']
+        m.hospital = self.cleaned_data['hospital']
 
         if (self.cleaned_data['patient'] != None):
             m.appointment = True
-            m.hospital = h
             m.patient = self.cleaned_data['patient']
-            m.save()
-        elif commit:
-            m.save()
 
-        return m
+        if not validate_event(m):
+            return False
+
+        m.save()
+        return True
 
     class Meta:
         model = Event
@@ -106,9 +115,12 @@ class EventCreationFormDoctor(forms.ModelForm):
             m.patient = self.cleaned_data['patient']
             m.doctor = doctor
             m.save()
-        elif commit:
-            m.save()
-        return m
+
+        if not validate_event(m):
+            return False
+
+        m.save()
+        return True
 
     class Meta:
         model=Event
@@ -117,7 +129,7 @@ class EventCreationFormDoctor(forms.ModelForm):
 
 class EventUpdateForm(forms.ModelForm):
 
-    delete = forms.BooleanField(label="Delete?", initial=False)
+    delete = forms.BooleanField(label="Delete?", initial=False, required=False)
 
     def save(self):
         pass

@@ -1,5 +1,6 @@
 from django import forms
 from User.models import *
+from hospital.models import *
 import re
 from django.contrib.auth.models import User
 
@@ -11,6 +12,7 @@ class RegistrationForm(forms.Form):
     insuranceNum = forms.CharField(max_length=12, label='Insurance Number')
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)), label="Password")
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)), label="Password (again)")
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=True)
 
     def is_valid(self):
         valid = super(RegistrationForm, self).is_valid()

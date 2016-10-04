@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic import View
 from django.contrib.auth.models import User
 from emr.models import EMR
+from hospital.models import *
 
 
 #todo see if needed
@@ -32,7 +33,7 @@ class Register(View):
             )
 
             e = EMR.objects.create()
-            p = Patient.objects.create(user=user, emr = e, insuranceNum=form.cleaned_data['insuranceNum'])
+            p = Patient.objects.create(user=user, emr = e, insuranceNum=form.cleaned_data['insuranceNum'], hospital=form.cleaned_data['hospital'])
             p.save()
 
             user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
@@ -74,6 +75,9 @@ class LoginView(View):
         return HttpResponseRedirect(reverse('login'))
 
     def get(self, request):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('User:dashboard'))
+
         form = LoginForm()
 
         return render(request, 'logIn/index.html', {'form': form})

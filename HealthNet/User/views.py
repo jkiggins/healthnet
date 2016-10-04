@@ -31,21 +31,19 @@ def patientList(request):
     return render(request , 'User/userList.html' , patientList)
 
 
-def viewProfile(request , pk):
-    patient = get_object_or_404(Patient , pk=pk)
+def viewProfile(request , ut, pk):
 
-    return render(request, 'User/dashboard.html', patient)
-
-
-def viewCalendar(request, ut, pk):
-    if ut == "p":
+    user = None
+    if ut == "patient":
         user = get_object_or_404(Patient, pk=pk)
-    elif ut == "d":
+    elif ut == "doctor":
         user = get_object_or_404(Doctor, pk=pk)
     else:
         return Http404()
 
-    render(request, 'viewcalendar.html', {'events': user.event_set.all()})
+    cuser = get_user_or_404(request, ("nurse", "doctor"))
+
+    return render(request, 'User/viewprofile.html', {'user': user, 'trusted': trusted, 'events': user.event_set.all()})
 
 
 class EditProfile(View):
@@ -86,15 +84,15 @@ class ViewEditEvent(View):
                 Syslog.deleteEvent(old_event, user)
                 old_event.delete()
 
-            old_event = Events.objects.get(pk=pk)
+            old_event = Event.objects.get(pk=pk)
             old_event.startTime = event.cleaned_data['startTime']
             old_event.endTime = event.cleaned_data['endTime']
-            old_event.description = "This is a new description"
+            old_event.description = event.cleaned_data['description']
             old_event.save(force_update=True)
 
             return HttpResponseRedirect(reverse('User:dashboard'))
         else:
-            return HttpResponseRedirect(reverse('User:dashboard'))
+            return HttpResponseRedirect(reverse('User:veEvent', args=(old_event.id,)))
 
 
     def get(self, request, pk):
@@ -117,30 +115,17 @@ class CreateEvent(View):
     def handlePatient(self, request, user):
         event = EventCreationFormPatient(request.POST)
 
-        if event.is_valid():
-            e = event.save_with_patient(user)
-            e.patient = user
-            e.save()
-
-            return True
+        return event.save_with_patient(user)
 
     def handleNurse(self, request):
         event = EventCreationFormNurse(request.POST)
+        return event.save(commit=True)
 
-        if event.is_valid_hospital():
-            event.save(commit=True)
-            return True
-        else:
-            return False
 
     def handleDoctor(self, request, user):
         event = EventCreationFormDoctor(request.POST)
 
-        if event.is_valid():
-            event.save_with_doctor(doctor=user, commit=True)
-            return True
-        else:
-            return False
+        return event.save_with_doctor(doctor=user, commit=True)
 
 
     def get(self, request):
@@ -167,7 +152,7 @@ class CreateEvent(View):
 
         elif (user.getType() == "nurse"):
             if self.handleNurse(request):
-                return HttpResponseRedirect(reverse('User:dashboard')) # TODO: change this to not a constant
+                return HttpResponseRedirect(reverse('User:dashboard'))
             else:
                 return HttpResponseRedirect(reverse('User:cEvent'))
 
@@ -179,18 +164,18 @@ class CreateEvent(View):
 
 
 def dashboardView(request):
-   pt = get_user_or_404(request, ("doctor", "patient", "nurse"))
+    user = get_user_or_404(request, ("doctor", "patient", "nurse"))
 
-   events = pt.event_set.all().order_by('startTime')
+    context = {'user': user}
 
-   context = { 'user': pt, 'events': events}
-   return render(request, 'User/dashboard.html', context)
+    if(user.getType() == "patient"):
+        events = user.event_set.all().order_by('startTime')
+        context['events': events]=events
+    elif(user.getType() == "doctor"):
+        context['patients'] = user.patient_set.all()
+    elif(user.getType() == "nurse"):
+        context['patients'] = user.hospital.patient_set.all()
+        context['doctors'] = user.hospital.doctor_set.all()
 
-"""responsible for updating a patient profile
-class UpadateProfile(UpdateView):
 
-    model = Patient
-
-    template_name = 'User/userForm.html'
-
-    form_class = ProfileForm"""
+    return render(request, 'User/dashboard.html', context)
