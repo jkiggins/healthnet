@@ -9,7 +9,7 @@ from User.models import Patient
 
 def index(request, pk):
     currPatient = get_object_or_404(Patient , pk=pk)
-    vitals = {currPatient.emr.emrvitals_set}
+    vitals = {'emrv':currPatient.emr.emrvitals_set}
 
     return render(request , 'emr/index.html' , vitals)
 
