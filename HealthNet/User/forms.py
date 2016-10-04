@@ -12,11 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 def validate_event(m):
-    if (m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() == 1) or (m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() == 1):
+    if (m.doctor.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() != 0) or (m.doctor.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() != 0):
         return False
 
     if m.appointment:
-        if (m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() == 1) or (m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() == 1):
+        if (m.patient.event_set.filter(startTime__lt=m.endTime).filter(startTime__gt=m.startTime).count() != 0) or (m.patient.event_set.filter(endTime__lt=m.endTime).filter(endTime__gt=m.startTime).count() != 0):
             return False
 
     return True
@@ -102,6 +102,8 @@ class EventCreationFormNurse(forms.ModelForm):
         m.hospital = self.cleaned_data['hospital']
 
         if (self.cleaned_data['patient'] != None):
+            if(m.doctor.hospitals.filter(pk=self.cleaned_data['patient'].hospital.id).count() == 0):
+                return False
             m.appointment = True
             m.patient = self.cleaned_data['patient']
 
