@@ -212,11 +212,11 @@ class EditProfileForm(forms.Form):
     address = forms.CharField(max_length=50, label="Your Address", required=False)
     emergency = forms.CharField(max_length=10, label="Emergency", required=False)
 
-    height = forms.IntegerField(label="Height in Inches", required=False)
-    weight = forms.IntegerField(label="Weight in Lbs", required=False)
-    age = forms.IntegerField(label="Age in Years", required=False)
-    restingBpm = forms.IntegerField(label="Usual Resting BPM", required=False)
-    bloodPressure = forms.CharField(max_length=20, label="Blood pressure (###/###)", required=False)
+    height = forms.IntegerField(label="Height in Inches", initial=0, required=False)
+    weight = forms.IntegerField(label="Weight in Lbs", initial=0,required=False)
+    age = forms.IntegerField(label="Age in Years", initial=0,required=False)
+    restingBpm = forms.IntegerField(label="Usual Resting BPM",initial=0, required=False)
+    bloodPressure = forms.CharField(max_length=20, initial=0, label="Blood pressure (###/###)", required=False)
     comments = forms.CharField(label="Comments", widget=forms.Textarea(), required=False)
 
     def save(self, commit=True):
