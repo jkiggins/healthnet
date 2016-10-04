@@ -63,12 +63,6 @@ class LoginView(View):
             user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
             if user is not None:
                 login(request, user)
-                if hasattr(user, 'patient'):
-                    request.session['user_type'] = 'patient'
-                elif hasattr(user, 'nurse'):
-                    request.session['user_type'] = 'nurse'
-                elif hasattr(user, 'doctor'):
-                    request.session['user_type'] = 'doctor'
 
                 return HttpResponseRedirect(reverse('User:dashboard'))
 

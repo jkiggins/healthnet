@@ -16,7 +16,7 @@
 
     {% if user.getType == "patient" %}
 
-        <li><a href="{% url 'User:vProfile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'User:vProfile' user.getType user.id %}">Profile</a></li>
         <li><a href="{% url 'emr:index' user.id %}">EMR</a></li>
 
     {% elif user.getType == "nurse" %}

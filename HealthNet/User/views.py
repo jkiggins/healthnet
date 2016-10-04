@@ -15,9 +15,17 @@ from django.views.generic import View
 
 def get_user_or_404(request, requiredType):
     """Returns the user if they are logged in and their type is part of the requiredType tuple, if no a 404 is raised"""
+
+    if hasattr(request.user, 'patient'):
+        ut = 'patient'
+    elif hasattr(request.user, 'nurse'):
+        ut = 'nurse'
+    elif hasattr(request.user, 'doctor'):
+        ut = 'doctor'
+
     if request.user.is_authenticated():
         if (request.session['user_type'] in requiredType) or (request.user.username in requiredType):
-            return getattr(request.user, request.session['user_type'])
+            return getattr(request.user, ut)
     raise Http404()
 
 
@@ -32,16 +40,21 @@ def patientList(request):
 
 
 def viewProfile(request , ut, pk):
-
+    cuser = get_user_or_404(request, ("nurse", "doctor"))
+    trusted = False
     user = None
     if ut == "patient":
         user = get_object_or_404(Patient, pk=pk)
+        trusted = True
     elif ut == "doctor":
         user = get_object_or_404(Doctor, pk=pk)
+        if cuser.getType() == "nurse":
+            if cuser.trusted.all().filter(pk=user.id).count() == 1:
+                trusted = True
     else:
         return Http404()
 
-    cuser = get_user_or_404(request, ("nurse", "doctor"))
+
 
     return render(request, 'User/viewprofile.html', {'user': user, 'trusted': trusted, 'events': user.event_set.all()})
 
