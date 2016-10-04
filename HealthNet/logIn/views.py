@@ -87,21 +87,6 @@ def logout_page(request):
     return HttpResponseRedirect(reverse('login'))
 
 
-"""this method will process a user's request to log in
-def logIn(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username = username, password = password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-
-            return HttpResponseRedirect(reverse('User : dashboard', args=(request.user.id),))
-        else:
-            return messages.error(request, 'Your account has been disabled. Contact your administrator.')
-    else:
-        return messages.error(request, 'Invalid login.')"""
-
 @login_required
 def home(request):
     return render_to_response('home.html',{'user': request.user })

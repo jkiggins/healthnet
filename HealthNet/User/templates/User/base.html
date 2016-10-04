@@ -1,30 +1,35 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <title>Dashboard</title>
 </head>
 
 <body>
-	<h1>HealthNet</h1>
 
-	<h2>Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2>
+<ul id="navbar">
 
-    <ul>
-
-     <li><a href="{% url 'User:dashboard'%}">Dashboard</a></li>
-	 <li><a href="/logout">Log Out</a></li>
+	<li><a href="/logout" class="right">Log Out</a></li>
 	
-    {% if user.getType == "patient" %}
+	{% if user.getType == "patient" %}
 
-        <li><a href="{% url 'User:eProfile' %}">Edit Profile</a></li>
+    <li><a href="{% url 'User:eProfile' %}">Edit Profile</a></li>
 
     {% elif user.getType == "nurse" %}
 
     {% elif user.getType == "doctor" %}
 
     {% endif %}
-     </ul>
+	
+    <li><a href="{% url 'User:dashboard'%}">Dashboard</a></li>
+	
+</ul>
+
+	<h1 id="baseBanner">HealthNet</h1>
+
+	<h2 id="subBanner">Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2>
 
     {% block content %}
     {% endblock %}

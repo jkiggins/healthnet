@@ -1,3 +1,4 @@
+<div id="contentBox">
  <h2>Profile</h2>
     <ul>
         <li>{{ user.user.get_full_name }}</li>
@@ -11,7 +12,7 @@
         <li>Insurance #: {{ user.insuranceNum }}</li>
         <li>Hospital: {{ user.hospital.name }}</li>
         <li>Doctor: <a href = "{% url 'User:vProfile' 'doctor' user.doctor.id %}">{{ user.doctor.user.get_full_name }}</a></li>
-        <li><a href="{% url 'emr:index' user.id %}">EMR</a></li>
+        <li><a href="{% url 'emr:index' user.id %}" class="button">EMR</a></li>
 
     {% elif user.getType == "doctor" %}
 
@@ -54,3 +55,4 @@
         {% endfor %}
     {% endif %}
     </ul>
+</div>

@@ -1,12 +1,15 @@
 {% extends "logIn/banner.html" %}
 
 {% block content %}
+
+<div id="registerBox">
     <form method="post" action=".">
         <table border=""0">
             {% csrf_token %}
             {{ form.as_ul }}
         </table>
-        <button type="submit" value="Register">Register</button>
-        <button type="button" onclick="window.location.href='/login' ">Back</button>
+        <button type="submit" value="Register" class="button">Register</button>
+        <button type="button" onclick="window.location.href='/login' " class="button">Back</button>
     </form>
+</div>
 {% endblock %}

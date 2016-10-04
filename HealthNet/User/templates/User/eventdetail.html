@@ -1,11 +1,12 @@
 {% extends 'User/base.html' %}
 
 {% block content %}
+<div id="registerBox">
     <h2>{{ event.description|truncatewords:10 }}</h2>
     <form action="" enctype="multipart/form-data" method="POST">
         {% csrf_token %}
         {{ form.as_ul }}
-        <input type = "submit" value = "Save" />
+        <input type = "submit" value = "Save" class="button"/>
     </form>
     <ul>
         <li>Hospital: {{ event.hospital }}</li>
@@ -17,4 +18,5 @@
         <li>Doctor Calendar: <a href="{% url 'User:vProfile' 'doctor' event.doctor.id %}">{{ event.doctor.user.get_full_name }}</a></li>
     {% endif %}
     </ul>
+</div>
 {% endblock %}

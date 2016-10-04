@@ -7,7 +7,7 @@
 	<form action="" method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
 		{{ form.as_ul }}
-		<input type="submit" value="Log In" /> <a class="btn btn-default" href="/register/">Register</a>
+		<input type="submit" value="Log In" class="button" /> <a href="/register/" class="button">Register</a>
 	</form>
 </div>
 

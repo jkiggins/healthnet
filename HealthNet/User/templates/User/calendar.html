@@ -1,13 +1,16 @@
-<div>
-{% with events.0.startTime.day as day %}
-<ul>
-{% for event in events %}
-    {% ifchanged event.startTime.day %}
-        </ul><h2>{{ event.startTime|date:'M d' }}</h2><ul>
-    {% endifchanged %}
 
-    <li><span>{{ event.description }}</span> | {{ event.startTime }} | TO | {{ event.endTime }} | <a href="{% url 'User:veEvent' event.id %}">Details</a> </li>
+
+{% for event in events %}
+	{% ifchanged event.startTime.day %}
+		{% if event == events.0 %}
+			
+			<div class="calendarBox"><h2>{{ event.startTime|date:'M d' }}</h2><ul>
+		{% else %}
+			</ul></div><div class="calendarBox"><h2>{{ event.startTime|date:'M d' }}</h2><ul>
+		{% endif %}
+	{% endifchanged %}
+
+	<li><a href="{% url 'User:veEvent' event.id %}">{{ event.startTime|date:"f A" }} - {{ event.endTime|date:"f A" }}</a> </li>
 {% endfor %}
-</ul>
-{% endwith %}
-</div>
+</ul></div>
+
