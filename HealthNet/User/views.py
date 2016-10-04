@@ -149,6 +149,7 @@ class CreateEvent(View):
             event = EventCreationFormNurse()
         else:
             event = EventCreationFormDoctor()
+            event.set_defaults(user)
             event.fields["patient"].queryset = Patient.objects.filter(doctor__id = user.id)
 
 

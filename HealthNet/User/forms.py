@@ -132,6 +132,9 @@ class EventCreationFormDoctor(forms.ModelForm):
                                   initial=get_dthtml(timezone.now() + datetime.timedelta(minutes=30)),
                                   input_formats={'%Y-%m-%dT%H:%M'})
 
+    def set_defaults(self, doct):
+        self.fields['hospital'].queryset = doct.hospitals.all()
+
     def save_with_doctor(self, doctor, commit=True):
         m = super(EventCreationFormDoctor, self).save(commit=False)
 
