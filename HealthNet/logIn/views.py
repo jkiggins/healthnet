@@ -78,7 +78,6 @@ class LoginView(View):
         return render(request, 'logIn/index.html', {'form': form})
 
 
-
 def register_success(request):
     return render_to_response('registration/success.html')
 
@@ -91,31 +90,4 @@ def logout_page(request):
 def home(request):
     return render_to_response('home.html',{'user': request.user })
 
-# def index(request):
-#
-#     return render(request, 'logIn/index.html')
-
-
-# def authenticate(request):
-#     response = 'neutral'
-#     #queryset
-#     patientquery = Patient.objects.filter(UserName=request.POST['UN'])
-#
-#     if patientquery.exists():
-#         response = 'well the username exists'
-#         passfromdb = patientquery.values('Password')[0]['Password']
-#         if passfromdb == request.POST['PW']:
-#             response = response +' hell yeah you in'
-#         else:
-#             response = response+ ' gettt outta here with that password tho'
-#     else:
-#         response = 'username does not exist'
-#     return HttpResponse(response )
-
-
-#todo see if you can add other params to a generic user paramater
-# class Register(CreateView):
-#     model = Patient
-#     template_name = 'login/register_form.html'
-#     form_class = PatientForm
 
