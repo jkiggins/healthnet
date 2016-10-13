@@ -10,10 +10,15 @@ def setup_environment():
     d_calendar = Calendar.objects.create()
     p_calendar = Calendar.objects.create()
 
-    doctor = Doctor.objects.create(firstName = "doctor", lastName = "strange", Calendar=d_calendar)
-    doctor.hospitals.add(hospital)
-
     patient = Patient.objects.create(firstName = "patient", lastName = "Zero", Calendar = p_calendar, hospital = hospital)
+    doctor = Doctor.objects.create(firstName = "doctor", lastName = "strange", Calendar=d_calendar)
+    
+    doctor.hospitals.add(hospital)
+    doctor.save()
+
+    patient.doctor = doctor
+    patient.save()
+    
 
     st = timezone.now()+datetime.timedelta(days=1)  # Start time for fake event
     et = timezone.now()+datetime.timedelta(days=1, hours=2) # End time for fake event
@@ -26,7 +31,7 @@ def setup_environment():
     patient.save()
     doctor.save()
 
-    return patient.id == doctor.id
+    return patient.doctor == doctor
 
 
 class CalendarViewTest(TestCase):
