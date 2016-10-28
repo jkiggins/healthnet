@@ -1,0 +1,11 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div id="registerBox">
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type = "submit" value = "Save" class="button"/>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+
+
+{% for event in events %}
+	{% ifchanged event.startTime.day|add:event.startTime.month|add:event.startTime.year %}
+		{% if event == events.0 %}
+			
+			<div class="calendarBox"><h2>{{ event.startTime|date:'M d' }}</h2><ul>
+		{% else %}
+			</ul></div><div class="calendarBox"><h2>{{ event.startTime|date:'M d' }}</h2><ul>
+		{% endif %}
+	{% endifchanged %}
+
+	<li><a href="{% url 'user:veEvent' event.id %}">{{ event.startTime|date:"f A" }} - {{ event.endTime|date:"f A" }}</a> </li>
+{% endfor %}
+</ul></div>
+

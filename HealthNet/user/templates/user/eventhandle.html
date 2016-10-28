@@ -1,0 +1,23 @@
+{% extends 'user/base.html' %}
+
+{% block head %}
+    <title>New Event</title>
+{% endblock %}
+
+{% block content %}
+<div id="registerBox">
+    <form enctype="multipart/form-data" action="" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.label_tag }} {{ field }} {{ field.errors }}
+                {% if field.help_text %}
+                <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <input type = "submit" value = "Save" class="button"/>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div id="registerBox">
+    <h2>{{ event.description|truncatewords:10 }}</h2>
+    <form action="" enctype="multipart/form-data" method="POST">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type = "submit" value = "Save" class="button"/>
+    </form>
+    <ul>
+        <li>Hospital: {{ event.hospital }}</li>
+
+    {% if user.getType != "patient" %}
+        {% if event.patient != None %}
+        <li>Patient Calendar: <a href="{% url 'user:vProfile' 'patient' event.patient.id%}">{{ event.patient.user.get_full_name }}</a></li>
+        {% endif %}
+        <li>Doctor Calendar: <a href="{% url 'user:vProfile' 'doctor' event.doctor.id %}">{{ event.doctor.user.get_full_name }}</a></li>
+    {% endif %}
+    </ul>
+</div>
+{% endblock %}
