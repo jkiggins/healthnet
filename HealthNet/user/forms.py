@@ -61,7 +61,7 @@ class EventCreationFormPatient(forms.ModelForm):
 
 
     def is_valid(self):
-        valid = super(EventCreationFormDoctor, self).is_valid()
+        valid = super(EventCreationFormPatient, self).is_valid()
         if not valid:
             return valid
 

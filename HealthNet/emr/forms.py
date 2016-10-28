@@ -1,7 +1,5 @@
 from django import forms
-from django.utils import timezone
-from emr.models import EMRVitals, EMRNote, EMRTrackedMetric
-from User.models import Patient
+from .models import EMRVitals, EMRNote, EMRTrackedMetric
 
 """This is for making a new EMR vitals model"""
 class EMRVitalsForm(forms.ModelForm):

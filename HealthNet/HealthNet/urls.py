@@ -32,7 +32,7 @@ urlpatterns = [
     # call to logout
     url(r'^logout/$', logout_page, name='logout'),
     url(r'^login/', LoginView.as_view(), name='login'),
-    url(r'^user/', include('User.urls')), # User URL
+    url(r'^user/', include('user.urls')), # User URL
     url(r'emr/', include('emr.urls')),
 
 ]

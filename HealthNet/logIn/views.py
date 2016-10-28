@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from User.models import *
+from user.models import *
 from django.contrib import messages
 from .forms import *
 from django.contrib.auth.decorators import login_required
@@ -47,7 +47,7 @@ class Register(View):
             elif hasattr(user, 'doctor'):
                 request.session['user_type'] = 'doctor'
             Syslog.userCreate(p)
-            return HttpResponseRedirect(reverse('User:eProfile'))
+            return HttpResponseRedirect(reverse('user:eProfile'))
         return HttpResponseRedirect(reverse('login'))
 
     def get(self, request):
@@ -65,13 +65,13 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 Syslog.userLogin(user)
-                return HttpResponseRedirect(reverse('User:dashboard'))
+                return HttpResponseRedirect(reverse('user:dashboard'))
 
         return HttpResponseRedirect(reverse('login'))
 
     def get(self, request):
         if request.user.is_authenticated():
-            return HttpResponseRedirect(reverse('User:dashboard'))
+            return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = LoginForm()
 

@@ -128,15 +128,15 @@ class ViewEditEvent(View):
 class CreateEvent(View):
 
     def handle_patient(self, request, user, event_form):
-        e = event_form.getModel()
+        event = event_form.getModel()
         # Add fields that weren't included in the form and validate the model
-        et = e.startTime + datetime.timedelta(minutes=event_form.cleaned_data['duration'])
-        add_dict_to_model({'hospital': user.hospital, 'doctor': user.doctor, 'patient': user, 'endTime':et})
+        et = event.startTime + datetime.timedelta(minutes=event_form.cleaned_data['duration'])
+        add_dict_to_model({'hospital': user.hospital, 'doctor': user.doctor, 'patient': user, 'endTime':et}, event)
 
-        conflicts = e.conflicts()
+        conflicts = event.conflicts()
 
         if conflicts == 0:
-            e.save()
+            event.save()
             return HttpResponseRedirect(reverse('user:dashboard'))
         elif conflicts == 1:
             EventCreationFormValidator.add_messages(event_form, {'duration': "Duration is too long"}, {'startTime': "Alternatively Move Start Time back"})

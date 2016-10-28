@@ -1,5 +1,5 @@
 from django import forms
-from User.models import *
+from user.models import *
 from hospital.models import *
 import re
 from django.contrib.auth.models import User

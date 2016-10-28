@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'logIn',
-    'User.apps.UserConfig',
+    'user.apps.UserConfig',
     'hospital.apps.HospitalConfig',
     'syslogging.apps.SysloggingConfig',
     'emr.apps.EmrConfig',

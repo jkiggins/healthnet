@@ -5,8 +5,8 @@ from emr.forms import EMRVitalsForm
 from django.views.generic.edit import CreateView, UpdateView , View
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
-from User.models import Patient
-from User.views import get_user_or_404
+from user.models import Patient
+from user.views import get_user_or_404
 
 def index(request, pk):
     currUser = get_user_or_404(request , {"doctor" , "nurse" , "patient"})
@@ -30,7 +30,7 @@ class CreateEMR(CreateView):
 
 class EditEMR(View):
 
-    def get(self , request , pk):
+    def get(self, request, pk):
         user = request.user
         request.session['Patient.emr'] = pk
 
