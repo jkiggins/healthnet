@@ -1,0 +1,17 @@
+{% extends 'user/base.html' %}
+	
+{% block content %}
+   
+   <div class="calendar">
+    {% if user.getType != "nurse" %}
+        {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
+    {% endif %}
+	</div>
+	
+	<div class="center">
+		<a href = {% url 'user:cEvent' %} class="button">Create Event</a>
+	</div>
+	
+    {% include 'user/profile.html' %}
+
+{% endblock %}

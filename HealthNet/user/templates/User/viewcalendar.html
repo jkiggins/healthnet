@@ -1,0 +1,14 @@
+<div>
+{% with events.0.startTime.day as day %}
+<h2>{{ events.0.startTime|date:'M d' }}</h2>
+<ul>
+{% for event in events %}
+    {% if event.startTime.day != day %}
+        </ul><h2>{{  event.startTime }}</h2><ul>
+    {% endif %}
+
+    <li><span>{{ event.description }}</span> | {{ event.startTime }} | {{ event.endTime }} </li>
+{% endfor %}
+</ul>
+{% endwith %}
+</div>
