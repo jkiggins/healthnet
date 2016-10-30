@@ -1,6 +1,9 @@
 from django.test import TestCase
 
 from .models import *
+from .forms import *
+from .formhelper import *
+from .formvalid import *
 from hospital.models import Hospital
 from emr.models import *
 from django.contrib.auth.models import User
@@ -120,3 +123,66 @@ class EventTest(TestCase):
 
         self.assertEqual(e.conflicts(), 1)
         self.assertEqual(Event.objects.all().count(), 1)
+
+
+class FormHelpTest(TestCase):
+    def test_doctor_form_populate_dependant_fields(self):
+        """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
+        setup_environment()
+
+        d = Doctor.objects.all()[0]
+        p = Patient.objects.all()[0]
+        h = Hospital.objects.all()[0]
+
+        # Test doctor creation form with empty patient, selected hospital
+        doctor_form = EventCreationFormDoctor()
+        doctor_form.cleaned_data = {}
+        doctor_form.cleaned_data['hospital'] = h
+        doctor_form.cleaned_data['patient'] = None
+
+        self.assertEqual(populate_dependant_fields(doctor_form, d), True)
+
+        # Test doctor creation form with empty hosptial, selected patient
+        doctor_form.cleaned_data = {}
+        doctor_form.cleaned_data['hospital'] = None
+        doctor_form.cleaned_data['patient'] = p
+
+        self.assertEqual(populate_dependant_fields(doctor_form, d), True)
+
+        # Test doctor creation form with selected hosptial, selected patient
+        doctor_form.cleaned_data = {}
+        doctor_form.cleaned_data['hospital'] = h
+        doctor_form.cleaned_data['patient'] = p
+
+        self.assertEqual(populate_dependant_fields(doctor_form, d), False)
+
+    def test_nurse_form_populate_dependant_fields(self):
+        """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
+        setup_environment()
+
+        d = Doctor.objects.all()[0]
+        p = Patient.objects.all()[0]
+        n = Nurse.objects.all()[0]
+
+        # Test nurse creation form with empty patient, selected doctor
+        nurse_form = EventCreationFormNurse()
+        nurse_form.cleaned_data = {}
+        nurse_form.cleaned_data['doctor'] = d
+        nurse_form.cleaned_data['patient'] = None
+
+        self.assertEqual(populate_dependant_fields(nurse_form, n), True)
+
+        # Test nurse creation form with empty doctor, selected patient
+        nurse_form.cleaned_data = {}
+        nurse_form.cleaned_data['doctor'] = None
+        nurse_form.cleaned_data['patient'] = p
+
+        self.assertEqual(populate_dependant_fields(nurse_form, n), True)
+
+        # Test nurse creation form with selected doctor, selected patient
+        nurse_form.cleaned_data = {}
+        nurse_form.cleaned_data['doctor'] = d
+        nurse_form.cleaned_data['patient'] = p
+
+        self.assertEqual(populate_dependant_fields(nurse_form, n), False)
+

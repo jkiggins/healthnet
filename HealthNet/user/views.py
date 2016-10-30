@@ -7,6 +7,7 @@ from django.views.generic import View
 from logIn.models import *
 from .formvalid import *
 from django.contrib.auth import logout
+from .formhelper import *
 
 
 #This method determines which type of user is using the app
@@ -169,7 +170,6 @@ class CreateEvent(View):
         return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
 
 
-
     def handle_doctor(self, request, user, event_form):
         event = event_form.getModel()
         event.doctor = user
@@ -193,7 +193,6 @@ class CreateEvent(View):
         return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
 
 
-
     def get(self, request):
         user = get_user_or_404(request, ("patient", "doctor", "nurse"))
 
@@ -210,10 +209,12 @@ class CreateEvent(View):
     def post(self, request):
         user = get_user_or_404(request, ("patient", "doctor", "nurse"))
 
-        event = getEventFormByUserType(user.getType(), request=request)
+        event_form = getEventFormByUserType(user.getType(), request=request)
 
-        if not event.is_valid():
-            return render(request, 'user/eventhandle.html', {'form': event, 'user': user})
+        event_form.full_clean()
+
+        if populate_dependant_fields(event_form, user) or not event_form.is_valid():
+            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
 
         call = getattr(self, "handle_" + user.getType())
         return call(request, user, event)

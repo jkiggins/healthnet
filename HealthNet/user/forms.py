@@ -9,12 +9,14 @@ from emr.models import *
 from django.contrib.admin import widgets
 from .formvalid import *
 
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 def get_dthtml(dt):
     return'{0}-{1:02d}-{2:02d}T{3:02d}:{4:02d}'.format(dt.year, dt.month, dt.day,
                                                                dt.hour, dt.minute)
+
 
 def getEventFormByUserType(type, request = None):
     if type == "patient":
@@ -85,7 +87,7 @@ class EventCreationFormDoctor(forms.ModelForm):
                                          label="Start Time")
     endTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime,
                                        initial=timezone.now() + datetime.timedelta(minutes=30), label="End Time")
-    patient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False)
+
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)
 
     def __init__(self, *args, **kwargs):
@@ -97,18 +99,20 @@ class EventCreationFormDoctor(forms.ModelForm):
         if not valid:
             return valid
 
-        valid &= doctor_nurse_time_validation(self)
+        valid &= doctor_nurse_shared_validation(self)
         valid &= EventCreationFormValidator.patientMatchesHospital(self,
                                                                    {'hospital': "The patient isn't at that hospital"},
                                                                    {})
 
-
-
         return valid
+
 
     def set_hospital_patient_queryset(self, hqset, pqset):
         self.fields['hospital'].queryset = hqset
         self.fields['patient'].queryset = pqset
+        self.fields['hospital'].required = False
+        self.fields['patient'].required = False
+
 
     def getModel(self):
         return self.save(commit=False)
@@ -142,10 +146,12 @@ class EventCreationFormNurse(forms.ModelForm):
     def set_patient_doctor_queryset(self, patient_qset, doctor_qset):
         self.fields['patient'].queryset = patient_qset
         self.fields['doctor'].queryset = doctor_qset
-        self.elevated = True
+        self.fields['patient'].required = False
+        self.fields['doctor'].required = False
+
 
     def elevate_to_trusted(self):
-        self.fields['patient'].required = False
+        self.elevated = True
 
     class Meta:
         model = Event
