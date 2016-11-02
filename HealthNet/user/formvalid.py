@@ -51,9 +51,10 @@ class EventCreationFormValidator:
             return True
 
         p = form.cleaned_data['patient']
+        h = form.cleaned_data['hospital']
 
-        if p != None:
-            if p.hospital != form.cleaned_data['hospital']:
+        if p != None and h != None:
+            if p.hospital != h:
                 EventCreationFormValidator.add_messages(form, error, help)
                 return False
         return True
@@ -64,6 +65,16 @@ class EventCreationFormValidator:
             return True
 
         if (form.cleaned_data['patient'] != None) and (form.cleaned_data['type'] != '2'):
+            EventCreationFormValidator.add_messages(form, error, help)
+            return False
+        return True
+
+
+    @staticmethod
+    def eventValidateRequestTimeingOffset(form, min, sec, error, help):
+        if not dict_has_keys(['startTime'], form.cleaned_data):
+            return True
+        if (timezone.now() - form.cleaned_data['startTime']) > datetime.timedelta(minutes=min, seconds=sec):
             EventCreationFormValidator.add_messages(form, error, help)
             return False
         return True

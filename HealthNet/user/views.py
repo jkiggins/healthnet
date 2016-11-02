@@ -8,6 +8,7 @@ from logIn.models import *
 from .formvalid import *
 from django.contrib.auth import logout
 from .formhelper import *
+from .viewhelper import *
 
 
 #This method determines which type of user is using the app
@@ -200,7 +201,7 @@ class CreateEvent(View):
 
         if user.getType() == 'doctor':
             event.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
-        if user.getType() == 'nurse':
+        elif user.getType() == 'nurse':
             event.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
 
         return render(request, 'user/eventhandle.html', {'form': event, 'user': user})
@@ -211,13 +212,25 @@ class CreateEvent(View):
 
         event_form = getEventFormByUserType(user.getType(), request=request)
 
-        event_form.full_clean()
-
-        if populate_dependant_fields(event_form, user) or not event_form.is_valid():
+        if not event_form.is_valid():
             return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
 
         call = getattr(self, "handle_" + user.getType())
-        return call(request, user, event)
+        return call(request, user, event_form)
+
+    @staticmethod
+    def post_dependant_fields(request):
+        if request.method == 'POST':
+            user = get_user_or_404(request, ("patient", "doctor", "nurse"))
+            event_form = getEventFormByUserType(user.getType(), request=request)
+
+            event_form.is_valid()
+            populate_dependant_fields(event_form, user)
+
+            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
+        else:
+            return HttpResponseRedirect(reverse('user:cEventd'))
+
 
 
 def dashboardView(request):

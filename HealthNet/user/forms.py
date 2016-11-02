@@ -18,6 +18,7 @@ def get_dthtml(dt):
                                                                dt.hour, dt.minute)
 
 
+
 def getEventFormByUserType(type, request = None):
     if type == "patient":
         if request != None:
@@ -39,8 +40,13 @@ def getEventFormByUserType(type, request = None):
 
 def doctor_nurse_shared_validation(event_form):
     valid = True
-    valid &= EventCreationFormValidator.startDateInXhoursFuture(event_form, 24, {
-        'startTime': "Start Time must be at least 24 hours in the future"}, {})
+
+    #TODO: Clerify
+    # hours = 1
+    # valid &= EventCreationFormValidator.startDateInXhoursFuture(event_form, hours, {
+    #     'startTime': "Start Time must be at least "+ str(hours) +" hours in the future"}, {})
+
+    valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
 
     valid &= EventCreationFormValidator.eventPositiveDuration(event_form, 15,
                                                               {'endTime': "Event Must be atleast 15 minuets long"},
@@ -93,6 +99,8 @@ class EventCreationFormDoctor(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EventCreationFormDoctor, self).__init__(*args, **kwargs)
         self.order_fields(['type', 'patient', 'hospital', 'startTime', 'endTime', 'description'])
+        self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['hospital'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
 
     def is_valid(self):
         valid = super(EventCreationFormDoctor, self).is_valid()
@@ -123,7 +131,6 @@ class EventCreationFormDoctor(forms.ModelForm):
 
 
 class EventCreationFormNurse(forms.ModelForm):
-    type = forms.ChoiceField(widget=forms.RadioSelect, choices=(('1', 'Generic'), ('2', 'Appointment')), disabled=True, required=False, initial='2')
     startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(), initial=timezone.now(),
                                          label="Start Time")
     endTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime,
@@ -148,10 +155,14 @@ class EventCreationFormNurse(forms.ModelForm):
         self.fields['doctor'].queryset = doctor_qset
         self.fields['patient'].required = False
         self.fields['doctor'].required = False
+        self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
 
 
     def elevate_to_trusted(self):
-        self.elevated = True
+        self.elivated = True
+        self.fields['type'] = forms.ChoiceField(widget=forms.RadioSelect(), choices=(('1', 'Generic'), ('2', 'Appointment')), required=False, initial='2')
+        self.order_fields(['type', 'patient', 'doctor', 'startTime', 'endTime', 'description'])
 
     class Meta:
         model = Event
