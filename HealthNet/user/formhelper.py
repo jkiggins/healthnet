@@ -5,8 +5,8 @@ def populate_dependant_fields(form, user):
 
     if user.getType() == 'doctor':
         if (form.cleaned_data['patient'] is None) and (form.cleaned_data['hospital'] is None):
-            form.fields['patient'] = user.patient_set.all()
-            form.fields['hospital'] = user.hospitals.all()
+            form.fields['patient'].queryset = user.patient_set.all()
+            form.fields['hospital'].queryset = user.hospitals.all()
         elif not(form.cleaned_data['patient'] is None):
             #TODO: add code to set defualt value of dropdown to the hospital
             form.fields['hospital'].queryset = Hospital.objects.filter(pk=form.cleaned_data['patient'].hospital.pk)
@@ -16,14 +16,17 @@ def populate_dependant_fields(form, user):
 
     elif user.getType() == 'nurse':
         if (form.cleaned_data['patient'] is None) and (form.cleaned_data['doctor'] is None):
-            form.fields['patient'] = user.hospital.patient_set.all()
-            form.fields['hospital'] = user.hospital.doctor_set.all()
+            form.fields['patient'].queryset = user.hospital.patient_set.all()
+            form.fields['doctor'].queryset = user.hospital.doctor_set.all()
         elif not(form.cleaned_data['patient'] is None) and (form.cleaned_data['doctor'] is None):
             #TODO: add code to set defualt value of dropdown to the doctor
             form.fields['doctor'].queryset = Doctor.objects.filter(pk=form.cleaned_data['patient'].doctor.pk)
         elif not(form.cleaned_data['doctor'] is None) and (form.cleaned_data['patient'] is None):
             patients = form.cleaned_data['doctor'].patient_set.filter(hospital=user.hospital)
             form.fields['patient'].queryset = patients
+
+
+
 
 # def populate_dependant_fields(form, kvp_dict, user):
 #

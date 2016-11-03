@@ -1,6 +1,5 @@
 function resolve_dependancy(e) {
-    //set_kvp(key, e.options[e.selectedIndex].value);
-    if(window.location.pathname[window.location.pathname.length-1] != 'd') {
+    if(e.form.action[e.form.action.length-1] != 'd') {
         e.form.action += "d";
     }
 

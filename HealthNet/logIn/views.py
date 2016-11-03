@@ -58,6 +58,9 @@ class Register(View):
 class LoginView(View):
 
     def post(self, request):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
         lform = LoginForm(request.POST)
 
         if(lform.is_valid()):

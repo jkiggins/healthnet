@@ -9,34 +9,11 @@ from .formvalid import *
 from django.contrib.auth import logout
 from .formhelper import *
 from .viewhelper import *
+from .userauth import *
 
 
 #This method determines which type of user is using the app
 #It will display the main page depending on which user is active
-
-def get_user_or_404(request, requiredType):
-    """Returns the user if they are logged in and their type is part of the requiredType tuple, if no a 404 is raised"""
-    if request.user.is_authenticated():
-        if hasattr(request.user, 'patient'):
-            ut = 'patient'
-        elif hasattr(request.user, 'nurse'):
-            ut = 'nurse'
-        elif hasattr(request.user, 'doctor'):
-            ut = 'doctor'
-
-        if (ut in requiredType) or (request.user.username in requiredType):
-            return getattr(request.user, ut)
-    Syslog.unauth_acess(request)
-    raise Http404()
-
-
-def add_dict_to_model(dict, event):
-    for key in dict:
-        setattr(event, key, dict[key])
-
-
-def index(request, pk):
-    pass
 
 
 def patientList(request):
@@ -46,7 +23,11 @@ def patientList(request):
 
 
 def viewProfile(request , ut, pk):
-    cuser = get_user_or_404(request, ("nurse", "doctor"))
+    cuser = get_user(request)
+
+    if cuser is None:
+        return HttpResponseRedirect(reverse('login'))
+
     trusted = True
     user = None
     if ut == "patient":
@@ -68,7 +49,11 @@ def viewProfile(request , ut, pk):
 class EditProfile(View):
 
     def post(self, request):
-        user = get_user_or_404(request, ("patient"))
+        user = get_user(request)
+
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
+
         form = EditProfileForm(request.POST)
 
         if form.is_valid():
@@ -79,7 +64,10 @@ class EditProfile(View):
             return HttpResponseRedirect(reverse('user:eProfile'))
 
     def get(self, request):
-        user = get_user_or_404(request, ("patient"))
+        user = get_user(request)
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
+
         form = EditProfileForm()
         form.set_defaults(user)
 
@@ -89,157 +77,129 @@ class EditProfile(View):
 class ViewEditEvent(View):
 
     def post(self, request, pk):
-        event = EventUpdateForm(request.POST)
+        user = get_user(request)
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
+
         old_event = get_object_or_404(Event, pk=pk)
 
-        evpu = ""
-        if old_event.patient != None:
-            evpu = old_event.patient.user.username
+        event_form = getEventFormByUserType(user.getType(), request=request)
 
-        user = get_user_or_404(request, (evpu, "doctor", "nurse"))
+        if event_form.is_valid():
+
+            if 'delete' in event_form.cleaned_data:
+                if event_form.cleaned_data['delete']:
+                    old_event.visible = False
+                    return HttpResponseRedirect(reverse('user:dashboard'))
 
 
-        event.is_valid()
-        if event.save_with_event(old_event):
-            Syslog.modifyEvent(old_event, user)
-            return HttpResponseRedirect(reverse('user:dashboard'))
-        else:
-            return HttpResponseRedirect(reverse('user:veEvent', args=(old_event.id,)))
+            new_event = event_form.getModel()
+            updateEventFromModel(old_event, new_event)
+
+            if addEventConflictMessages(event_form, old_event):
+                old_event.save()
+                return HttpResponseRedirect(reverse('user:dashboard'))
+
+        context = {'form': event_form, 'event': old_event, 'user': user}
+
+        elevate_if_trusted_event(event_form, user, old_event)
+        return render(request, 'user/eventdetail.html', context)
 
 
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
 
-        evpu = "-1"
-        if event.patient != None:
-            evpu = event.patient.user.username
+        user = get_user(request)
+        if user is None or not userCan_Event(user, event, 'viewedit'):
+            return HttpResponseRedirect(reverse('login'))
 
-        user = get_user_or_404(request, (evpu, "doctor", "nurse")) # TODO: fix no doctor bug
-
-        form = EventUpdateForm()
-        form.set_defaults(event)
-
-        if user.getType() == "nurse":
-            form.disable_delete()
-
+        form = getEventFormByUserType(user.getType())
+        setEventFormFromModel(form, event)
         context = {'form': form, 'event': event, 'user': user}
 
+        elevate_if_trusted_event(form, user, event)
         return render(request, 'user/eventdetail.html', context)
 
 
 class CreateEvent(View):
 
-    def handle_patient(self, request, user, event_form):
-        event = event_form.getModel()
-        # Add fields that weren't included in the form and validate the model
-        et = event.startTime + datetime.timedelta(minutes=event_form.cleaned_data['duration'])
-        add_dict_to_model({'hospital': user.hospital, 'doctor': user.doctor, 'patient': user, 'endTime':et}, event)
+    def process_patient(self, user, event, form):
+        print(user)
+        add_dict_to_model({'patient': user, 'doctor': user.doctor, 'hospital': user.hospital, 'appointment': True}, event)
 
-        conflicts = event.conflicts()
+    def process_nurse(self, user, event, form):
+        if not(form.cleaned_data['patient'] is None):
+            add_dict_to_model({'hospital': form.cleaned_data['patient'].hospital, 'appointment': True}, event)
 
-        if conflicts == 0:
-            event.save()
-            return HttpResponseRedirect(reverse('user:dashboard'))
-        elif conflicts == 1:
-            EventCreationFormValidator.add_messages(event_form, {'duration': "Duration is too long"}, {'startTime': "Alternatively Move Start Time back"})
-        elif conflicts == 2:
-            EventCreationFormValidator.add_messages(event_form, {'startTime': "Start Time is During another event"}, {'startTime': "Remember a buffer of " + str(Event.APP_BUFFER.seconds / 60) + " Minuets is required between Appointments"})
-
-
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
-
-
-    def handle_nurse(self, request, user, event_form):
-
-        event = event_form.getModel()
-        conflicts = event.conflicts()
-
-        if conflicts == 0:
-            event.save()
-            return HttpResponseRedirect(reverse('user:dashboard'))
-        elif conflicts == 1:
-            EventCreationFormValidator.add_messages(event_form, {'endTime': "End Time is during another event"},
-                                                    {'startTime': "Consider shifting your event back",
-                                                     'endTime': "Remember a buffer of " +
-                                                     str(Event.APP_BUFFER.seconds/60) +
-                                                     " Minuets is required between Appointments"})
-        elif conflicts == 2:
-            EventCreationFormValidator.add_messages(event_form, {'startTime': "Start Time is During another event"},
-                                                    {'startTime': "Remember a buffer of " +
-                                                    str(Event.APP_BUFFER.seconds/60) +
-                                                    " Minuets is required between Appointments"})
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
-
-
-    def handle_doctor(self, request, user, event_form):
-        event = event_form.getModel()
-        event.doctor = user
-
-        conflicts = event.conflicts()
-
-        if conflicts == 0:
-            event.save()
-            return HttpResponseRedirect(reverse('user:dashboard'))
-
-        elif conflicts == 1:
-            EventCreationFormValidator.add_messages(event_form, {'endTime': "Event extends into another",
-                                                            'startTime': "Alternatively Move Start Time back"})
-
-        elif conflicts == 2:
-            EventCreationFormValidator.add_messages(event_form, {'startTime': "Start Time is During another event"},
-                                                    {'startTime': "Remember a buffer of " +
-                                                            str(Event.APP_BUFFER.seconds/60) +
-                                                            " Minuets is required between Appointments"})
-
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
-
+    def process_doctor(self, user, event):
+        pass
 
     def get(self, request):
-        user = get_user_or_404(request, ("patient", "doctor", "nurse"))
+        user = get_user(request)
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
 
         event = getEventFormByUserType(user.getType())
 
         if user.getType() == 'doctor':
             event.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
-        elif user.getType() == 'nurse':
+        elif user.getType() in ['nurse', 'hadmin']:
             event.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
 
         return render(request, 'user/eventhandle.html', {'form': event, 'user': user})
 
 
     def post(self, request):
-        user = get_user_or_404(request, ("patient", "doctor", "nurse"))
+        user = get_user(request)
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
 
         event_form = getEventFormByUserType(user.getType(), request=request)
 
-        if not event_form.is_valid():
-            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
+        # Check For Timing Conflicts
+        if event_form.is_valid():
+            event = event_form.getModel()
 
-        call = getattr(self, "handle_" + user.getType())
-        return call(request, user, event_form)
+            call = getattr(self, 'process_'+user.getType())
+            call(user, event, event_form)
+
+            if addEventConflictMessages(event_form, event):
+                event.save()
+                return HttpResponseRedirect(reverse('user:dashboard'))
+
+        elevate_if_trusted(event_form, user)
+        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
 
     @staticmethod
     def post_dependant_fields(request):
         if request.method == 'POST':
-            user = get_user_or_404(request, ("patient", "doctor", "nurse"))
+            user = get_user(request)
+            if user is None:
+                return HttpResponseRedirect(reverse('login'))
+
             event_form = getEventFormByUserType(user.getType(), request=request)
 
-            event_form.is_valid()
-            populate_dependant_fields(event_form, user)
+            if event_form.full_clean():
+                populate_dependant_fields(event_form, user)
 
+            elevate_if_trusted(event_form, user)
             return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
         else:
-            return HttpResponseRedirect(reverse('user:cEventd'))
-
+            return HttpResponseRedirect(reverse('user:cEvent'))
 
 
 def dashboardView(request):
-    user = get_user_or_404(request, ("doctor", "patient", "nurse"))
+    user = get_user(request)
+    if user is None:
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('admin:index'))
+        else:
+            return HttpResponseRedirect(reverse('login'))
 
     context = {'user': user}
 
     if(user.getType() != "nurse"):
-        events = user.event_set.all().order_by('startTime')
+        events = getVisibleEvents(user).order_by('startTime')
         context['events'] = events
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()

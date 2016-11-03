@@ -126,95 +126,95 @@ class EventTest(TestCase):
         self.assertEqual(Event.objects.all().count(), 1)
 
 
-class ViewHelperTest(TestCase):
-    def test_kvp_to_dict(self):
-        kvp = 'key1/1/key2/2'
-
-        dict = dict_from_url_kvp(kvp)
-
-        self.assertEqual(dict, {'key1': 1, 'key2': 2})
-
-
-class FormValidTest(TestCase):
-    def test_request_offset_validator(self):
-        test_form = EventCreationFormDoctor()
-
-        #Test with valid event
-        test_form.cleaned_data = {'startTime': timezone.now() + datetime.timedelta(seconds=-59)}
-        valid = EventCreationFormValidator.eventValidateRequestTimeingOffset(test_form, 1, 0, {}, {})
-        self.assertEqual(valid, True)
-
-        # Test with invalid event
-        test_form.cleaned_data = {'startTime': timezone.now() + datetime.timedelta(seconds=-61)}
-        valid = EventCreationFormValidator.eventValidateRequestTimeingOffset(test_form, 1, 0, {}, {})
-        self.assertEqual(valid, False)
-
-
-class FormHelpTest(TestCase):
-    def test_doctor_form_populate_dependant_fields(self):
-        """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
-        setup_environment()
-
-        d = Doctor.objects.all()[0]
-        p = Patient.objects.all()[0]
-        h = Hospital.objects.all()[0]
-
-        # Test doctor creation form with empty patient, selected hospital
-        doctor_form = EventCreationFormDoctor()
-        doctor_form.cleaned_data = {'type': '2'}
-        doctor_form.cleaned_data['hospital'] = None
-        doctor_form.cleaned_data['patient'] = None
-
-        self.assertEqual(populate_dependant_fields(doctor_form, d), True)
-
-        doctor_form.cleaned_data['hospital'] = h
-        doctor_form.cleaned_data['patient'] = None
-
-        self.assertEqual(populate_dependant_fields(doctor_form, d), True)
-
-        # Test doctor creation form with empty hosptial, selected patient
-        doctor_form.cleaned_data['hospital'] = None
-        doctor_form.cleaned_data['patient'] = p
-
-        self.assertEqual(populate_dependant_fields(doctor_form, d), True)
-
-        # Test doctor creation form with selected hosptial, selected patient
-        doctor_form.cleaned_data['hospital'] = h
-        doctor_form.cleaned_data['patient'] = p
-
-        self.assertEqual(populate_dependant_fields(doctor_form, d), False)
-
-    def test_nurse_form_populate_dependant_fields(self):
-        """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
-        setup_environment()
-
-        d = Doctor.objects.all()[0]
-        p = Patient.objects.all()[0]
-        n = Nurse.objects.all()[0]
-
-        # Test nurse creation form with empty patient, selected doctor
-        nurse_form = EventCreationFormNurse()
-        nurse_form.cleaned_data = {'type': '2'}
-        nurse_form.cleaned_data['doctor'] = None
-        nurse_form.cleaned_data['patient'] = None
-
-        self.assertEqual(populate_dependant_fields(nurse_form, n), True)
-
-        nurse_form.cleaned_data['doctor'] = d
-        nurse_form.cleaned_data['patient'] = None
-
-        self.assertEqual(populate_dependant_fields(nurse_form, n), True)
-
-        # Test nurse creation form with empty doctor, selected patient
-        nurse_form.cleaned_data['doctor'] = None
-        nurse_form.cleaned_data['patient'] = p
-
-        self.assertEqual(populate_dependant_fields(nurse_form, n), True)
-
-        # Test nurse creation form with selected doctor, selected patient
-        nurse_form.cleaned_data['doctor'] = d
-        nurse_form.cleaned_data['patient'] = p
-
-        self.assertEqual(populate_dependant_fields(nurse_form, n), False)
+# class ViewHelperTest(TestCase):
+#     def test_kvp_to_dict(self):
+#         kvp = 'key1/1/key2/2'
+#
+#         dict = dict_from_url_kvp(kvp)
+#
+#         self.assertEqual(dict, {'key1': 1, 'key2': 2})
+#
+#
+# class FormValidTest(TestCase):
+#     def test_request_offset_validator(self):
+#         test_form = EventCreationFormDoctor()
+#
+#         #Test with valid event
+#         test_form.cleaned_data = {'startTime': timezone.now() + datetime.timedelta(seconds=-59)}
+#         valid = EventCreationFormValidator.eventValidateRequestTimeingOffset(test_form, 1, 0, {}, {})
+#         self.assertEqual(valid, True)
+#
+#         # Test with invalid event
+#         test_form.cleaned_data = {'startTime': timezone.now() + datetime.timedelta(seconds=-61)}
+#         valid = EventCreationFormValidator.eventValidateRequestTimeingOffset(test_form, 1, 0, {}, {})
+#         self.assertEqual(valid, False)
+#
+#
+# class FormHelpTest(TestCase):
+#     def test_doctor_form_populate_dependant_fields(self):
+#         """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
+#         setup_environment()
+#
+#         d = Doctor.objects.all()[0]
+#         p = Patient.objects.all()[0]
+#         h = Hospital.objects.all()[0]
+#
+#         # Test doctor creation form with empty patient, selected hospital
+#         doctor_form = EventCreationFormDoctor()
+#         doctor_form.cleaned_data = {'type': '2'}
+#         doctor_form.cleaned_data['hospital'] = None
+#         doctor_form.cleaned_data['patient'] = None
+#
+#         self.assertEqual(populate_dependant_fields(doctor_form, d), True)
+#
+#         doctor_form.cleaned_data['hospital'] = h
+#         doctor_form.cleaned_data['patient'] = None
+#
+#         self.assertEqual(populate_dependant_fields(doctor_form, d), True)
+#
+#         # Test doctor creation form with empty hosptial, selected patient
+#         doctor_form.cleaned_data['hospital'] = None
+#         doctor_form.cleaned_data['patient'] = p
+#
+#         self.assertEqual(populate_dependant_fields(doctor_form, d), True)
+#
+#         # Test doctor creation form with selected hosptial, selected patient
+#         doctor_form.cleaned_data['hospital'] = h
+#         doctor_form.cleaned_data['patient'] = p
+#
+#         self.assertEqual(populate_dependant_fields(doctor_form, d), False)
+#
+#     def test_nurse_form_populate_dependant_fields(self):
+#         """This tests the populate_dependant_fields method to determine if it returns false at the correct times"""
+#         setup_environment()
+#
+#         d = Doctor.objects.all()[0]
+#         p = Patient.objects.all()[0]
+#         n = Nurse.objects.all()[0]
+#
+#         # Test nurse creation form with empty patient, selected doctor
+#         nurse_form = EventCreationFormNurse()
+#         nurse_form.cleaned_data = {'type': '2'}
+#         nurse_form.cleaned_data['doctor'] = None
+#         nurse_form.cleaned_data['patient'] = None
+#
+#         self.assertEqual(populate_dependant_fields(nurse_form, n), True)
+#
+#         nurse_form.cleaned_data['doctor'] = d
+#         nurse_form.cleaned_data['patient'] = None
+#
+#         self.assertEqual(populate_dependant_fields(nurse_form, n), True)
+#
+#         # Test nurse creation form with empty doctor, selected patient
+#         nurse_form.cleaned_data['doctor'] = None
+#         nurse_form.cleaned_data['patient'] = p
+#
+#         self.assertEqual(populate_dependant_fields(nurse_form, n), True)
+#
+#         # Test nurse creation form with selected doctor, selected patient
+#         nurse_form.cleaned_data['doctor'] = d
+#         nurse_form.cleaned_data['patient'] = p
+#
+#         self.assertEqual(populate_dependant_fields(nurse_form, n), False)
 
 

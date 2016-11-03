@@ -21,7 +21,7 @@ urlpatterns = [
 
     #login url
     url(r'^$', LoginView.as_view() , name='loginIndex'),
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls, name='admin_site'),
 
     # register user url
     url(r'^register/$', Register.as_view(), name='register'),

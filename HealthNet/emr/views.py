@@ -6,7 +6,6 @@ from django.views.generic.edit import CreateView, UpdateView , View
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from user.models import Patient
-from user.views import get_user_or_404
 
 def index(request, pk):
     currUser = get_user_or_404(request , {"doctor" , "nurse" , "patient"})

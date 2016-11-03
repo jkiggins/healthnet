@@ -21,17 +21,27 @@ class EventCreationFormValidator:
     def startDateInXhoursFuture(form, x, error, help):
         if not dict_has_keys(['startTime'], form.cleaned_data):
             return True
-        if form.cleaned_data['startTime'] - timezone.now() < datetime.timedelta(hours=x):
+        if (form.cleaned_data['startTime'] - timezone.now()) < datetime.timedelta(hours=x):
             EventCreationFormValidator.add_messages(form, error, help)
             return False
         return True
 
     @staticmethod
-    def eventPositiveDuration(form, minutes, error, help):
-        if not dict_has_keys(['startTime', 'endTime'], form.cleaned_data):
+    def eventIsAppointment(form, error, help):
+        if not dict_has_keys(['patient'], form.cleaned_data):
             return True
 
-        if(form.cleaned_data['endTime'] - form.cleaned_data['startTime']) < datetime.timedelta(minutes=minutes):
+        if form.cleaned_data['patient'] is None:
+            EventCreationFormValidator.add_messages(form, error, help)
+            return False
+        return True
+
+    @staticmethod
+    def eventPositiveDuration(form, min, error, help):
+        if not dict_has_keys(['duration'], form.cleaned_data):
+            return True
+
+        if(form.cleaned_data['duration'] < min):
             EventCreationFormValidator.add_messages(form, error, help)
             return False
         return True
@@ -40,7 +50,7 @@ class EventCreationFormValidator:
     def eventDurationBounded(form, low, high, error, help):
         if not dict_has_keys(['duration'], form.cleaned_data):
             return True
-        if not(low <= form.cleaned_data['duration'] <= high):
+        if not(datetime.timedelta(minutes=15) <= form.cleaned_data['duration'] <= datetime.timedelta(minutes=30)):
             EventCreationFormValidator.add_messages(form, error, help)
             return False
         return True
@@ -57,16 +67,6 @@ class EventCreationFormValidator:
             if p.hospital != h:
                 EventCreationFormValidator.add_messages(form, error, help)
                 return False
-        return True
-
-    @staticmethod
-    def eventNotConflictingType(form, appt_value, error, help):
-        if not dict_has_keys(['patient', 'type'], form.cleaned_data):
-            return True
-
-        if (form.cleaned_data['patient'] != None) and (form.cleaned_data['type'] != '2'):
-            EventCreationFormValidator.add_messages(form, error, help)
-            return False
         return True
 
 
