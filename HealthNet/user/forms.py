@@ -25,7 +25,7 @@ def getEventFormByUserType(type, **kwargs):
         obj = EventCreationFormDoctor
     elif type == 'nurse':
         obj = EventCreationFormNurse
-    elif type == 'hosadmin':
+    elif type == 'hosAdmin':
         obj = EventCreationFormHadmin
 
     if not('mode' in kwargs):
