@@ -55,6 +55,7 @@ def doctor_nurse_shared_validation(event_form):
 
 
 class EventForm(forms.ModelForm):
+    title = forms.CharField(label="Title")
     startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
                                          label="Start Time")
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
@@ -82,7 +83,7 @@ class EventCreationFormPatient(EventForm):
 
     def __init__(self, *args, **kwargs):
         super(EventCreationFormPatient, self).__init__(*args, **kwargs)
-        self.order_fields(['startTime', 'duration', 'endTime', 'description']) # Change Field order so they are displayed properly
+        self.order_fields(['title', 'startTime', 'duration', 'endTime', 'description']) # Change Field order so they are displayed properly
 
     def getModel(self):
         m = super(EventCreationFormPatient, self).getModel()
@@ -105,14 +106,14 @@ class EventCreationFormPatient(EventForm):
 
     class Meta:
         model = Event
-        fields = ['startTime', 'description']
+        fields = ['startTime', 'description', 'title']
 
 
 class EventCreationFormDoctor(EventForm):
 
     def __init__(self, *args, **kwargs):
         super(EventCreationFormDoctor, self).__init__(*args, **kwargs)
-        self.order_fields(['type', 'patient', 'hospital', 'startTime', 'duration', 'description'])
+        self.order_fields(['title', 'type', 'patient', 'hospital', 'startTime', 'duration', 'description'])
         self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
         self.fields['hospital'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
 
@@ -146,7 +147,7 @@ class EventCreationFormDoctor(EventForm):
 
     class Meta:
         model = Event
-        fields = ["patient", "hospital", "startTime", "description"]
+        fields = ["title", "patient", "hospital", "startTime", "description"]
 
 
 class EventCreationFormNurse(EventForm):
@@ -189,7 +190,7 @@ class EventCreationFormNurse(EventForm):
 
     class Meta:
         model = Event
-        fields = ["patient", "doctor", "startTime", "description"]
+        fields = ["title", "patient", "doctor", "startTime", "description"]
 
 
 class EventCreationFormHadmin(EventForm):

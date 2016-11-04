@@ -63,6 +63,7 @@ class Event(models.Model):
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField()
     description = models.CharField(max_length=200, default="")
+    title = models.CharField(max_length=25, default="")
     appointment = models.BooleanField(default=False)
 
     visible = models.BooleanField(default=True)

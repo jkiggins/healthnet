@@ -1,4 +1,38 @@
-
+<script>
+		$(document).ready(function() {
+	
+		// once page is loaded, load calendar
+	
+			$('#calendar').fullCalendar({
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'agendaDay,agendaWeek,month'
+				},
+				
+				// populates the calendar with events
+				events: [
+					{% for event in events %}
+						{
+							id : {{ event.id }},
+							title : "{{ event.title }}",
+							start : $.fullCalendar.moment("{{ event.startTime|date:'c' }}"),
+							end : $.fullCalendar.moment("{{ event.endTime|date:'c' }}"),
+							allDay : false,
+							
+						},
+					{% endfor %}
+				],
+				
+				// takes the user to the view event page for a specific event
+				eventClick: function(event, jsEvent, view) {					
+					var url = "{% url 'user:vEvent' 999 %}".replace (999, event.id);
+					
+					window.location = url;
+				},
+			})
+		});
+</script>
 
 {% for event in events %}
 	{% ifchanged event.startTime.day|add:event.startTime.month|add:event.startTime.year %}
