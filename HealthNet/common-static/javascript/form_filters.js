@@ -4,7 +4,14 @@ function resolve_dependancy(e) {
     }
 
     e.form.submit();
+}
 
+function submit_form(e) {
+    if(e.form.action[e.form.action.length-1] == 'd') {
+        e.form.action = e.form.action.substr(0, e.form.action.length-1)
+    }
+
+    e.form.submit();
 }
 
 function set_kvp(key, value) {

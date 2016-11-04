@@ -1,9 +1,27 @@
 from .formvalid import *
 from .models import *
 from .forms import *
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
-def augmentEventCreationFormForUpdate(form):
+def augmentEventCreationFormForUpdate(form, augment=None):
     form.fields['delete'] = forms.BooleanField(label="Delete?", initial=False, widget=forms.CheckboxInput(), required=False)
+
+    if not(augment is None):
+        augment(form)
+
+def deleteInPostIsTrue(post):
+    if 'delete' in post:
+        if post['delete']:
+            return True
+    return False
+
+def get_visible_event_or_404(pk):
+    event = get_object_or_404(Event, pk=pk)
+    if event.visible:
+        return event
+    raise Http404()
+
 
 
 def getVisibleEvents(user):
@@ -31,6 +49,8 @@ def get_user(request):
             return user.doctor
         elif hasattr(user, 'nurse'):
             return user.nurse
+        elif hasattr(user, 'hospitaladmin'):
+            return user.hospitaladmin
 
     return None
 
@@ -46,6 +66,7 @@ def elevate_if_trusted(form, user):
         if not (form.cleaned_data['doctor'] is None):
             if user in form.cleaned_data['doctor'].nurses.all():
                 form.elevate_permissions()
+
 
 def elevate_if_trusted_event(form, user, event):
     if (user.getType() == 'nurse') and (user in event.doctor.nurses.all()):

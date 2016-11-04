@@ -18,31 +18,23 @@ def get_dthtml(dt):
                                                                dt.hour, dt.minute)
 
 
-
-def getEventFormByUserType(type, request = None, initial=None):
+def getEventFormByUserType(type, **kwargs):
     if type == "patient":
-        if request != None:
-            return EventCreationFormPatient(request.POST)
-
-        return EventCreationFormPatient(initial=initial)
-
+        obj = EventCreationFormPatient
     elif type == "doctor":
-        if request != None:
-            return EventCreationFormDoctor(request.POST)
-
-        return EventCreationFormDoctor(initial=initial)
-
+        obj = EventCreationFormDoctor
     elif type == 'nurse':
-        if request != None:
-            return EventCreationFormNurse(request.POST)
+        obj = EventCreationFormNurse
+    elif type == 'hosadmin':
+        obj = EventCreationFormHadmin
 
-        return EventCreationFormNurse(initial=initial)
+    if not('mode' in kwargs):
+        kwargs['mode'] = 'create'
 
-    else:
-        if request != None:
-            return EventCreationFormHadmin(request.POST)
 
-        return EventCreationFormHadmin(initial=initial)
+    return obj(**kwargs)
+
+
 
 
 def doctor_nurse_shared_validation(event_form):
@@ -53,18 +45,31 @@ def doctor_nurse_shared_validation(event_form):
     # valid &= EventCreationFormValidator.startDateInXhoursFuture(event_form, hours, {
     #     'startTime': "Start Time must be at least "+ str(hours) +" hours in the future"}, {})
 
-    valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
+    if event_form.mode == 'create':
+        valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
 
     valid &= EventCreationFormValidator.eventPositiveDuration(event_form, datetime.timedelta(minutes=15),
                                                              {'duration': "Duration must be at least 15 minutes"},
                                                              {})
     return valid
 
+
 class EventForm(forms.ModelForm):
     startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
                                          label="Start Time")
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)
+
+    def __init__(self, *args, **kwargs):
+
+        if 'mode' in kwargs:
+            self.mode = kwargs['mode']
+            kwargs.pop('mode')
+
+        super(EventForm, self).__init__(*args, **kwargs)
+
+
+
 
     def getModel(self):
         m = self.save(commit=False)
@@ -92,7 +97,9 @@ class EventCreationFormPatient(EventForm):
             return valid
 
         valid &= EventCreationFormValidator.eventDurationBounded(self, 15, 30, {'duration': "Duration must be between 15 and 30 minutes"},{})
-        valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 24, {'startTime': "Start Time must be atleast 24 hours in the future"}, {})
+
+        if self.mode == 'create':
+            valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 24, {'startTime': "Start Time must be atleast 24 hours in the future"}, {})
 
         return valid
 
@@ -121,6 +128,7 @@ class EventCreationFormDoctor(EventForm):
         if not valid:
             return valid
 
+        print(self.mode)
         valid &= doctor_nurse_shared_validation(self)
         valid &= EventCreationFormValidator.patientMatchesHospital(self,
                                                                    {'hospital': "The patient isn't at that hospital"},

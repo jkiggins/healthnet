@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from syslogging.models import *
@@ -43,7 +43,7 @@ def viewProfile(request , ut, pk):
 
 
 
-    return render(request, 'user/viewprofile.html', {'user': user, 'trusted': trusted, 'events': user.event_set.all()})
+    return render(request, 'user/viewprofile.html', {'user': user, 'trusted': trusted, 'events': getVisibleEvents(user).order_by('startTime')})
 
 
 class EditProfile(View):
@@ -81,17 +81,15 @@ class ViewEditEvent(View):
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        old_event = get_object_or_404(Event, pk=pk)
+        old_event = get_visible_event_or_404(pk)
 
-        event_form = getEventFormByUserType(user.getType(), request=request)
+        event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
 
         if event_form.is_valid():
-
-            if 'delete' in event_form.cleaned_data:
-                if event_form.cleaned_data['delete']:
-                    old_event.visible = False
-                    return HttpResponseRedirect(reverse('user:dashboard'))
-
+            if deleteInPostIsTrue(request.POST):
+                old_event.visible = False
+                old_event.save()
+                return HttpResponseRedirect(reverse('user:dashboard'))
 
             new_event = event_form.getModel()
             updateEventFromModel(old_event, new_event)
@@ -107,7 +105,7 @@ class ViewEditEvent(View):
 
 
     def get(self, request, pk):
-        event = get_object_or_404(Event, pk=pk)
+        event = get_visible_event_or_404(pk)
 
         user = get_user(request)
         if user is None or not userCan_Event(user, event, 'viewedit'):
@@ -119,6 +117,24 @@ class ViewEditEvent(View):
 
         elevate_if_trusted_event(form, user, event)
         return render(request, 'user/eventdetail.html', context)
+
+    @staticmethod
+    def post_dependant_fields(request, pk):
+        event = get_visible_event_or_404(pk)
+        if request.method == 'POST':
+            user = get_user(request)
+            if user is None:
+                return HttpResponseRedirect(reverse('login'))
+
+            event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
+
+            if event_form.full_clean():
+                populate_dependant_fields(event_form, user)
+
+            elevate_if_trusted(event_form, user)
+            return render(request, 'user/eventdetail.html', {'form': event_form, 'user': user, 'event': event})
+        else:
+            return HttpResponseRedirect(reverse('user:veEvent', args=(pk,)))
 
 
 class CreateEvent(View):
@@ -177,7 +193,7 @@ class CreateEvent(View):
             if user is None:
                 return HttpResponseRedirect(reverse('login'))
 
-            event_form = getEventFormByUserType(user.getType(), request=request)
+            event_form = getEventFormByUserType(user.getType(), data=request.POST)
 
             if event_form.full_clean():
                 populate_dependant_fields(event_form, user)

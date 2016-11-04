@@ -6,7 +6,7 @@
     <form action="" enctype="multipart/form-data" method="POST">
         {% csrf_token %}
         {{ form.as_ul }}
-        <input type = "submit" value = "Save" class="button"/>
+        <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
     </form>
     <ul>
         <li>Hospital: {{ event.hospital }}</li>
