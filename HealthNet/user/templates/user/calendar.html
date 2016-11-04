@@ -10,7 +10,7 @@
 		{% endif %}
 	{% endifchanged %}
 
-	<li><a href="{% url 'user:veEvent' event.id %}">{{ event.startTime|date:"f A" }} - {{ event.endTime|date:"f A" }}</a> </li>
+	<li><a href="{% url 'user:vEvent' event.id %}">{{ event.startTime|date:"f A" }} - {{ event.endTime|date:"f A" }}</a> </li>
 {% endfor %}
 </ul></div>
 

@@ -1,8 +1,8 @@
 {% extends 'user/base.html' %}
 
 {% block content %}
-    <h2>Calendar</h2>
-    {% if trusted %}
+    {% if view_calendar %}
+        <h2>Calendar</h2>
         {% include 'user/calendar.html' %}
     {% else %}
         {% include 'user/viewcalendar.html' %}

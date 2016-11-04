@@ -10,6 +10,10 @@ def augmentEventCreationFormForUpdate(form, augment=None):
     if not(augment is None):
         augment(form)
 
+def disableAllFields(form):
+    for key in form.fields:
+        form.fields[key].disabled=True
+
 def deleteInPostIsTrue(post):
     if 'delete' in post:
         if post['delete']:
@@ -38,20 +42,19 @@ def dict_from_url_kvp(kvp):
 
     return dict
 
+def healthUserFromDjangoUser(user):
+    if hasattr(user, 'patient'):
+        return user.patient
+    elif hasattr(user, 'doctor'):
+        return user.doctor
+    elif hasattr(user, 'nurse'):
+        return user.nurse
+    elif hasattr(user, 'hospitaladmin'):
+        return user.hospitaladmin
+
 def get_user(request):
     if (request.user.is_authenticated()):
-
-        user = request.user
-
-        if hasattr(user, 'patient'):
-            return user.patient
-        elif hasattr(user, 'doctor'):
-            return user.doctor
-        elif hasattr(user, 'nurse'):
-            return user.nurse
-        elif hasattr(user, 'hospitaladmin'):
-            return user.hospitaladmin
-
+        return healthUserFromDjangoUser(request.user)
     return None
 
 

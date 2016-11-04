@@ -3,20 +3,29 @@
 {% block content %}
 <div id="registerBox">
     <h2>{{ event.description|truncatewords:10 }}</h2>
-    <form action="" enctype="multipart/form-data" method="POST">
-        {% csrf_token %}
-        {{ form.as_ul }}
-        <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
-    </form>
-    <ul>
-        <li>Hospital: {{ event.hospital }}</li>
 
-    {% if user.getType != "patient" %}
+    {% if form != None %}
+        <form action="" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
+        </form>
+    {% else %}
+        <ul>
+
+        <li>Hospital: {{ event.hospital }}</li>
+        <li>Start Time: {{ event.startTime }}</li>
+        <li>End Time: {{ event.endTime }}</li>
+
         {% if event.patient != None %}
-        <li>Patient Calendar: <a href="{% url 'user:vProfile' 'patient' event.patient.id%}">{{ event.patient.user.get_full_name }}</a></li>
+        <li>Patient: <a href="{% url 'user:vProfile' event.patient.user.id%}">{{ event.patient.user.get_full_name }}</a></li>
         {% endif %}
-        <li>Doctor Calendar: <a href="{% url 'user:vProfile' 'doctor' event.doctor.id %}">{{ event.doctor.user.get_full_name }}</a></li>
+
+        <li>Doctor: <a href="{% url 'user:vProfile' event.doctor.user.id %}">{{ event.doctor.user.get_full_name }}</a></li>
+        </ul>
+        {% if can_edit %}
+            <input type = "button" onclick="window.location='{% url 'user:eEvent' event.id %}'" value = "Edit" />
+        {% endif %}
     {% endif %}
-    </ul>
 </div>
 {% endblock %}

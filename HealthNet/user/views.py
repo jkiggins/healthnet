@@ -22,28 +22,34 @@ def patientList(request):
     return render(request , 'user/userList.html' , patientList)
 
 
-def viewProfile(request , ut, pk):
+def viewProfile(request, **kwargs):
+    tuser=None
     cuser = get_user(request)
-
     if cuser is None:
         return HttpResponseRedirect(reverse('login'))
 
-    trusted = True
-    user = None
-    if ut == "patient":
-        user = get_object_or_404(Patient, pk=pk)
-        trusted = True
-    elif ut == "doctor":
-        user = get_object_or_404(Doctor, pk=pk)
-        if cuser.getType() == "nurse":
-            if cuser.trusted.all().filter(pk=user.id).count() == 1:
-                trusted = True
+    context = {'user': cuser}
+
+    if 'pk' in kwargs:
+        tuser = get_object_or_404(User, pk=kwargs['pk'])
+        tuser = healthUserFromDjangoUser(tuser)
+
+        if not userCan_Profile(cuser, tuser, 'view'):
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
+        if cuser.user.pk == tuser.user.pk:
+            return HttpResponseRedirect(reverse('user:vProfilec'))
+
+        context['events'] = getVisibleEvents(tuser).order_by('startTime')
+        context['view_calendar']=True
+
     else:
-        return Http404()
+        tuser = cuser
+        context['trusted']=True
 
+    context['tuser'] = tuser
 
-
-    return render(request, 'user/viewprofile.html', {'user': user, 'trusted': trusted, 'events': getVisibleEvents(user).order_by('startTime')})
+    return render(request, 'user/viewprofile.html', context)
 
 
 class EditProfile(View):
@@ -74,7 +80,7 @@ class EditProfile(View):
         return render(request, 'user/editprofile.html', {'user': user, 'form': form})
 
 
-class ViewEditEvent(View):
+class EditEvent(View):
 
     def post(self, request, pk):
         user = get_user(request)
@@ -108,8 +114,8 @@ class ViewEditEvent(View):
         event = get_visible_event_or_404(pk)
 
         user = get_user(request)
-        if user is None or not userCan_Event(user, event, 'viewedit'):
-            return HttpResponseRedirect(reverse('login'))
+        if user is None or not userCan_Event(user, event, 'edit'):
+            return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = getEventFormByUserType(user.getType())
         setEventFormFromModel(form, event)
@@ -134,8 +140,21 @@ class ViewEditEvent(View):
             elevate_if_trusted(event_form, user)
             return render(request, 'user/eventdetail.html', {'form': event_form, 'user': user, 'event': event})
         else:
-            return HttpResponseRedirect(reverse('user:veEvent', args=(pk,)))
+            return HttpResponseRedirect(reverse('user:eEvent', args=(pk,)))
 
+
+def viewEvent(request, pk):
+    user = get_user(request)
+    if user is None:
+        return HttpResponseRedirect(reverse('login'))
+
+    event = get_object_or_404(Event, pk=pk)
+
+    if userCan_Event(user, event, 'view'):
+        can_edit = userCan_Event(user, event, 'edit')
+        return render(request, 'user/eventdetail.html', {'user': user, 'event': event, 'can_edit': can_edit})
+    else:
+        return HttpResponseRedirect(reverse('user:dashboard'), args=(pk,))
 
 class CreateEvent(View):
 
@@ -223,6 +242,8 @@ def dashboardView(request):
     elif(user.getType() == "nurse"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
+
+    context['tuser'] = user #TODO: Remove once nurse has searchable columns
 
 
     return render(request, 'user/dashboard.html', context)
