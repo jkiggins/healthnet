@@ -3,11 +3,17 @@
 {% block content %}
 
 <div id="registerBox">
-    <form method="post" action=".">
-        <table border=""0">
-            {% csrf_token %}
-            {{ form.as_ul }}
-        </table>
+    <form enctype="multipart/form-data" action="" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.label_tag }} {{ field }} {{ field.errors }}
+                {% if field.help_text %}
+                <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
         <button type="submit" value="Register" class="button">Register</button>
         <button type="button" onclick="window.location.href='/login' " class="button">Back</button>
     </form>

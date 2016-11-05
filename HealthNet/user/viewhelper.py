@@ -32,16 +32,6 @@ def getVisibleEvents(user):
     return user.event_set.all().filter(visible=True)
 
 
-def dict_from_url_kvp(kvp):
-    kvp_arr = kvp.split('/')
-
-    dict = {}
-
-    for i in range(0, len(kvp_arr)-1, 2):
-        dict[kvp_arr[i]] = int(kvp_arr[i+1])
-
-    return dict
-
 def healthUserFromDjangoUser(user):
     if hasattr(user, 'patient'):
         return user.patient
@@ -83,7 +73,7 @@ def elevate_if_trusted_event(form, user, event):
 def setEventFormFromModel(form, model):
     for key in form.fields:
         if hasattr(model, key):
-            if key in ['doctor', 'patient', 'hospital']:
+            if (key in ['doctor', 'patient', 'hospital']) and not (getattr(model, key) is None):
                 form.fields[key].initial = getattr(model, key).pk
             else:
                 form.fields[key].initial = getattr(model, key)
@@ -115,5 +105,65 @@ def addEventConflictMessages(event_form, event):
                                                     Event.APP_BUFFER.seconds / 60) + " Minuets is required between Appointments"})
 
     return False
+
+class EditProfileHelper:
+    @staticmethod
+    def getFormByPostData(post):
+        print(post)
+        if dict_has_keys(['medical'], post):
+            return EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            return EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            return EditProfileForm_emergency(post)
+
+    @staticmethod
+    def getContextFromForm(form):
+        ctx = {}
+        if 'medical' in form.fields:
+            ctx['form_medical']=form
+        elif 'emergency' in form.fields:
+            ctx['form_emergency']=form
+        elif 'basic' in form.fields:
+            ctx['form_basic']=form
+
+        return ctx
+
+    @staticmethod
+    def updateUserProfile(form, user):
+        if 'medical' in form.fields:
+            user.hospital = form.cleaned_data['hospital']
+            user.doctor = form.cleaned_data['doctor']
+            user.save()
+        elif 'emergency' in form.fields:
+            contact = None
+            if user.contact is None:
+                contact = Contact(full_name="filler", phone="filler")
+                contact.save()
+                user.contact = contact
+                user.save()
+            else:
+                contact = user.contact
+
+            if form.cleaned_data['user'] is None:
+                contact.full_name = form.cleaned_data['full_name']
+                contact.phone = form.cleaned_data['phone']
+            else:
+                contact.user = form.cleaned_data['user']
+                contact.updateFromUser()
+
+            contact.save()
+
+        elif 'basic' in form.fields:
+            for key in form.cleaned_data:
+                if not(form.cleaned_data[key] is None):
+                    if hasattr(user, key):
+                        setattr(user, key, form.cleaned_data[key])
+                    elif hasattr(user.user, key):
+                        setattr(user.user, key, form.cleaned_data[key])
+
+            user.user.save()
+            user.save()
+
 
 

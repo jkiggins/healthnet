@@ -6,7 +6,7 @@
     {% if tuser.getType == "patient" %}
 
         <li>Phone: {{ tuser.phone }}</li>
-        <li>Emergency Contact: {{ tuser.emr.emergency }}</li>
+        <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
         <li>Address: {{ tuser.address }}</li>
         <li>Insurance #: {{ tuser.insuranceNum }}</li>
         <li>Hospital: {{ tuser.hospital.name }}</li>
@@ -15,7 +15,7 @@
 
     {% elif tuser.getType == "doctor" %}
 
-{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S HOSPITALS %%%%%%%%%%{% endcomment %}
+{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S patients %%%%%%%%%%{% endcomment %}
         <h3>Patients</h3>
 
         {% for p in tuser.patient_set.all %}

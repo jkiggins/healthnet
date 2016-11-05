@@ -209,62 +209,38 @@ class EventCreationFormHadmin(EventForm):
         fields = ["patient", "doctor", "startTime", "description"]
 
 
-class EditProfileForm(forms.Form):
+class EditProfileForm_basic(forms.Form):
     first_name = forms.CharField(max_length=20, required=False)
     last_name = forms.CharField(max_length=20, required=False)
     email = forms.CharField(max_length=50, required=False)
-    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
     phone = forms.CharField(max_length=10, label="Phone Number", required=False)
     address = forms.CharField(max_length=50, label="Your Address", required=False)
-    emergency = forms.CharField(max_length=10, label="Emergency", required=False)
-
-    height = forms.IntegerField(label="Height in Inches", initial=0, required=False)
-    weight = forms.IntegerField(label="Weight in Lbs", initial=0,required=False)
-    age = forms.IntegerField(label="Age in Years", initial=0,required=False)
-    restingBpm = forms.IntegerField(label="Usual Resting BPM",initial=0, required=False)
-    bloodPressure = forms.CharField(max_length=20, initial=0, label="Blood pressure (###/###)", required=False)
-    comments = forms.CharField(label="Comments", widget=forms.Textarea(), required=False)
-
-    def save(self, commit=True):
-        pass
-
-    def set_defaults(self, user):
-        self.fields['first_name'].initial = user.user.first_name
-        self.fields['last_name'].initial = user.user.last_name
-        self.fields['email'].initial = user.user.email
-
-        if(user.doctor != None):
-            self.fields['doctor'].initial = user.doctor
-            self.fields['doctor'].disabled=True
-
-        self.fields['phone'].initial = user.phone
-        self.fields['address'].initial = user.address
-
-        if(user.emr.emergency != None):
-            self.fields['emergency'].initial = user.emr.emergency
+    basic = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
 
 
-    def save_user(self, m):
-        m.user.first_name = self.cleaned_data['first_name']
-        m.user.last_name = self.cleaned_data['last_name']
-        m.user.email = self.cleaned_data['email']
+class EditProfileForm_emergency(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
+    full_name = forms.CharField(max_length=50, required=False)
+    phone = forms.CharField(max_length=10, label="Phone Number", required=False)
+    emergency = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
 
-        if m.doctor == None:
-            m.doctor = self.cleaned_data['doctor']
+    def is_valid(self):
+        valid = super(EditProfileForm_emergency, self).is_valid()
+        if not valid:
+            return valid
 
-        m.address = self.cleaned_data['address']
-        m.phone = self.cleaned_data['phone']
-        m.emr.emergency = self.cleaned_data['emergency']
-        m.emr.save()
-        m.user.save()
-        m.save()
+        if self.cleaned_data['user'] is None:
+            valid &= not((self.cleaned_data['full_name'] is None) or (self.cleaned_data['phone'] is None))
+            if not valid:
+                EventCreationFormValidator.add_messages(self, {'full_name': "Field Required", 'phone': "Field Required"}, {'user': "alternativly select a user from the system"})
 
-        emrItem = EMRVitals.objects.create(emr = m.emr,
-                                           height=self.cleaned_data['height'],
-                                           weight=self.cleaned_data['weight'],
-                                           age=self.cleaned_data['age'],
-                                           bloodPressure=self.cleaned_data['bloodPressure'],
-                                           restingBPM=self.cleaned_data['restingBpm'],
-                                           comments=self.cleaned_data['comments']
-        )
+        return valid
+
+
+class EditProfileForm_medical(forms.Form):
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all())
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all())
+    medical = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
+
+
 

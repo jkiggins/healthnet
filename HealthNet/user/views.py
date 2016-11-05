@@ -54,30 +54,59 @@ def viewProfile(request, **kwargs):
 
 class EditProfile(View):
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         user = get_user(request)
-
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        form = EditProfileForm(request.POST)
+        form = EditProfileHelper.getFormByPostData(request.POST)
 
         if form.is_valid():
-            form.save_user(user)
-            Syslog.editProfile(user)
-            return HttpResponseRedirect(reverse('user:dashboard'))
+            if 'pk' in kwargs:
+                tuser = get_object_or_404(User, pk=pk)
+                tuser = healthUserFromDjangoUser(tuser)
+                EditProfileHelper.updateUserProfile(form, tuser)
+                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
+            else:
+                EditProfileHelper.updateUserProfile(form, user)
+                return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
-            return HttpResponseRedirect(reverse('user:eProfile'))
+            ctx = EditProfileHelper.getContextFromForm(form)
+            return render(request, 'user/editprofile.html', ctx)
 
-    def get(self, request):
+
+    def get(self, request, **kwargs):
         user = get_user(request)
+        tuser = None
+
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        form = EditProfileForm()
-        form.set_defaults(user)
+        if 'pk' in kwargs:
+            if kwargs['pk'] == user.pk:
+                return HttpResponseRedirect(reverse('user:eProfile'))
+            else:
+                tuser = get_object_or_404(User, pk=kwargs['pk'])
+                tuser = healthUserFromDjangoUser(tuser)
 
-        return render(request, 'user/editprofile.html', {'user': user, 'form': form})
+                if not userCan_Profile(user, tuser, 'edit'):
+                    return HttpResponseRedirect('user:dashboard')
+        else:
+            tuser=user
+
+
+        form_medical = None
+
+        if (tuser.hospital is None) or isHAdmin(user):
+            form_medical = EditProfileForm_medical()
+
+        form_basic = EditProfileForm_basic()
+        form_emergency = EditProfileForm_emergency()
+
+        setFormDefaultsFromModel(tuser, form_basic)
+        setFormDefaultsFromModel(tuser.user, form_basic)
+
+        return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form_basic': form_basic, 'form_medical': form_medical, 'form_emergency': form_emergency})
 
 
 class EditEvent(View):
@@ -156,6 +185,7 @@ def viewEvent(request, pk):
     else:
         return HttpResponseRedirect(reverse('user:dashboard'), args=(pk,))
 
+
 class CreateEvent(View):
 
     def process_patient(self, user, event, form):
@@ -166,8 +196,9 @@ class CreateEvent(View):
         if not(form.cleaned_data['patient'] is None):
             add_dict_to_model({'hospital': form.cleaned_data['patient'].hospital, 'appointment': True}, event)
 
-    def process_doctor(self, user, event):
-        pass
+    def process_doctor(self, user, event, form):
+        event.doctor = user
+        event.appointment = not(form.cleaned_data['patient'] is None)
 
     def get(self, request):
         user = get_user(request)
@@ -189,7 +220,7 @@ class CreateEvent(View):
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        event_form = getEventFormByUserType(user.getType(), request=request)
+        event_form = getEventFormByUserType(user.getType(), data=request.POST)
 
         # Check For Timing Conflicts
         if event_form.is_valid():

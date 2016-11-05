@@ -26,6 +26,8 @@ class Patient(models.Model):
     address = models.CharField(max_length=50, default="")
     phone = models.CharField(max_length=10, default="")
 
+    contact = models.ForeignKey('Contact', null=True, blank=True)
+
     def __str__(self):
         return self.user.get_full_name()
 
@@ -36,6 +38,19 @@ class Patient(models.Model):
     def init_permissions(self):
         """Method Generates custom permissions for user"""
         pass
+
+class Contact(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    full_name = models.CharField(max_length=50)
+    phone = models.CharField(max_length=10)
+    comments = models.CharField(max_length=100)
+
+    def updateFromUser(self):
+        if not(self.user is None):
+            self.full_name = self.user.get_full_name()
+
+            if hasattr(self.user, 'patient'):
+                self.phone=self.user.patient.phone
 
 
 #this extension of user represents a doctor

@@ -50,13 +50,19 @@ def userCan_Profile(cuser, tuser, *actions):
             auth |= list(set(tuser.hospitals.all()) & set(cuser.hospitals.all())).count() > 0
         elif (tutype == 'nurse' and utype == 'nurse'):
             auth |= (tuser.hospital == cuser.hospital)
+        elif (tutype == 'patient' and utype == 'doctor'):
+            auth |= (cuser == tuser.doctor)
 
 
         auth |= (utype == 'hosAdmin')
 
     if 'edit' in actions:
         auth |= (utype == 'hosAdmin')
+        auth |= (utype == 'patient') and (cuser.user.pk == tuser.user.pk)
 
     return auth
+
+def isHAdmin(user):
+    return user.getType() == 'hosAdmin'
 
 
