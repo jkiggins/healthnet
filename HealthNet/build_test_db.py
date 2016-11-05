@@ -38,10 +38,7 @@ up = User.objects.create_user(
             last_name="Zero")
 up.save()
 
-emr = EMR.objects.create()
-emr.save()
-
-p = Patient.objects.create(user=up, doctor = d, hospital=h, emr=emr)
+p = Patient.objects.create(user=up, doctor = d, hospital=h)
 p.save()
 
 up = User.objects.create_user(
@@ -52,10 +49,8 @@ up = User.objects.create_user(
     last_name="One")
 up.save()
 
-emr = EMR.objects.create()
-emr.save()
 
-p = Patient.objects.create(user=up, doctor=d, hospital=h1, emr=emr)
+p = Patient.objects.create(user=up, doctor=d, hospital=h1)
 p.save()
 
 

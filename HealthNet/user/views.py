@@ -15,6 +15,17 @@ import user.userauth as userauth
 
 class Registry(View):
 
+    def filterByUser(self, user, qset):
+        if user.getType() == "nurse":
+            return qset.filter(hospital=user.hospital)
+        elif user.getType() == 'doctor':
+            qbuild = None
+            for hospital in user.hospitals.all():
+                qbuild |= qset.filter(hospital=hospital)
+
+            return qbuild
+
+
     def post(self, request):
         cuser = get_user(request)
         if cuser is None:
@@ -33,6 +44,7 @@ class Registry(View):
             for word in words:
                 patients |= Patient.objects.filter(user__first_name__contains=word)
                 patients |= Patient.objects.filter(user__last_name__contains=word)
+                patients |= Patient.objects.filter(hospital__name__contains=word)
 
         if 'doctor' in form.cleaned_data['filterBy']:
             for word in words:
@@ -41,7 +53,11 @@ class Registry(View):
 
         if 'event' in form.cleaned_data['filterBy']:
             for word in words:
-                events |= Event.objects.filter(user__first_name__contains=word)
+                events |= Event.objects.filter(doctor__user__first_name__contains=word)
+                events |= Event.objects.filter(patient__user__last_name__contains=word)
+                events |= Event.objects.filter(patient__user__first_name__contains=word)
+                events |= Event.objects.filter(doctor__user__last_name__contains=word)
+                events |= Event.objects.filter(title__contains=word)
                 events |= Event.objects.filter(description__contains=word)
 
         results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \

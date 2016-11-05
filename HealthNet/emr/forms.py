@@ -1,5 +1,5 @@
 from django import forms
-from .models import EMRVitals, EMRNote, EMRTrackedMetric
+from .models import EMRVitals
 
 """This is for making a new EMR vitals model"""
 class EMRVitalsForm(forms.ModelForm):
@@ -11,4 +11,4 @@ class EMRVitalsForm(forms.ModelForm):
         height = forms.FloatField()
         weight = forms.FloatField()
         comments = forms.CharField()
-        fields = ['dateCreated', 'restingBPM', 'bloodPressure', 'height', 'weight', 'comments']
+        fields = ['restingBPM', 'bloodPressure', 'height', 'weight']

@@ -248,3 +248,14 @@ class SearchForm(forms.Form):
     choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'))
     filterBy = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=choices, required=False, label="")
 
+    def setSearchForm(self, utype):
+        if utype == 'doctor':
+            choices = (
+                ('event', 'Events'),
+                ('patient', 'Patients'),
+                ('doctor', 'Doctors'),
+                ('mpatient', 'My Patients')
+            )
+
+
+

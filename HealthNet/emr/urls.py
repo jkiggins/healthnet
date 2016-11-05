@@ -8,3 +8,4 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/', views.viewEMR, name='vemr'),
     url(r'^(?P<pk>[0-9]+)/viewItem', views.viewEMRItem, name='vemrItem'),
 ]
+

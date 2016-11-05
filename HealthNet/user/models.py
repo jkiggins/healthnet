@@ -37,7 +37,6 @@ class Patient(models.Model):
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
     insuranceNum = models.CharField(max_length=12, default="")
-    emr = models.OneToOneField('emr.EMR', null=True, blank=True)
     address = models.CharField(max_length=50, default="")
     phone = models.CharField(max_length=10, default="")
 

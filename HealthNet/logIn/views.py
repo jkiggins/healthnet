@@ -12,7 +12,6 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.views.generic import View
 from django.contrib.auth.models import User
-from emr.models import EMR
 from hospital.models import *
 from syslogging.models import *
 
@@ -39,8 +38,7 @@ class Register(View):
                     password=form.cleaned_data['password1'],
                 )
 
-                e = EMR.objects.create()
-                p = Patient.objects.create(user=user, emr=e, insuranceNum=form.cleaned_data['insuranceNum'])
+                p = Patient.objects.create(user=user, insuranceNum=form.cleaned_data['insuranceNum'])
                 p.save()
 
                 user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])

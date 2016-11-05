@@ -3,8 +3,9 @@
 {% block content %}
     {% if view_calendar == True %}
         {% include 'user/calendar.html' %}
-        <div id='calendar' class="profile_calendar"></div>
+        <div id='calendar' class="half left"></div>
+        <div class="half right content_box"> {% include 'user/profile.html' %}</div>
+    {% else %}
+        <div class="content_box"> {% include 'user/profile.html' %}</div>
     {% endif %}
-
-    {% include 'user/profile.html' %}
 {% endblock %}

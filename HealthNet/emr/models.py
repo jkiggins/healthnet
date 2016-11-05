@@ -3,40 +3,45 @@ from django.utils import timezone
 import datetime
 from user.models import Doctor, Patient
 
-class EMR(models.Model):
-    """This model will be used to link test results, vitals, diagnosis, medications, and notee"""
-    # TODO: determine if there are any fields that should be in this model
-    emergency = models.CharField(max_length=10, default="")  # emergency contact
 
 class EMRItem(models.Model):
     """This is generic item which can be stored in the EMR, other models will extend this"""
-    emr = models.ForeignKey(EMR, on_delete=models.CASCADE, null=True, blank=True)
-    dateCreated = models.DateTimeField(default=timezone.now)
-    # appointment = models.ForeignKey(Appointment)  # the ability to link each emr item to an appointment associated with its creation
+    patient = models.OneToOneField(Patient)
+    date_created = models.DateTimeField(default=timezone.now)
+    content = models.CharField(max_length=200)
+
+    def getType(self):
+        return 'generic_item'
+
+
+class EMRTracking(EMRItem):
+    """This model is a generic tracked metric, meaning a provider can track some arbitrary detail about a patient
+    across different appointments"""
+    name = models.CharField(max_length=200, default="", unique=True)  # unique label for metric
+    rev = models.IntegerField(default=0)
 
     class Meta:
-        abstract = True
+        abstract=True
 
 
-class EMRVitals(EMRItem):
+class EMRVitals(EMRTracking, EMRItem):
     """This model will store a set of vital sign readings as well as height, weight ...etc"""
     restingBPM = models.IntegerField(default=0)  # Resting pulse in beats/min
     bloodPressure = models.CharField(max_length=10, default="")  # Blood pressure in format ###/###
     height = models.FloatField(default=0)  # Height of the patient in inches
     weight = models.FloatField(default=0)  # Weight of a person in Lbs
-    age = models.IntegerField(default=0)
-    comments = models.CharField(max_length=1000, default="")
-    # TODO: add more vitals
 
-class EMRNote(EMRItem):
-    comments = models.CharField(max_length=500, default="")
-    # TODO: decide if we want to use markdown formatting
 
-class EMRTrackedMetric(EMRItem):
-    """This model is a generic tracked metric, meaning a provider can track some arbitrary detail about a patient
-    across different appointments"""
-    label = models.CharField(max_length=200, default="")  # unique label for metric
-    comments = models.CharField(max_length=500, default="")  # comments about the metric, this may be a simple as a number or consist of a few sentences
+class EMRProfile(EMRItem):
+    birthdate = models.DateTimeField(default=timezone.now)
+    gender = models.CharField(max_length=10)
+    blood_type = models.CharField(max_length=3)
+
+
+class EMRTest(EMRItem):
+    images = models.ImageField(null=True, blank=True)
+    released = models.BooleanField(default=False)
+
 
 
 """
@@ -46,7 +51,6 @@ Extending EMRItem for created DateTime and linked to a emr
 """
 class EMRPrescription(EMRItem):
     # Created DateTimeField is found in EMRItem
-    patient = models.ForeignKey('user.Patient', null=False, blank=True)
     doctor = models.ForeignKey('user.Doctor', null=False, blank=True)
     # TODO: DRUG DATABASE
     dosage = models.CharField(max_length=50, default="", null=False)

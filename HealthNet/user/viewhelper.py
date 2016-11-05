@@ -104,6 +104,7 @@ def addEventConflictMessages(event_form, event):
 
     return False
 
+
 class EditProfileHelper:
     @staticmethod
     def getFormByPostData(post):
