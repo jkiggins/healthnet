@@ -172,7 +172,7 @@ def getResultFromModel(model):
     if isinstance(model, Patient):
         return [{'type': 'patient'},
                 {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()},
-                {'url': reverse('emr:index', args=(model.user.id,)), 'label': "EMR"}]
+                {'url': reverse('emr:vemr', args=(model.user.id,)), 'label': "EMR"}]
 
     if isinstance(model, Doctor):
         return [{'type': 'Doctor'}, {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()}]
