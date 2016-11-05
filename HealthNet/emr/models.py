@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import datetime
 
 class EMR(models.Model):
     """This model will be used to link test results, vitals, diagnosis, medications, and notee"""
@@ -35,3 +36,20 @@ class EMRTrackedMetric(EMRItem):
     across different appointments"""
     label = models.CharField(max_length=200, default="")  # unique label for metric
     comments = models.CharField(max_length=500, default="")  # comments about the metric, this may be a simple as a number or consist of a few sentences
+
+
+"""
+This Perscription class holds all the information relating to a single prescription
+
+Extending EMRItem for created DateTime and linked to a emr
+"""
+class EMRPerscription(EMRItem):
+    # Created DateTimeField is found in EMRItem
+    patient = models.ForeignKey('Patient', null=False, blank=True)
+    doctor = models.ForeignKey('Doctor', null=False, blank=True)
+    # TODO: DRUG DATABASE
+    dosage = models.CharField(max_length="50", default="", null=False)
+    amountPerDay = models.CharField(max_length="50", default="", null=False)
+    startDate = models.DateField(default=datetime.date.today)
+    endDate = models.DateField(default=datetime.date.today + datetime.timedelta(days=30))
+    deactivated = models.BooleanField(default=False)
