@@ -7,7 +7,8 @@ import datetime
 
 class Nurse(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    hospital = models.OneToOneField('hospital.Hospital', null=True, blank=True)
+    hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
+    accepted = False
 
     def __str__(self):
         return self.user.get_full_name()
@@ -73,6 +74,7 @@ class Doctor(models.Model):
     hospitals = models.ManyToManyField('hospital.Hospital')
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
     nurses = models.ManyToManyField('Nurse')
+    accepted = False
 
     def __str__(self):
         return self.user.get_full_name()

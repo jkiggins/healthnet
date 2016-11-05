@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import datetime
-from user.models import *
+from user.models import Doctor, Patient
 
 class EMR(models.Model):
     """This model will be used to link test results, vitals, diagnosis, medications, and notee"""
