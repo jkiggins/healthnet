@@ -2,6 +2,9 @@
 	
 {% block content %}
 
+    {% if user.getType == hosAdmin %}
+        {% include SearchModule %}
+    {% endif %}
     <div class="calendar">
     {% if user.getType != "nurse" and user.getType != "hosAdmin"%}
         {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
