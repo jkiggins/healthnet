@@ -39,11 +39,11 @@ class EMRTrackedMetric(EMRItem):
 
 
 """
-This Perscription class holds all the information relating to a single prescription
+This Prescription class holds all the information relating to a single prescription
 
 Extending EMRItem for created DateTime and linked to a emr
 """
-class EMRPerscription(EMRItem):
+class EMRPrescription(EMRItem):
     # Created DateTimeField is found in EMRItem
     patient = models.ForeignKey('Patient', null=False, blank=True)
     doctor = models.ForeignKey('Doctor', null=False, blank=True)
