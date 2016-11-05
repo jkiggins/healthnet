@@ -1,0 +1,29 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+
+    <div class = "horizontal_form">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ search_form.as_ul }}
+            <input type="submit" class="button" value="Search" />
+        </form>
+    </div>
+
+    <div id = "search_results">
+        <ul class="inline_card_list">
+        {% for result in results %}
+            <li class = "inline_card">
+            {% for url_label in result %}
+                {% if url_label.url != None %}
+                    <input type="button" class="inline_card_item" onclick="window.location='{{ url_label.url }}'" value="{{ url_label.label }}"/>
+                {% else %}
+                    <input type="button" class="inline_card_label" value="{{ url_label.type }}" />
+                {% endif %}
+            {% endfor %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}

@@ -4,9 +4,9 @@ from . import views
 
 app_name = 'user'
 urlpatterns = [
-    url(r'^patientList/$', views.patientList, name='pList'),
+    url(r'^registry/$', views.Registry.as_view(), name='registry'),
     url(r'^(?P<pk>[0-9]+)/viewProfile/$', views.viewProfile, name='vProfile'),
-    url(r'^viewProfile/$', views.viewProfile, name='vProfilec'),
+    url(r'^viewProfile/$', views.viewProfileSelf, name='vProfilec'),
     url(r'^(?P<pk>[0-9]+)/EditEvent/$', views.EditEvent.as_view(), name='eEvent'),
     url(r'^(?P<pk>[0-9]+)/EditEvent/d$', views.EditEvent.post_dependant_fields, name='eEventd'),
     url(r'^(?P<pk>[0-9]+)/ViewEvent/$', views.viewEvent, name='vEvent'),

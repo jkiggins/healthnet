@@ -243,4 +243,8 @@ class EditProfileForm_medical(forms.Form):
     medical = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
 
 
+class SearchForm(forms.Form):
+    keywords = forms.CharField(max_length=50, label="Keywords", required=False)
+    choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'))
+    filterBy = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=choices, required=False, label="")
 

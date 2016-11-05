@@ -1,4 +1,8 @@
-<div id="contentBox">
+{% if tuser.user.pk == user.user.pk %}
+    <div id="contentBox">
+{% else %}
+    <div class="profile_with_calendar">
+{% endif %}
  <h2>Profile of: {{ tuser.user.get_full_name }}</h2>
     <ul>
         <li>Email:{{ tuser.user.email }}</li>
@@ -11,7 +15,14 @@
         <li>Insurance #: {{ tuser.insuranceNum }}</li>
         <li>Hospital: {{ tuser.hospital.name }}</li>
         <li>Doctor: <a href = "{% url 'user:vProfile' tuser.doctor.user.id %}">{{ tuser.doctor.user.get_full_name }}</a></li>
-        <li><a href="{% url 'emr:index' tuser.id %}" class="button">EMR</a></li>
+
+        {% if user.getType != 'patient' %}
+            <li><a href="{% url 'emr:index' tuser.user.id %}" class="button">EMR</a></li>
+        {% endif %}
+
+        {% if user.getType == 'patient' or user.getType == 'hosAdmin' %}
+            <li><a href="{% url 'user:eProfile' %}" class="button">Edit</a></li>
+        {% endif %}
 
     {% elif tuser.getType == "doctor" %}
 
@@ -32,22 +43,12 @@
             <li>{{ h.name }}</li>
 
         {% endfor %}
-
-        <li>Hospital: {{ tuser.hospital.name }}</li>
     {% endif %}
 
     {% if tuser.getType == "nurse" %}
-        <h2>Patients</h2>
 
-        {% for p in tuser.hospital.patient_set.all %}
-
-            <li><a href = "{% url 'user:vProfile' p.user.id %}">{{ p.user.get_full_name }}</a></li>
-
-        {% endfor %}
-
-         <h2>Doctors</h2>
-
-        {% for d in tuser.hospital.doctor_set.all %}
+         <h2>Trusted By:</h2>
+        {% for d in tuser.doctor_set.all %}
 
             <li><a href = "{% url 'user:vProfile' d.user.id %}">{{ d.user.get_full_name }}</a></li>
 

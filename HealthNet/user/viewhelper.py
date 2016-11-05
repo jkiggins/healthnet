@@ -3,6 +3,7 @@ from .models import *
 from .forms import *
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.core.urlresolvers import reverse
 
 def augmentEventCreationFormForUpdate(form, augment=None):
     form.fields['delete'] = forms.BooleanField(label="Delete?", initial=False, widget=forms.CheckboxInput(), required=False)
@@ -27,7 +28,6 @@ def get_visible_event_or_404(pk):
     raise Http404()
 
 
-
 def getVisibleEvents(user):
     return user.event_set.all().filter(visible=True)
 
@@ -46,7 +46,6 @@ def get_user(request):
     if (request.user.is_authenticated()):
         return healthUserFromDjangoUser(request.user)
     return None
-
 
 
 def add_dict_to_model(dict, event):
@@ -87,7 +86,6 @@ def updateEventFromModel(old_event, new_event):
     for key in old_event.__dict__:
         if hasattr(new_event, key) and not(getattr(new_event, key) is None):
             setattr(old_event, key, getattr(new_event, key))
-
 
 
 def addEventConflictMessages(event_form, event):
@@ -166,4 +164,24 @@ class EditProfileHelper:
             user.save()
 
 
+def getResultFromModel(model):
+    if isinstance(model, Event):
+        return [{'type': 'Event'},{'url': reverse('user:vEvent', args=(model.id,)), 'label': model.title},
+                {'url': reverse('user:eEvent', args=(model.id,)), 'label': "edit"}]
 
+    if isinstance(model, Patient):
+        return [{'type': 'patient'},
+                {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()},
+                {'url': reverse('emr:index', args=(model.user.id,)), 'label': "EMR"}]
+
+    if isinstance(model, Doctor):
+        return [{'type': 'Doctor'}, {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()}]
+
+
+def getResultsFromModelQuerySet(qset):
+    results = []
+
+    for q in qset:
+        results.append(getResultFromModel(q))
+
+    return results

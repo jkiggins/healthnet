@@ -1,11 +1,9 @@
 {% extends 'user/base.html' %}
 
 {% block content %}
-    {% if view_calendar %}
-        <h2>Calendar</h2>
+    {% if view_calendar == True %}
         {% include 'user/calendar.html' %}
-    {% else %}
-        {% include 'user/viewcalendar.html' %}
+        <div id='calendar' class="profile_calendar"></div>
     {% endif %}
 
     {% include 'user/profile.html' %}

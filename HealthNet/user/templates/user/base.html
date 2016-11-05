@@ -18,21 +18,18 @@
 <body>
 
 <ul id="navbar">
-
 	<li><a href="/logout" class="right">Log Out</a></li>
+    <li><a href="{% url 'user:vProfilec' %}">Profile</a></li>
 	
 	{% if user.getType == "patient" %}
 
-    <li><a href="{% url 'user:eProfile' %}">Edit Profile</a></li>
+        <li><a href="{% url 'emr:indexc' %}">Emr</a></li>
 
-    {% elif user.getType == "nurse" %}
-
-    {% elif user.getType == "doctor" %}
-
+    {% elif user.getType == "nurse" or user.getType == "doctor"%}
+        <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
     {% endif %}
 	
     <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
-	
 </ul>
 
 	<h1 id="baseBanner">HealthNet</h1>

@@ -18,13 +18,9 @@ def index(request, pk):
 
     return render(request, 'emr/index.html', {'user': currUser, 'emruser': user})
 
+def indexc(request):
+    pass
 
-class CreateEMR(CreateView):
-
-    model = EMRVitals
-    template_name = 'emr/emrForm.html'
-
-    form_class = EMRVitalsForm
 
 
 class EditEMR(View):

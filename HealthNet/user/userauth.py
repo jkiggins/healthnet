@@ -52,13 +52,23 @@ def userCan_Profile(cuser, tuser, *actions):
             auth |= (tuser.hospital == cuser.hospital)
         elif (tutype == 'patient' and utype == 'doctor'):
             auth |= (cuser == tuser.doctor)
-
+        elif (tutype == 'patient'):
+            auth |= not((tuser.hospital is None) or (tuser.doctor is None))
 
         auth |= (utype == 'hosAdmin')
 
     if 'edit' in actions:
         auth |= (utype == 'hosAdmin')
         auth |= (utype == 'patient') and (cuser.user.pk == tuser.user.pk)
+
+    return auth
+
+
+def userCan_Registry(user, *actions):
+    auth = False
+
+    if 'view' in actions:
+        auth |= (user.getType() != 'patient')
 
     return auth
 

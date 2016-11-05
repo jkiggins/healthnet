@@ -16,38 +16,87 @@ from .userauth import *
 #It will display the main page depending on which user is active
 
 
-def patientList(request):
-    patientList = request.session['user'].patient_set.all()
+class Registry(View):
 
-    return render(request , 'user/userList.html' , patientList)
+    def post(self, request):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        form = SearchForm(request.POST)
+        form.full_clean()
 
 
-def viewProfile(request, **kwargs):
+        words = form.cleaned_data['keywords'].split(' ')
+        patients = Patient.objects.none()
+        doctors = Doctor.objects.none()
+        events = Event.objects.none()
+
+        if 'patient' in form.cleaned_data['filterBy']:
+            for word in words:
+                patients |= Patient.objects.filter(user__first_name__contains=word)
+                patients |= Patient.objects.filter(user__last_name__contains=word)
+
+        if 'doctor' in form.cleaned_data['filterBy']:
+            for word in words:
+                doctors |= Doctor.objects.filter(user__first_name__contains=word)
+                doctors |= Doctor.objects.filter(user__last_name__contains=word)
+
+        if 'event' in form.cleaned_data['filterBy']:
+            for word in words:
+                events |= Event.objects.filter(user__first_name__contains=word)
+                events |= Event.objects.filter(description__contains=word)
+
+        results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \
+                  + getResultsFromModelQuerySet(events)
+
+        print(results)
+
+        return render(request, 'user/registry.html', {'user': cuser, 'results': results, 'search_form': form})
+
+    def get(self, request):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        if not userCan_Registry(cuser, 'view'):
+            return reverse('user:dashboard')
+
+        form = SearchForm()
+
+        return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
+
+
+def viewProfileSelf(request):
+    cuser = get_user(request)
+    if cuser is None:
+        return HttpResponseRedirect(reverse('login'))
+
+    if (cuser.getType() == 'patient') and not userCan_Profile(cuser, cuser, 'view'):
+        return HttpResponseRedirect(reverse('user:eProfile'))
+    else:
+        return render(request, 'user/viewprofile.html', {'user': cuser, 'tuser': cuser})
+
+
+def viewProfile(request, pk):
     tuser=None
     cuser = get_user(request)
     if cuser is None:
         return HttpResponseRedirect(reverse('login'))
 
-    context = {'user': cuser}
+    tuser = get_object_or_404(User, pk=pk)
+    tuser = healthUserFromDjangoUser(tuser)
 
-    if 'pk' in kwargs:
-        tuser = get_object_or_404(User, pk=kwargs['pk'])
-        tuser = healthUserFromDjangoUser(tuser)
+    if not userCan_Profile(cuser, tuser, 'view'):
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
-        if not userCan_Profile(cuser, tuser, 'view'):
-            return HttpResponseRedirect(reverse('user:dashboard'))
+    if cuser.user.pk == tuser.user.pk:
+        return HttpResponseRedirect(reverse('user:vProfilec'))
 
-        if cuser.user.pk == tuser.user.pk:
-            return HttpResponseRedirect(reverse('user:vProfilec'))
-
-        context['events'] = getVisibleEvents(tuser).order_by('startTime')
-        context['view_calendar']=True
-
-    else:
-        tuser = cuser
-        context['trusted']=True
-
-    context['tuser'] = tuser
+    context = {'user': cuser,
+               'tuser': tuser,
+               'events': getVisibleEvents(tuser),
+               'view_calendar': True}
 
     return render(request, 'user/viewprofile.html', context)
 
