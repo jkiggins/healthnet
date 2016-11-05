@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="registerBox">
-    <h2>{{ event.description|truncatewords:10 }}</h2>
+    <h2>{{ event.title|truncatewords:10 }}</h2>
 
     {% if form != None %}
         <form action="" enctype="multipart/form-data" method="POST">
@@ -22,6 +22,7 @@
         {% endif %}
 
         <li>Doctor: <a href="{% url 'user:vProfile' event.doctor.user.id %}">{{ event.doctor.user.get_full_name }}</a></li>
+		<li>Description: {{ event.description }}</li>
         </ul>
         {% if can_edit %}
             <input type = "button" onclick="window.location='{% url 'user:eEvent' event.id %}'" value = "Edit" />

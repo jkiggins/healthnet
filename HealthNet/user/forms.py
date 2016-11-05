@@ -56,7 +56,7 @@ def doctor_nurse_shared_validation(event_form):
 
 class EventForm(forms.ModelForm):
     title = forms.CharField(label="Title")
-    startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
+    startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(attrs={'id': "dateTimeId"}), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
                                          label="Start Time")
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)

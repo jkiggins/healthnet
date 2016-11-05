@@ -1,36 +1,59 @@
 <script>
-		$(document).ready(function() {
+	$(document).ready(function() {
 	
-		// once page is loaded, load calendar
+	// once page is loaded, load calendar
 	
-			$('#calendar').fullCalendar({
-				header: {
-					left: 'prev,next today',
-					center: 'title',
-					right: 'agendaDay,agendaWeek,month'
-				},
+		$('#calendar').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'agendaDay,agendaWeek,month'
+			},
+			
+			// populates the calendar with events
+			events: [
+				{% for event in events %}
+					{
+						id : {{ event.id }},
+						title : "{{ event.title }}",
+						start : $.fullCalendar.moment("{{ event.startTime|date:'c' }}"),
+						end : $.fullCalendar.moment("{{ event.endTime|date:'c' }}"),
+						allDay : false,
+						
+					},
+				{% endfor %}
 				
-				// populates the calendar with events
-				events: [
-					{% for event in events %}
+				// populates events of other user in the event
+				{% if otherEvents != None %}
+					{% for otherEvent in otherEvents %}
 						{
-							id : {{ event.id }},
-							title : "{{ event.title }}",
-							start : $.fullCalendar.moment("{{ event.startTime|date:'c' }}"),
-							end : $.fullCalendar.moment("{{ event.endTime|date:'c' }}"),
+							id : {{ otherEvent.id }},
+							title : "{{ otherEvent.title }}",
+							start : $.fullCalendar.moment("{{ otherEvent.startTime|date:'c' }}"),
+							end : $.fullCalendar.moment("{{ otherEvent.endTime|date:'c' }}"),
 							allDay : false,
-							
+							backgroundColor: 'grey',
 						},
 					{% endfor %}
-				],
+				{% endif %}
+			
+			],
+			
+			// takes the user to the view event page for a specific event
+			eventClick: function(event, jsEvent, view) {
+				var url = "{% url 'user:vEvent' 999 %}".replace (999, event.id);
 				
-				// takes the user to the view event page for a specific event
-				eventClick: function(event, jsEvent, view) {					
-					var url = "{% url 'user:vEvent' 999 %}".replace (999, event.id);
-					
-					window.location = url;
-				},
-			})
-		});
+				window.location = url;
+			},
+			
+			// will enter only if the user is on the event creation page
+			// allows for easy selection of an event
+			{% if canAccessDay != None %}
+				dayClick: function(date, jsEvent, view) {
+					$(this).css('background-color', 'red');
+				}
+			{% endif %}
+		})
+	});
 </script>
 

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="registerBox">
+<div id="registerBox" class="left">
     <form enctype="multipart/form-data" action="{% url 'user:cEvent' %}" method="POST">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -19,5 +19,12 @@
         {% endfor %}
         <input type = "submit" value = "Save" class="button"/>
     </form>
+</div>
+
+<div id="registerBox" class="right">
+	<div id="calendar"></div>
+	
+	{% include 'user/calendar.html' %}
+	
 </div>
 {% endblock %}

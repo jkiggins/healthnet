@@ -156,6 +156,10 @@ li {
 	float: left;
 }
 
+.right {
+	float: right;
+}
+
 #navbar li a .right {
 	float: right;
 }

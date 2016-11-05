@@ -204,21 +204,28 @@ class CreateEvent(View):
         user = get_user(request)
         if user is None:
             return HttpResponseRedirect(reverse('login'))
-
-        event = getEventFormByUserType(user.getType())
-
-        if user.getType() == 'doctor':
+        myEvents = getVisibleEvents(user)
+        otherEvents = None
+        eventForm = getEventFormByUserType(user.getType())
+        if user.getType() == 'patient':
+            otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
+        elif user.getType() == 'doctor':
             event.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+            otherEvents = getVisibleEvents(eventForm.cleaned_data['patient']).exclude(doctor = user)
         elif user.getType() in ['nurse', 'hadmin']:
             event.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
 
-        return render(request, 'user/eventhandle.html', {'form': event, 'user': user})
+        return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
 
 
     def post(self, request):
         user = get_user(request)
         if user is None:
             return HttpResponseRedirect(reverse('login'))
+
+        myEvents = getVisibleEvents(user)
+
+        otherEvents = None
 
         event_form = getEventFormByUserType(user.getType(), data=request.POST)
 
@@ -233,13 +240,20 @@ class CreateEvent(View):
                 event.save()
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
+        if user.getType() == 'patient':
+            otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
+
+        if user.getType() == 'doctor' and getVisibleEvents(event_form.cleaned_data['patient']) is not None:
+            otherEvents = getVisibleEvents(event_form.cleaned_data['patient']).exclude(doctor = user)
+
         elevate_if_trusted(event_form, user)
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
+        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
 
     @staticmethod
     def post_dependant_fields(request):
         if request.method == 'POST':
             user = get_user(request)
+            myEvents = getVisibleEvents(user)
             if user is None:
                 return HttpResponseRedirect(reverse('login'))
 
@@ -249,7 +263,11 @@ class CreateEvent(View):
                 populate_dependant_fields(event_form, user)
 
             elevate_if_trusted(event_form, user)
-            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user})
+
+            if event_form.cleaned_data["patient"] is not None:
+                otherEvents = getVisibleEvents(event_form.cleaned_data["patient"]).exclude(doctor = user)
+
+            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
         else:
             return HttpResponseRedirect(reverse('user:cEvent'))
 
