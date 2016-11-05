@@ -7,7 +7,6 @@ def nurseIsTrusted(nurse, doctor):
     return (nurse in doctor.nurses.all())
 
 
-
 def userCan_Event(user, event, *actions):
 
     auth = False
@@ -72,7 +71,28 @@ def userCan_Registry(user, *actions):
 
     return auth
 
+
 def isHAdmin(user):
     return user.getType() == 'hosAdmin'
+
+
+def userCan_EMR(cuser, patient, *actions):
+    auth = False
+    utype = cuser.getType()
+
+    if 'view' in actions:
+        if utype == 'patient':
+            return False
+        elif utype == 'doctor':
+            auth |= patient in cuser.patients.all()
+            auth |= patient.hospital in cuser.hospitals.all()
+        elif utype == 'nurse':
+            auth |= patient.hospital == cuser.hospital
+
+        auth |= utype == 'hosAdmin'
+
+    if 'view_hidden':
+        if utype == 'patient':
+            return False
 
 

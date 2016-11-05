@@ -9,11 +9,8 @@ from .formvalid import *
 from django.contrib.auth import logout
 from .formhelper import *
 from .viewhelper import *
-from .userauth import *
 
-
-#This method determines which type of user is using the app
-#It will display the main page depending on which user is active
+import user.userauth as userauth
 
 
 class Registry(View):
@@ -59,7 +56,7 @@ class Registry(View):
         if cuser is None:
             return HttpResponseRedirect(reverse('login'))
 
-        if not userCan_Registry(cuser, 'view'):
+        if not userauth.userCan_Registry(cuser, 'view'):
             return reverse('user:dashboard')
 
         form = SearchForm()
@@ -72,7 +69,7 @@ def viewProfileSelf(request):
     if cuser is None:
         return HttpResponseRedirect(reverse('login'))
 
-    if (cuser.getType() == 'patient') and not userCan_Profile(cuser, cuser, 'view'):
+    if (cuser.getType() == 'patient') and not userauth.userCan_Profile(cuser, cuser, 'view'):
         return HttpResponseRedirect(reverse('user:eProfile'))
     else:
         return render(request, 'user/viewprofile.html', {'user': cuser, 'tuser': cuser})
@@ -87,7 +84,7 @@ def viewProfile(request, pk):
     tuser = get_object_or_404(User, pk=pk)
     tuser = healthUserFromDjangoUser(tuser)
 
-    if not userCan_Profile(cuser, tuser, 'view'):
+    if not userauth.userCan_Profile(cuser, tuser, 'view'):
         return HttpResponseRedirect(reverse('user:dashboard'))
 
     if cuser.user.pk == tuser.user.pk:
@@ -112,7 +109,7 @@ class EditProfile(View):
 
         if form.is_valid():
             if 'pk' in kwargs:
-                tuser = get_object_or_404(User, pk=pk)
+                tuser = get_object_or_404(User, pk=kwargs['pk'])
                 tuser = healthUserFromDjangoUser(tuser)
                 EditProfileHelper.updateUserProfile(form, tuser)
                 return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
@@ -138,7 +135,7 @@ class EditProfile(View):
                 tuser = get_object_or_404(User, pk=kwargs['pk'])
                 tuser = healthUserFromDjangoUser(tuser)
 
-                if not userCan_Profile(user, tuser, 'edit'):
+                if not userauth.userCan_Profile(user, tuser, 'edit'):
                     return HttpResponseRedirect('user:dashboard')
         else:
             tuser=user
@@ -146,7 +143,7 @@ class EditProfile(View):
 
         form_medical = None
 
-        if (tuser.hospital is None) or isHAdmin(user):
+        if (tuser.hospital is None) or userauth.isHAdmin(user):
             form_medical = EditProfileForm_medical()
 
         form_basic = EditProfileForm_basic()
@@ -192,7 +189,7 @@ class EditEvent(View):
         event = get_visible_event_or_404(pk)
 
         user = get_user(request)
-        if user is None or not userCan_Event(user, event, 'edit'):
+        if user is None or not userauth.userCan_Event(user, event, 'edit'):
             return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = getEventFormByUserType(user.getType())
@@ -228,8 +225,8 @@ def viewEvent(request, pk):
 
     event = get_object_or_404(Event, pk=pk)
 
-    if userCan_Event(user, event, 'view'):
-        can_edit = userCan_Event(user, event, 'edit')
+    if userauth.userCan_Event(user, event, 'view'):
+        can_edit = userauth.userCan_Event(user, event, 'edit')
         return render(request, 'user/eventdetail.html', {'user': user, 'event': event, 'can_edit': can_edit})
     else:
         return HttpResponseRedirect(reverse('user:dashboard'), args=(pk,))
@@ -259,10 +256,10 @@ class CreateEvent(View):
         if user.getType() == 'patient':
             otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
         elif user.getType() == 'doctor':
-            event.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+            eventForm.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
             otherEvents = getVisibleEvents(eventForm.cleaned_data['patient']).exclude(doctor = user)
         elif user.getType() in ['nurse', 'hadmin']:
-            event.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+            eventForm.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
 
         return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
 
