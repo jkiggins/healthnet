@@ -27,6 +27,8 @@
 
     {% elif user.getType == "nurse" or user.getType == "doctor"%}
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
+    {% elif user.getType == 'hosadmin' %}
+
     {% endif %}
 	
     <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>

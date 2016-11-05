@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 
+# this extension of user represents a nurse
 
 class Nurse(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -11,9 +12,22 @@ class Nurse(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
-    # TODO: add methods as they are needed,
     def getType(self):
         return "nurse"
+
+# this extension of user represents an admin
+
+class HospitalAdmin(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True, blank = True)
+    hospital = models.OneToOneField('hospital.Hospital', null=True, blank=True)
+    user.is_staff = True
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    def getType(self):
+        return "hosAdmin"
+
 
 # this extension of user represents a patient
 
@@ -31,7 +45,6 @@ class Patient(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
-    # TODO: add methods as they are needed,
     def getType(self):
         return "patient"
 
@@ -64,7 +77,6 @@ class Doctor(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
-    # TODO: add methods as they are needed
     def getType(self):
         return "doctor"
 

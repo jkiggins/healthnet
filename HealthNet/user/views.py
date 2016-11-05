@@ -328,7 +328,7 @@ def dashboardView(request):
 
     context = {'user': user}
 
-    if(user.getType() != "nurse"):
+    if(user.getType() != "nurse" and user.getType() != "hosadmin"):
         events = getVisibleEvents(user).order_by('startTime')
         context['events'] = events
     elif(user.getType() == "doctor"):
@@ -337,6 +337,10 @@ def dashboardView(request):
     elif(user.getType() == "nurse"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
+    elif(user.getType() == "hosadmin"):
+        context['patients'] = user.hospital.patient_set.all()
+        context['doctors'] = user.hospital.doctor_set.all()
+        context['nurses'] = user.hospital.nurse_set.all()
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
 

@@ -1,9 +1,9 @@
 {% extends 'user/base.html' %}
 	
 {% block content %}
-   
-   <div class="calendar">
-    {% if user.getType != "nurse" %}
+
+    <div class="calendar">
+    {% if user.getType != "nurse" and user.getType != "hosAdmin"%}
         {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
     {% endif %}
 	</div>
