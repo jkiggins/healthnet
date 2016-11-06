@@ -170,9 +170,11 @@ class EditProfile(View):
                 tuser = get_object_or_404(User, pk=kwargs['pk'])
                 tuser = healthUserFromDjangoUser(tuser)
                 EditProfileHelper.updateUserProfile(form, tuser)
+                Syslog.editProfile(user)
                 return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
             else:
                 EditProfileHelper.updateUserProfile(form, user)
+                Syslog.editProfile(user)
                 return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
             ctx = EditProfileHelper.getContextFromForm(form)
