@@ -137,6 +137,7 @@ def viewProfile(request, pk):
     tuser = healthUserFromDjangoUser(tuser)
 
     if not userauth.userCan_Profile(cuser, tuser, 'view'):
+        Syslog.unauth_acess(request)
         return HttpResponseRedirect(reverse('user:dashboard'))
 
     if cuser.user.pk == tuser.user.pk:
