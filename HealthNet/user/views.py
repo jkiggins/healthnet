@@ -273,7 +273,7 @@ def viewEvent(request, pk):
         can_edit = userauth.userCan_Event(user, event, 'edit')
         return render(request, 'user/eventdetail.html', {'user': user, 'event': event, 'can_edit': can_edit})
     else:
-        return HttpResponseRedirect(reverse('user:dashboard'), args=(pk,))
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
 
 class CreateEvent(View):
@@ -294,14 +294,15 @@ class CreateEvent(View):
         user = get_user(request)
         if user is None:
             return HttpResponseRedirect(reverse('login'))
+
+        if not userauth.userCan_Event(user, None, 'create'):
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
         myEvents = getVisibleEvents(user)
         otherEvents = None
         eventForm = getEventFormByUserType(user.getType())
         if user.getType() == 'patient':
             otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
-        elif user.getType() == 'doctor':
-            eventForm.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
-            otherEvents = getVisibleEvents(eventForm.cleaned_data['patient']).exclude(doctor = user)
         elif user.getType() in ['nurse', 'hadmin']:
             eventForm.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
 

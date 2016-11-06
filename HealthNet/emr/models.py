@@ -6,30 +6,26 @@ from user.models import Doctor, Patient
 
 class EMRItem(models.Model):
     """This is generic item which can be stored in the EMR, other models will extend this"""
-    patient = models.OneToOneField(Patient)
+    title = models.CharField(default="", max_length=50)
+    patient = models.ForeignKey(Patient)
     date_created = models.DateTimeField(default=timezone.now)
     content = models.CharField(max_length=200)
+    priority = models.IntegerField(default=0)
+
 
     def getType(self):
         return 'generic_item'
 
 
-class EMRTracking(EMRItem):
-    """This model is a generic tracked metric, meaning a provider can track some arbitrary detail about a patient
-    across different appointments"""
-    name = models.CharField(max_length=200, default="", unique=True)  # unique label for metric
-    rev = models.IntegerField(default=0)
-
-    class Meta:
-        abstract=True
-
-
-class EMRVitals(EMRTracking, EMRItem):
+class EMRVitals(EMRItem):
     """This model will store a set of vital sign readings as well as height, weight ...etc"""
     restingBPM = models.IntegerField(default=0)  # Resting pulse in beats/min
     bloodPressure = models.CharField(max_length=10, default="")  # Blood pressure in format ###/###
     height = models.FloatField(default=0)  # Height of the patient in inches
     weight = models.FloatField(default=0)  # Weight of a person in Lbs
+
+    def getType(self):
+        return 'vitals'
 
 
 class EMRProfile(EMRItem):
@@ -37,10 +33,16 @@ class EMRProfile(EMRItem):
     gender = models.CharField(max_length=10)
     blood_type = models.CharField(max_length=3)
 
+    def getType(self):
+        return 'profile'
+
 
 class EMRTest(EMRItem):
     images = models.ImageField(null=True, blank=True)
     released = models.BooleanField(default=False)
+
+    def getType(self):
+        return 'test'
 
 
 
@@ -58,3 +60,6 @@ class EMRPrescription(EMRItem):
     startDate = models.DateField(default=datetime.date.today)
     endDate = models.DateField(default=(timezone.now() + datetime.timedelta(days=30)))
     deactivated = models.BooleanField(default=False)
+
+    def getType(self):
+        return 'prescription'

@@ -17,6 +17,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from logIn.views import *
 
+admin.autodiscover()
+
 urlpatterns = [
 
     #login url

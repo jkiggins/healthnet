@@ -1,0 +1,71 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class = "emr_toolbox">
+            {{ form.keywords }}
+            <div class="emr_toolbox_wrap">
+                <input type = "button" class="emr_toolbox_item" value="Filter"/>
+                <div class="drop_down">
+                    <input type="button" class="emr_toolbox_label" value="Prescriptions" />{{ form.filters.0.tag }}
+                    <input type="button" class="emr_toolbox_label" value="Vitals" />{{ form.filters.1.tag }}
+                    <input type="button" class="emr_toolbox_label" value="Test Results" />{{ form.filters.2.tag }}
+                    <input type="button" class="emr_toolbox_label" value="Pending Test Results" />{{ form.filters.3.tag }}
+                    <input type="button" class="emr_toolbox_label" value="Admissions" />{{ form.filters.4.tag }}
+                    <input type="button" class="emr_toolbox_label" value="Dishcharge" />{{ form.filters.5.tag }}
+                    <input type = "button" class="emr_toolbox_action" value="Show Unreleased" data-filter = "get_unreleased" onclick="set_filter_and_submit(this)"/>
+                    <input type = "button" class="emr_toolbox_action" value="Show New" data-filter = "get_new" onclick="set_filter_and_submit(this)"/>
+                    <input type = "button" class="emr_toolbox_action" value="Reset All Filters" data-filter = "reset" onclick="set_filter_and_submit(this)"/>
+                    <input type="hidden" name="filter" id = "form_filter" value="">
+                </div>
+            </div>
+
+            <div class="emr_toolbox_wrap">
+                <input type = "button" class="emr_toolbox_item" value="Sort"/>
+                <div class="drop_down">
+                    <input class="emr_toolbox_label" value="Alphabetical" />{{ form.sort.0.tag }}
+                    <input class="emr_toolbox_label" value="Date" />{{ form.sort.1.tag }}
+                    <input class="emr_toolbox_label" value="Priority" />{{ form.sort.2.tag }}
+                    <input type = "button" class="emr_toolbox_action" value="Reset Radio Buttons" onclick="unselect_radio_set('sort')"/>
+                </div>
+            </div>
+
+            <div class="emr_toolbox_wrap">
+                <input type = "button" class="emr_toolbox_item" value="Actions"/>
+                <div class="drop_down">
+                    {% if permissions.canVitals or permissions.canAdd %}
+                        <input type = "button" class="emr_toolbox_action" value="New Vitals" data-action = "get_new" onclick="window.location={% url 'emr:cvitals' tuser.user.id %}"/>
+                    {% endif %}
+                    {% if permissions.canEdit %}
+                        <input type = "button" class="emr_toolbox_action" value="New Test" onclick="window.location={% url 'emr:ctest' tuser.user.id %}"/>
+                        <input type = "button" class="emr_toolbox_action" value="New EMR Item" onclick="window.location={% url 'emr:citem' tuser.user.id %}"/>
+                    {% endif %}
+
+                    {% if permissions.canAdmit %}
+                        <input type = "button" class="emr_toolbox_action" value="Admit Patient" onclick="window.location={% url 'emr:admit' tuser.user.id %}"/>
+                        <input type = "button" class="emr_toolbox_action" value="Discharge Patient" onclick="window.location={% url 'emr:discharge' tuser.user.id %}"/>
+                    {% endif %}
+                </div>
+            </div>
+
+            <input type = "submit" value="Submit" class="emr_toolbox_submit" />
+        </div>
+    </form>
+    {% for item in EMRItems %}
+        <div class = "card_wrapper">
+            <div class="card_hf bottomborder {{ item.getType }}">{{ item.title }}</div>
+
+            <div class = "card_body">
+                {% if item.emrtest != None %}
+                    <img src="{{ item.emrtest.image.path }}" />
+                {% endif %}
+                {{ item.content }}
+            </div>
+
+            <div class = "card_hf topborder">
+                <input type = "button" value = "details" onclick="window.location='{% url 'emr:vemrItem' item.id %}'"/>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

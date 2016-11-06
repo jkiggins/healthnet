@@ -11,7 +11,6 @@ class RegistrationForm(forms.Form):
 
     insuranceNum = forms.CharField(max_length=12, label='Insurance Number')
 
-
     def is_valid(self):
         valid = super(RegistrationForm, self).is_valid()
         if not valid:

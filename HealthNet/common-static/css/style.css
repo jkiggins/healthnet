@@ -8,6 +8,11 @@ body {
 	font-size: 16pt;
 }
 
+*
+{
+	font-size: inherit;
+}
+
 li {
 	list-style-type: none;
 	text-decoration: none;
@@ -46,7 +51,6 @@ li {
 	box-shadow: 3px 3px 20px #000;
 }
 
-
 #navbar {
 	display: inline;
 	margin: 0;
@@ -76,7 +80,6 @@ li {
 #navbar li a:hover {
 	background-color: #2D6597;
 }
-
 
 #centerBox {
 	margin: auto;
@@ -167,7 +170,6 @@ li {
 DIV.fieldWrapper
 {
 	width: 100%;
-	border: 1px solid blue
 }
 
 
@@ -224,12 +226,80 @@ DIV.fieldWrapper
 	top: 20px;
 }
 
+/**********CARD**********/
+.card_wrapper
+{
+	float: left;
+	width: 25%;
+	margin: 2%;
+	box-shadow: 3px 3px 20px #000;
+}
+
+.card_hf
+{
+	position: relative;
+	width: 100%;
+	text-align: center;
+	height: 2em;
+}
+
+.topborder
+{
+	border-top: 2px solid black;
+}
+
+.bottomborder
+{
+	border-bottom: 2px solid black;
+}
+
+.generic_item
+{
+	background-color: #8fdf82;
+}
+
+.test
+{
+	background-color: #4fdfdf;
+}
+
+.vitals
+{
+	background-color: #df6845;
+}
+
+.profile
+{
+	background-color: #df6845;
+}
+
+.card_hf input[type="button"]
+{
+	float:left;
+	height: 100%;
+
+	margin-right: 3px;
+
+	background-color: #2D6597;
+	color: #FFF;
+
+	font-size: inherit;
+	border: 0;
+}
+
+.card_body
+{
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 5%;
+}
+
 /*********INLINE CARD***********/
 .inline_card
 {
 	display: inline-block;
 	height: 2.5em;
-	margin-bottom: 5px;
 	border-bottom: solid black 2px;
 	margin-right: 10px;
 	margin-bottom: 10px;
@@ -280,17 +350,135 @@ DIV.fieldWrapper
 
 .content_box
 {
-	box-sizing: border-box;
 	margin: auto;
-	margin-top: 100px;
-	width: 45%;
+	width: 40%;
+	margin-top: 80px;
 	text-align: left;
 	line-height: 45px;
 	box-shadow: 3px 3px 20px #000;
 	padding: 25px 5% 25px 5%;
-	margin-right: 3%;
 }
 
+/******************EMR BOTTOM BAR******************/
+.emr_toolbox
+{
+	float: left;
+	width: 96%;
+	margin: 2%;
+	box-shadow: 3px 3px 20px #000;
+	z-index: 101;
+}
+
+.emr_toolbox_serchbar
+{
+	border: 1px solid #4fdfdf;
+	margin: 0;
+	box-sizing: border-box;
+	height: 3em;
+	float: left;
+	width: 40%;
+	font-size: inherit;
+	padding-left: 1.5%;
+}
+
+.emr_toolbox_label
+{
+	box-sizing: border-box;
+	float: left;
+	width: calc(100% - 42px);
+	height: 1.5em;
+	border: 0;
+	margin: 0;
+	background-color: #333333;
+	color: #FFF;
+	text-align: left;
+	z-index: 11;
+}
+
+.emr_toolbox_checkbox
+{
+	display: inline-block;
+	box-sizing: border-box;
+	float: right;
+	width: 40px; height: 1.5em;
+	border: 0;	margin: 0;	padding: 0;
+	background-color: #333333;
+}
+
+.emr_toolbox_action
+{
+	box-sizing: border-box;
+	float: left;
+	width: 100%;
+	height: 1.5em;
+	border: 0;
+	margin: 0;
+	background-color: #333333;
+	color: #FFF;
+	text-align: right;
+	z-index: 11;
+}
+
+.emr_toolbox_action:hover
+{
+	background-color: #df6845;
+}
+
+.emr_toolbox_wrap
+{
+	float: left;
+	width: 15%;
+	margin: 0;
+	box-sizing: border-box;
+	height: 3em;
+}
+
+.emr_toolbox_submit
+{
+	box-sizing: border-box;
+	float: left;
+	width: 15%;
+	height: 3em;
+	border: 0;
+	margin: 0;
+	background-color: #df6845;
+	color: #FFF;
+	text-align: center;
+}
+
+.emr_toolbox_submit:hover {
+	background-color: #2D6597;
+}
+
+.emr_toolbox_item
+{
+	position: relative;
+	width: 100%;
+	height: 3em;
+	background-color: grey;
+	margin: 0;
+	border: 0;
+	border-bottom: 1px solid black;
+
+	text-align: center;
+}
+
+.emr_toolbox_wrap .drop_down
+{
+	position: relative;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+.emr_toolbox_wrap:hover .drop_down
+{
+	position: relative;
+	width: 100%;
+	height: auto;
+	background-color: #333333;
+	z-index: 11;
+}
 
 
 
