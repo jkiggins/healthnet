@@ -347,6 +347,7 @@ class CreateEvent(View):
 
             if addEventConflictMessages(event_form, event):
                 event.save()
+                Syslog.createEvent(event,user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
         if user.getType() == 'patient':
