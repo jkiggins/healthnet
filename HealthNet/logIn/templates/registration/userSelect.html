@@ -1,0 +1,22 @@
+{% extends "logIn/banner.html" %}
+
+{% block content %}
+
+<div id="registerBox">
+    <form enctype="multipart/form-data" action="" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.label_tag }} {{ field }} {{ field.errors }}
+                {% if field.help_text %}
+                <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" value="Staff Selector" class="button">Begin Registration</a>
+        <button type="button" onclick="window.location.href='/login' " class="button">Back</button>
+    </form>
+</div>
+
+{% endblock %}

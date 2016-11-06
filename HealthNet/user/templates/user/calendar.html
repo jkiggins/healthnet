@@ -50,7 +50,7 @@
 			// allows for easy selection of an event
 			{% if canAccessDay != None %}
 				dayClick: function(date, jsEvent, view) {
-					$(this).css('background-color', 'red');
+					document.getElementById("dateTimeId_0").value=date.format();
 				}
 			{% endif %}
 		})

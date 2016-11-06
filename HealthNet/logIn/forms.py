@@ -47,6 +47,37 @@ class RegistrationFormFull(RegistrationForm):
 
         return valid
 
+class StaffRegistrationForm(forms.Form):
+    username = forms.CharField(max_length=30, label='User Name', required=True)
+    password1 = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)), label="Password")
+    password2 = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=False)),
+        label="Password (again)")
+    firstName = forms.CharField(max_length=30, required=True)
+    lastName = forms.CharField(max_length=30, required=True)
+    email =forms.EmailField(required=True)
+
+    def is_valid(self):
+        valid = super(StaffRegistrationForm, self).is_valid()
+        if not valid:
+            return valid
+
+        valid &= FormValid.usernameIsUnique(self, {'username': "This username is already in use"}, {})
+        valid &= FormValid.passwordsMatch(self, {'password2': "Passwords Don't match"}, {})
+
+        return valid
+
+class DoctorRegistrationForm(StaffRegistrationForm):
+    hospitals = forms.ModelMultipleChoiceField(Hospital.objects.all(), label="Hospital Selection", required=True, widget=forms.CheckboxSelectMultiple())
+
+class NurseRegistrationForm(StaffRegistrationForm):
+    hospital = forms.ModelChoiceField(Hospital.objects.all(), label="Hospital Selection", required=True)
+
+class UserSelectForm(forms.Form):
+    typeOfUser = forms.MultipleChoiceField(choices=(('doctor', 'Doctor'), ('nurse', 'Nurse')), required=True, label="Are you a doctor or a nurse?")
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=30, required=True, label="Username")

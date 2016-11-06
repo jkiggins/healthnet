@@ -10,6 +10,7 @@
         <input type="password" placeholder="Password" name="password">
         <button type="submit" value="Login" id="login-button">Log In</button>
         <button type="button" onclick="window.location.href='register/' ">Register</button>
+		<button type="button" onclick="{% url 'logIn:userSelect' %}">Staff Register</button>
     </form>
 
 {% endblock %}
