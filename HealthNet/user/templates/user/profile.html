@@ -1,0 +1,52 @@
+ <h2>Profile of: {{ tuser.user.get_full_name }}</h2>
+    <ul>
+        <li>Email:{{ tuser.user.email }}</li>
+
+    {% if tuser.getType == "patient" %}
+
+        <li>Phone: {{ tuser.phone }}</li>
+        <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
+        <li>Address: {{ tuser.address }}</li>
+        <li>Insurance #: {{ tuser.insuranceNum }}</li>
+        <li>Hospital: {{ tuser.hospital.name }}</li>
+        <li>Doctor: <a href = "{% url 'user:vProfile' tuser.doctor.user.id %}">{{ tuser.doctor.user.get_full_name }}</a></li>
+
+        {% if user.getType != 'patient' %}
+            <li><a href="{% url 'emr:vemr' tuser.user.id %}" class="button">EMR</a></li>
+        {% endif %}
+
+        {% if user.getType == 'patient' or user.getType == 'hosAdmin' %}
+            <li><a href="{% url 'user:eProfile' %}" class="button">Edit</a></li>
+        {% endif %}
+
+    {% elif tuser.getType == "doctor" %}
+
+{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S patients %%%%%%%%%%{% endcomment %}
+        <h3>Patients</h3>
+
+        {% for p in tuser.patient_set.all %}
+
+            <li><a href = "{% url 'user:vProfile' p.user.id %}">{{ p.user.get_full_name }}</a></li>
+
+        {% endfor %}
+
+{% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S HOSPITALS %%%%%%%%%%{% endcomment %}
+        <h3>Hosptials</h3>
+
+        {% for h in tuser.hospitals.all %}
+
+            <li>{{ h.name }}</li>
+
+        {% endfor %}
+    {% endif %}
+
+    {% if tuser.getType == "nurse" %}
+
+         <h2>Trusted By:</h2>
+        {% for d in tuser.doctor_set.all %}
+
+            <li><a href = "{% url 'user:vProfile' d.user.id %}">{{ d.user.get_full_name }}</a></li>
+
+        {% endfor %}
+    {% endif %}
+    </ul>
