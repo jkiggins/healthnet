@@ -60,6 +60,24 @@ def create_new_nurse():
         last_name="Joy")
     return Nurse.objects.create(user=un, hospital=h)
 
+def create_new_event():
+    """Creates a new event for testing purposes"""
+    d = Doctor.objects.all()[0]
+    h = d.hospitals.all()[0]
+    p = Patient.objects.all()[0]
+    st = timezone.now()
+    et = st + datetime.timedelta(minutes=30)
+    eve = Event.objects.create(
+        patient=p,
+        doctor=d,
+        hospital=h,
+        appointment=True,
+        description = "an appointment",
+        startTime = st,
+        endTime = et)
+    return eve
+
+
 class SystemLogCreationTest(TestCase):
 
     def setUp(self):
@@ -110,8 +128,8 @@ class SystemLogCreationTest(TestCase):
     def test_appointment_create_syslog(self):
         """An appointment is created and the resulting log is verified"""
         num_syslog_items_before = Syslog.objects.all().count()
-
-        # self.assertEqual(Syslog.objects.all().count(), (num_syslog_items_before + 1))
+        Syslog.createEvent(create_new_event(), Patient.objects.all()[0])
+        self.assertEqual(Syslog.objects.all().count(), (num_syslog_items_before + 1))
 
     def test_emr_view_create_syslog(self):
         """request the emr as an admin, ensure a syslog is created"""
