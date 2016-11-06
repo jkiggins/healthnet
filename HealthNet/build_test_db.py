@@ -84,5 +84,5 @@ uha = User.objects.create_user(
             first_name="Kid",
             last_name="Cudi")
 uha.save()
-ha = HospitalAdmin.objects.create(user=uha, hospital=h)
+ha = HospitalAdmin.objects.create(user=uha, hospital=h1)
 ha.save()
