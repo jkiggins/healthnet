@@ -63,9 +63,13 @@ class Registry(View):
         results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \
                   + getResultsFromModelQuerySet(events)
 
-        print(results)
+        print(words)
 
-        return render(request, 'user/registry.html', {'user': cuser, 'results': results, 'search_form': form})
+        if cuser.getType() == "hosAdmin":
+            return render(request, 'user/dashboard.html', {'user': cuser, 'results': results, 'search_form': form})
+        else:
+            return render(request, 'user/registry.html', {'user': cuser, 'results': results, 'search_form': form})
+
 
     def get(self, request):
         cuser = get_user(request)
@@ -77,7 +81,10 @@ class Registry(View):
 
         form = SearchForm()
 
-        return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
+        if cuser.getType() == "hosAdmin":
+            return render(request, 'user/dashboard.html', {'search_form': form, 'user': cuser})
+        else:
+            return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
 
 
 def viewProfileSelf(request):
@@ -356,9 +363,8 @@ def dashboardView(request):
     elif(user.getType() == "hosAdmin"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
-        context['nurses'] = user.hospital.nurse_set.all()
+        context['search_form'] = SearchForm()
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
-
 
     return render(request, 'user/dashboard.html', context)
