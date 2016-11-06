@@ -227,9 +227,10 @@ class EditEvent(View):
         event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
 
         if event_form.is_valid():
-            if deleteInPostIsTrue(request.POST):
+            if deleteInPostIsTrue(request.POST): # deleting event
                 old_event.visible = False
                 old_event.save()
+                Syslog.deleteEvent(old_event,user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
             new_event = event_form.getModel()
@@ -237,6 +238,7 @@ class EditEvent(View):
 
             if addEventConflictMessages(event_form, old_event):
                 old_event.save()
+                Syslog.modifyEvent(new_event,user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
         context = {'form': event_form, 'event': old_event, 'user': user}
