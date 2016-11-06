@@ -40,6 +40,7 @@ class viewEMR(DetailView):
         patient = self.get_object()
 
         if not userauth.userCan_EMR(cuser, patient, 'view'):
+            Syslog.unauth_acess(request)
             return HttpResponseRedirect(reverse('user:dahsboard'))
     ############################
 
@@ -50,6 +51,7 @@ class viewEMR(DetailView):
 
         form = FilterSortForm()
 
+        Syslog.viewEMR(emr,user)
         return render(request, 'emr/viewEmr.html', {'EMRItems': emr, 'form': form, 'user': cuser, 'tuser': patient,
                                                     'permissions': self.getPermissionsContext(cuser, patient)})
 
