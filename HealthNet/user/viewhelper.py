@@ -29,6 +29,7 @@ def get_visible_event_or_404(pk):
 
 
 def getVisibleEvents(user):
+
     return user.event_set.all().filter(visible=True)
 
 

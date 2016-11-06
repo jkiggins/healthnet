@@ -77,6 +77,13 @@ class Registry(View):
                     pendingnur |= pendingnurse.filter(user__last_name__contains=word)
                     pendingnur |= pendingnurse.filter(hospital__name__contains=word)
 
+            nurses = Nurse.objects.none()
+            if 'nurse' in form.cleaned_data['filterBy']:
+                for word in words:
+                    nurses |= Nurse.objects.filter(user__first_name__contains=word).filter(accepted=True)
+                    nurses |= Nurse.objects.filter(user__last_name__contains=word).filter(accepted=True)
+                    nurses |= Nurse.objects.filter(hospital__name__contains=word).filter(accepted=True)
+
         results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \
                     + getResultsFromModelQuerySet(events)
 
@@ -84,6 +91,7 @@ class Registry(View):
         if cuser.getType() == "hosAdmin":
             results += getResultsFromModelQuerySet(pendingdoc)
             results += getResultsFromModelQuerySet(pendingnur)
+            results += getResultsFromModelQuerySet(nurses)
 
 
         if cuser.getType() == "hosAdmin":
@@ -134,10 +142,16 @@ def viewProfile(request, pk):
     if cuser.user.pk == tuser.user.pk:
         return HttpResponseRedirect(reverse('user:vProfilec'))
 
-    context = {'user': cuser,
+    if tuser.getType() != 'nurse':
+        context = {'user': cuser,
                'tuser': tuser,
                'events': getVisibleEvents(tuser),
                'view_calendar': True}
+    else:
+        context = {'user': cuser,
+                'tuser': tuser,
+                'events': None,
+                'view_calendar': False}
 
     return render(request, 'user/viewprofile.html', context)
 

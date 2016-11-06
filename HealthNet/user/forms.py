@@ -246,7 +246,7 @@ class EditProfileForm_medical(forms.Form):
 
 class HosAdminSearchForm(forms.Form):
     keywords = forms.CharField(max_length=50, label="Keywords", required=False)
-    choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'), ('pending', 'Pending Staff'))
+    choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'), ('nurse', 'Nurses'), ('pending', 'Pending Staff'))
     filterBy = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=choices, required=False, label="")
 
 
