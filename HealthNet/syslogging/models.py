@@ -17,7 +17,7 @@ class Syslog(models.Model):
 
     @staticmethod
     def unauth_acess(request):
-        Syslog.objects.create(type="Delete", message="Attemted unauthorized access at url: {0} by user {1}".format(request.path, request.user.username))
+        Syslog.objects.create(type="Delete", message="Attempted unauthorized access at url: {0} by user {1}".format(request.path, request.user.username))
 
     @staticmethod
     def deleteEvent(event, user):
@@ -40,6 +40,7 @@ class Syslog(models.Model):
         Syslog.objects.create(type="Login",
                               message="User: {0} created event with pk: {1}".format(
                                   user.get_full_name(), user.id))
+
     @staticmethod
     def userCreate(user):
         Syslog.objects.create(type="Create",
