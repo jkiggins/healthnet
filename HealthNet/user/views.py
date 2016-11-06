@@ -31,8 +31,12 @@ class Registry(View):
         if cuser is None:
             return HttpResponseRedirect(reverse('login'))
 
-        form = SearchForm(request.POST)
-        form.full_clean()
+        if cuser.getType() == "hosAdmin":
+            form = HosAdminSearchForm(request.POST)
+            form.full_clean()
+        else:
+            form = SearchForm(request.POST)
+            form.full_clean()
 
 
         words = form.cleaned_data['keywords'].split(' ')
@@ -48,8 +52,8 @@ class Registry(View):
 
         if 'doctor' in form.cleaned_data['filterBy']:
             for word in words:
-                doctors |= Doctor.objects.filter(user__first_name__contains=word)
-                doctors |= Doctor.objects.filter(user__last_name__contains=word)
+                doctors |= Doctor.objects.filter(user__first_name__contains=word).filter(accepted=True)
+                doctors |= Doctor.objects.filter(user__last_name__contains=word).filter(accepted=True)
 
         if 'event' in form.cleaned_data['filterBy']:
             for word in words:
@@ -60,10 +64,27 @@ class Registry(View):
                 events |= Event.objects.filter(title__contains=word)
                 events |= Event.objects.filter(description__contains=word)
 
-        results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \
-                  + getResultsFromModelQuerySet(events)
+        if cuser.getType() == "hosAdmin":
+            pendingdoc = Doctor.objects.none()
+            pendingnur = Nurse.objects.none()
+            pendingdoctor = cuser.hospital.doctor_set.filter(accepted=False)
+            pendingnurse = cuser.hospital.nurse_set.filter(accepted=False)
+            if 'pending' in form.cleaned_data['filterBy']:
+                for word in words:
+                    pendingdoc |= pendingdoctor.filter(user__first_name__contains=word)
+                    pendingdoc |= pendingdoctor.filter(user__last_name__contains=word)
+                    pendingnur |= pendingnurse.filter(user__first_name__contains=word)
+                    pendingnur |= pendingnurse.filter(user__last_name__contains=word)
+                    pendingnur |= pendingnurse.filter(hospital__name__contains=word)
 
-        print(words)
+        results = getResultsFromModelQuerySet(patients) + getResultsFromModelQuerySet(doctors) \
+                    + getResultsFromModelQuerySet(events)
+
+
+        if cuser.getType() == "hosAdmin":
+            results += getResultsFromModelQuerySet(pendingdoc)
+            results += getResultsFromModelQuerySet(pendingnur)
+
 
         if cuser.getType() == "hosAdmin":
             return render(request, 'user/dashboard.html', {'user': cuser, 'results': results, 'search_form': form})
@@ -363,7 +384,7 @@ def dashboardView(request):
     elif(user.getType() == "hosAdmin"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
-        context['search_form'] = SearchForm()
+        context['search_form'] = HosAdminSearchForm()
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
 

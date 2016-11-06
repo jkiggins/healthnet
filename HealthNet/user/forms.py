@@ -215,6 +215,7 @@ class EditProfileForm_basic(forms.Form):
     email = forms.CharField(max_length=50, required=False)
     phone = forms.CharField(max_length=10, label="Phone Number", required=False)
     address = forms.CharField(max_length=50, label="Your Address", required=False)
+
     basic = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
 
 
@@ -241,6 +242,12 @@ class EditProfileForm_medical(forms.Form):
     doctor = forms.ModelChoiceField(queryset=Doctor.objects.all())
     hospital = forms.ModelChoiceField(queryset=Hospital.objects.all())
     medical = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
+
+
+class HosAdminSearchForm(forms.Form):
+    keywords = forms.CharField(max_length=50, label="Keywords", required=False)
+    choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'), ('pending', 'Pending Staff'))
+    filterBy = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=choices, required=False, label="")
 
 
 class SearchForm(forms.Form):

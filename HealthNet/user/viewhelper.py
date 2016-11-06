@@ -170,8 +170,11 @@ def getResultFromModel(model):
         return [{'type': 'Event'},{'url': reverse('user:vEvent', args=(model.id,)), 'label': model.title},
                 {'url': reverse('user:eEvent', args=(model.id,)), 'label': "edit"}]
 
+    if isinstance(model, Nurse):
+        return [{'type': 'Nurse'}, {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()}]
+
     if isinstance(model, Patient):
-        return [{'type': 'patient'},
+        return [{'type': 'Patient'},
                 {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()},
                 {'url': reverse('emr:vemr', args=(model.user.id,)), 'label': "EMR"}]
 
