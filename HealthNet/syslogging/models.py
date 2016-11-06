@@ -45,8 +45,10 @@ class Syslog(models.Model):
         Syslog.objects.create(type="Create",
                               message="User: {0} registered, pk: {1}".format(
                                   user.user.username, user.id))
+
     @staticmethod
     def editProfile(user):
         Syslog.objects.create(type="Edit",
                               message="User: {0} edited their profile, pk: {1}".format(
                                   user.user.get_full_name(), user.id))
+
