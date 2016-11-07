@@ -2,13 +2,14 @@ from django.db import models
 from django.utils import timezone
 import datetime
 from user.models import Doctor, Patient
+from django.contrib.auth.models import User
 
 
 class EMRItem(models.Model):
     """This is generic item which can be stored in the EMR, other models will extend this"""
     title = models.CharField(default="", max_length=50)
-    patient = models.ForeignKey(Patient)
-    date_created = models.DateTimeField(default=timezone.now)
+    patient = models.ForeignKey(Patient, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True)
     content = models.CharField(max_length=200)
     priority = models.IntegerField(default=0)
 
@@ -30,8 +31,8 @@ class EMRVitals(EMRItem):
 
 class EMRProfile(EMRItem):
     birthdate = models.DateTimeField(default=timezone.now)
-    gender = models.CharField(max_length=10)
-    blood_type = models.CharField(max_length=3)
+    gender = models.CharField(max_length=10, default="")
+    blood_type = models.CharField(max_length=3, default="")
 
     def getType(self):
         return 'profile'
@@ -45,7 +46,6 @@ class EMRTest(EMRItem):
         return 'test'
 
 
-
 """
 This Prescription class holds all the information relating to a single prescription
 
@@ -53,7 +53,7 @@ Extending EMRItem for created DateTime and linked to a emr
 """
 class EMRPrescription(EMRItem):
     # Created DateTimeField is found in EMRItem
-    doctor = models.ForeignKey('user.Doctor', null=False, blank=True)
+    proivder = models.ForeignKey(User, null=True, blank=True)
     # TODO: DRUG DATABASE
     dosage = models.CharField(max_length=50, default="", null=False)
     amountPerDay = models.CharField(max_length=50, default="", null=False)

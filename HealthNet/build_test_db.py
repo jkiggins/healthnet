@@ -24,7 +24,6 @@ ud = User.objects.create_user(
 ud.save()
 d = Doctor.objects.create(user=ud)
 d.hospitals.add(h)
-d.hospitals.add(h1)
 d.save()
 
 ud = User.objects.create_user(

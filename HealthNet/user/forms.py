@@ -55,7 +55,7 @@ def doctor_nurse_shared_validation(event_form):
 
 
 class EventForm(forms.ModelForm):
-    title = forms.CharField(label="Title")
+    title = forms.CharField(label="Title", required=False)
     startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(attrs={'id': "dateTimeId"}), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
                                          label="Start Time")
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
@@ -239,9 +239,23 @@ class EditProfileForm_emergency(forms.Form):
 
 
 class EditProfileForm_medical(forms.Form):
-    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all())
-    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all())
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False)
     medical = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
+
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm_medical, self).__init__(*args, **kwargs)
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['hospital'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+
+    def is_valid(self):
+        self.fields['doctor'].required = True
+        self.fields['hospital'].required = True
+        valid = super(EditProfileForm_medical, self).is_valid()
+        if not valid:
+            return valid
+
+        return valid
 
 
 class HosAdminSearchForm(forms.Form):

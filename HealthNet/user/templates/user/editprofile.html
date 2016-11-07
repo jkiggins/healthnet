@@ -8,7 +8,7 @@
         <form action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form_basic.as_ul }}
-            <input type = "submit" value = "Save" class="button"/>
+            <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
         </form>
     </div>
 {% endif %}
@@ -19,7 +19,7 @@
         <form action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form_medical.as_ul }}
-            <input type = "submit" value = "Save" class="button"/>
+            <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
         </form>
     {% else %}
         <ul>
@@ -35,7 +35,7 @@
     <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form_emergency.as_ul }}
-        <input type = "submit" value = "Save" class="button"/>
+        <input type = "button" value = "Save" onclick="submit_form(this)" class="button"/>
     </form>
 </div>
 {% endif %}

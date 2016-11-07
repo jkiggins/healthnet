@@ -117,6 +117,69 @@ class viewEMR(DetailView):
                                                     'permissions': self.getPermissionsContext(cuser, patient)})
 
 
+class TestCreate(View):
+
+    def get(self, request):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        #TODO: add user authentication
+
+
+        form = TestCreateForm(initial={'patient': patient.pk})
+
+        return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
+
+
+class EMRItemCreate(View):
+    type = None
+    pk_url_kwarg = 'pk'
+
+    def getFormFromReqType(self, patient, provider, post=None):
+        form = None
+        if self.type == 'test':
+            if post != None:
+                form = TestCreateForm(post)
+            else:
+                form = TestCreateForm(initial={'emrpatient': patient.pk})
+        elif self.type == 'vitals':
+            if post != None:
+                form = VitalsCreateForm(post)
+            else:
+                form = VitalsCreateForm(initial={'emrpatient': patient.pk})
+
+
+        return form
+
+
+    def get(self, request, pk=None):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        patient = get_object_or_404(Patient, pk=pk)
+        form = self.getFormFromReqType(patient, cuser)
+
+        return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
+
+
+    def post(self, request, pk=None):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        patient = get_object_or_404(Patient, pk=pk)
+        form = self.getFormFromReqType(patient, cuser, post=request.POST)
+
+
+        if form.is_valid():
+            form.save(commit=True, patient=patient)
+            return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
+        else:
+            return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
+
+
 
 def viewEMRItem(request, pk):
     pass

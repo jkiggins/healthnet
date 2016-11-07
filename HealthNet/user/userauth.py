@@ -3,6 +3,14 @@ def getAttrIfExists(obj, attr):
         return getattr(obj, attr)
     return None
 
+
+def patientHasDoctorHospital(user, pass_value):
+    if user.getType() == "patient":
+        return not((user.hospital is None) or (user.doctor is None))
+    return pass_value
+
+
+
 def nurseIsTrusted(nurse, doctor):
     return (nurse in doctor.nurses.all())
 
@@ -36,6 +44,8 @@ def userCan_Event(user, event, *actions):
     if 'create' in actions:
         if utype == 'patient':
             auth |= not(user.doctor is None) and not(user.hospital is None)
+        else:
+            auth = True
 
     return auth
 
@@ -88,7 +98,7 @@ def userCan_EMR(cuser, patient, *actions):
 
     if 'view' in actions:
         if utype == 'patient':
-            return False
+            return patientHasDoctorHospital(cuser, True)
         elif utype == 'doctor':
             auth |= patient in cuser.patient_set.all()
             auth |= patient.hospital in cuser.hospitals.all()

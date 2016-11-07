@@ -159,6 +159,39 @@ def viewProfile(request, pk):
 
 class EditProfile(View):
 
+    @staticmethod
+    def dependand_post(request, **kwargs):
+        if request.method == "POST":
+            user = get_user(request)
+            tuser = None
+
+            if user is None:
+                return HttpResponseRedirect(reverse('login'))
+
+            if 'pk' in kwargs:
+                if kwargs['pk'] == user.pk:
+                    return HttpResponseRedirect(reverse('user:eProfile'))
+                else:
+                    tuser = get_object_or_404(User, pk=kwargs['pk'])
+                    tuser = healthUserFromDjangoUser(tuser)
+
+                    if not userauth.userCan_Profile(user, tuser, 'edit'):
+                        return HttpResponseRedirect('user:dashboard')
+            else:
+                tuser = user
+
+            ctx = EditProfileHelper.getContextWithPopulatedForm(request.POST)
+
+            ctx['form_medical'].full_clean()
+            populateDependantFieldsDH(ctx['form_medical'], Doctor.objects.all(), Hospital.objects.all())
+
+            ctx['user'] = user
+            ctx['tuser'] = user
+
+            return render(request, 'user/editprofile.html', ctx)
+
+
+
     def post(self, request, **kwargs):
         user = get_user(request)
         if user is None:
@@ -271,9 +304,13 @@ class EditEvent(View):
                 return HttpResponseRedirect(reverse('login'))
 
             event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
+            event_form.full_clean()
 
-            if event_form.full_clean():
-                populate_dependant_fields(event_form, user)
+
+            if user.getType() == 'doctor':
+                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
+            if user.getType() == 'nurse':
+                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(), user.hospital.doctor_set.all(), user.hospital)
 
             elevate_if_trusted(event_form, user)
             return render(request, 'user/eventdetail.html', {'form': event_form, 'user': user, 'event': event})
@@ -327,7 +364,6 @@ class CreateEvent(View):
 
         return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
 
-
     def post(self, request):
         user = get_user(request)
         if user is None:
@@ -369,9 +405,15 @@ class CreateEvent(View):
                 return HttpResponseRedirect(reverse('login'))
 
             event_form = getEventFormByUserType(user.getType(), data=request.POST)
+            otherEvents = Event.objects.none()
 
-            if event_form.full_clean():
-                populate_dependant_fields(event_form, user)
+            event_form.full_clean()
+
+            if user.getType() == 'doctor':
+                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
+            elif user.getType() == 'nurse':
+                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(),
+                                          user.hospital.doctor_set.all(), user.hospital)
 
             elevate_if_trusted(event_form, user)
 

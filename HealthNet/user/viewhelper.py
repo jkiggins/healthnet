@@ -109,13 +109,26 @@ def addEventConflictMessages(event_form, event):
 class EditProfileHelper:
     @staticmethod
     def getFormByPostData(post):
-        print(post)
         if dict_has_keys(['medical'], post):
             return EditProfileForm_medical(post)
         elif dict_has_keys(['basic'], post):
             return EditProfileForm_basic(post)
         elif dict_has_keys(['emergency'], post):
             return EditProfileForm_emergency(post)
+
+    @staticmethod
+    def getContextWithPopulatedForm(post):
+        ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
+
+        if dict_has_keys(['medical'], post):
+            ret['form_medical'] = EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            ret['form_basic'] = EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            ret['form_emergency'] = EditProfileForm_emergency(post)
+
+        return ret
+
 
     @staticmethod
     def getContextFromForm(form):
