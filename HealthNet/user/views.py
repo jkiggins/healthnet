@@ -167,12 +167,7 @@ class viewProfile(View):
                     tuser.accepted = False
                     tuser.save()
 
-            if tuser.getType() == "patient":
-                context = {'user': cuser,
-                           'tuser': tuser,
-                           'events': getVisibleEvents(tuser),
-                           'view_calendar': True}
-            elif tuser.getType() == "nurse":
+            if tuser.getType() == "nurse":
                 context = {'user': cuser,
                            'tuser': tuser,
                            'events': None,
@@ -210,12 +205,7 @@ class viewProfile(View):
             form = ApproveForm()
 
         if cuser.getType() == "hosAdmin":
-            if tuser.getType() == "patient":
-                context = {'user': cuser,
-                    'tuser': tuser,
-                    'events': getVisibleEvents(tuser),
-                    'view_calendar': True}
-            elif tuser.getType() == "nurse":
+            if tuser.getType() == "nurse":
                 context = {'user': cuser,
                     'tuser': tuser,
                     'events': None,
