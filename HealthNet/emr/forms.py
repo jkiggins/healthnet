@@ -63,7 +63,7 @@ class TestCreateForm(EMRItemCreateForm):
 class VitalsCreateForm(EMRItemCreateForm):
     class Meta:
         model = EMRVitals
-        fields = ['title', 'content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight', 'patient']
+        fields = ['title', 'content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
 
 
 class prescriptionCreateForm(EMRItemCreateForm):

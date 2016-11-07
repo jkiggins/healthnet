@@ -28,8 +28,8 @@ class Syslog(models.Model):
         Syslog.objects.create(type = "Modify", message = "User: {0} modified event: {1} with primary key: {2}".format(user.user.get_full_name(), event.description, event.id))
 
     @staticmethod
-    def viewEMR(emr, user):
-        Syslog.objects.create(type="View", message="User: {0} viewed emr log with primary key {1}".format(user.user.get_full_name(), emr.id))
+    def viewEMR(patient, user):
+        Syslog.objects.create(type="View", message="User: {0} viewed emr log with primary key {1}".format(user.user.get_full_name(), patient.user.id))
 
     @staticmethod
     def createEvent(event, user):

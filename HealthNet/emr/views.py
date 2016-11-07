@@ -1,8 +1,6 @@
 from django.shortcuts import render , get_object_or_404
 from django.http import HttpResponse , HttpResponseRedirect
-from emr.forms import EMRVitalsForm
 from django.views.generic import DetailView, View
-from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from user.models import Patient
 from user import userauth
@@ -10,6 +8,7 @@ from user.viewhelper import get_user
 from .models import *
 from .forms import *
 from .viewhelper import *
+from syslogging.models import *
 
 
 def viewSelfEmr(request):
@@ -51,7 +50,7 @@ class viewEMR(DetailView):
 
         form = FilterSortForm()
 
-        Syslog.viewEMR(emr,user)
+        Syslog.viewEMR(patient,cuser)
         return render(request, 'emr/viewEmr.html', {'EMRItems': emr, 'form': form, 'user': cuser, 'tuser': patient,
                                                     'permissions': self.getPermissionsContext(cuser, patient)})
 
@@ -117,21 +116,6 @@ class viewEMR(DetailView):
                                                     'permissions': self.getPermissionsContext(cuser, patient)})
 
 
-class TestCreate(View):
-
-    def get(self, request):
-        cuser = get_user(request)
-        if cuser is None:
-            return HttpResponseRedirect(reverse('login'))
-
-        #TODO: add user authentication
-
-
-        form = TestCreateForm(initial={'patient': patient.pk})
-
-        return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
-
-
 class EMRItemCreate(View):
     type = None
     pk_url_kwarg = 'pk'
@@ -145,7 +129,7 @@ class EMRItemCreate(View):
                 form = TestCreateForm(initial={'emrpatient': patient.pk})
         elif self.type == 'vitals':
             if post != None:
-                form = VitalsCreateForm(post)
+                form = VitalsCreateForm(post, initial={'emrpatient': patient.pk})
             else:
                 form = VitalsCreateForm(initial={'emrpatient': patient.pk})
 
@@ -169,6 +153,8 @@ class EMRItemCreate(View):
         if cuser is None:
             return HttpResponseRedirect(reverse('login'))
 
+
+        print('pk: {0}'.format(pk))
         patient = get_object_or_404(Patient, pk=pk)
         form = self.getFormFromReqType(patient, cuser, post=request.POST)
 
@@ -178,7 +164,6 @@ class EMRItemCreate(View):
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
         else:
             return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
-
 
 
 def viewEMRItem(request, pk):

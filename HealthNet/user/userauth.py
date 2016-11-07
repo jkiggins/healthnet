@@ -4,11 +4,18 @@ def getAttrIfExists(obj, attr):
     return None
 
 
-def patientHasDoctorHospital(user, pass_value):
+def patientHasCompletedProfile(user):
     if user.getType() == "patient":
-        return not((user.hospital is None) or (user.doctor is None))
-    return pass_value
+        auth=True
+        print(auth)
+        auth &= not((user.hospital is None) or (user.doctor is None))
+        print(auth)
+        auth &= user.user.get_full_name() != ''
+        print(auth)
+        auth &= not(user.contact is None)
+        print(auth)
 
+    return True
 
 
 def nurseIsTrusted(nurse, doctor):
@@ -43,7 +50,7 @@ def userCan_Event(user, event, *actions):
 
     if 'create' in actions:
         if utype == 'patient':
-            auth |= not(user.doctor is None) and not(user.hospital is None)
+            auth |= patientHasCompletedProfile(user)
         else:
             auth = True
 
@@ -68,7 +75,7 @@ def userCan_Profile(cuser, tuser, *actions):
         elif (tutype == 'patient' and utype == 'doctor'):
             auth |= (tuser.hospital in cuser.hospitals.all())
         elif (tutype == 'patient'):
-            auth |= not((tuser.hospital is None) or (tuser.doctor is None))
+            auth |= patientHasCompletedProfile(tuser)
 
         auth |= (utype == 'hosAdmin')
 
@@ -98,7 +105,7 @@ def userCan_EMR(cuser, patient, *actions):
 
     if 'view' in actions:
         if utype == 'patient':
-            return patientHasDoctorHospital(cuser, True)
+            return patientHasCompletedProfile(cuser)
         elif utype == 'doctor':
             auth |= patient in cuser.patient_set.all()
             auth |= patient.hospital in cuser.hospitals.all()
