@@ -37,5 +37,6 @@ urlpatterns = [
     url(r'^user/', include('user.urls')), # User URL
     url(r'^logIn', include('logIn.urls')),
     url(r'emr/', include('emr.urls')),
+    url(r'^syslog/', include('syslogging.urls'))
 
 ]
