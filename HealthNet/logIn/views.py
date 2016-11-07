@@ -167,9 +167,10 @@ class LoginView(View):
                         Syslog.userLogin(user)
                         return HttpResponseRedirect(reverse('user:dashboard'))
                     else:
-                        return HttpResponseRedirect(reverse('login'))
-                        #form = LoginForm()
-                        #return render(request, 'logIn/index.html', {'something': True, 'form': form})
+                        #return HttpResponseRedirect(reverse('login'))
+                        form = LoginForm()
+                        message = "Your hospital admin has not authenticated you."
+                        return render_to_response(request, 'logIn/index.html', {'message': message, 'form': form})
                 login(request, user)
                 Syslog.userLogin(user)
                 return HttpResponseRedirect(reverse('user:dashboard'))

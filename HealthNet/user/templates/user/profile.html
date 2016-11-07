@@ -15,7 +15,7 @@
             <li><a href="{% url 'emr:vemr' tuser.id %}" class="button">EMR</a></li>
         {% endif %}
 
-        {% if user.getType == 'patient' or user.getType == 'hosAdmin' %}
+        {% if user.getType == 'patient' %}
             <li><a href="{% url 'user:eProfile' %}" class="button">Edit</a></li>
         {% endif %}
 
