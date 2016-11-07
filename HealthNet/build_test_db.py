@@ -7,6 +7,8 @@ Hospital.objects.all().delete()
 User.objects.all().delete()
 Doctor.objects.all().delete()
 Patient.objects.all().delete()
+Nurse.objects.all().delete()
+HospitalAdmin.objects.all().delete()
 
 h = Hospital.objects.create(name="The Hospital")
 h.save()
@@ -22,7 +24,7 @@ ud = User.objects.create_user(
             last_name="Strange"
         )
 ud.save()
-d = Doctor.objects.create(user=ud)
+d = Doctor.objects.create(user=ud, accepted=True)
 d.hospitals.add(h)
 d.save()
 
@@ -34,7 +36,7 @@ ud = User.objects.create_user(
             last_name="Normal"
         )
 ud.save()
-d = Doctor.objects.create(user=ud)
+d = Doctor.objects.create(user=ud, accepted=True)
 d.hospitals.add(h)
 d.save()
 
@@ -72,7 +74,7 @@ un = User.objects.create_user(
             first_name="Nurse",
             last_name="Normal")
 un.save()
-n = Nurse.objects.create(user=un, hospital=h)
+n = Nurse.objects.create(user=un, hospital=h, accepted=True)
 n.save()
 
 
