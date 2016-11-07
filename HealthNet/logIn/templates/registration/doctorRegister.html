@@ -3,7 +3,7 @@
 {% block content %}
 
 <div id="registerBox">
-    <form enctype="multipart/form-data" action="" method="POST">
+    <form enctype="multipart/form-data" action="" method="POST" onsubmit="return confirm('Your account has been successfully created, but is deactive. Awaiting approval from your hospital administrator.');">
         {% csrf_token %}
         {{ form.non_field_errors }}
         {% for field in form %}
@@ -15,7 +15,7 @@
             </div>
         {% endfor %}
         <button type="submit" value="Register" class="button">Register</button>
-        <button type="button" onclick="window.location.href='/login' " class="button">Back</button>
+        <button type="button" onclick="window.location.href='/logInuserSelect/' " class="button">Back</button>
     </form>
 </div>
 {% endblock %}

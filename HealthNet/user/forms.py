@@ -279,8 +279,4 @@ class SearchForm(forms.Form):
             )
 
 
-class ApproveForm(forms.Form):
-    approved = forms.BooleanField(label="Approved")
 
-class RemoveApproval(forms.Form):
-    remove = forms.BooleanField(label="Remove From Hospital")

@@ -14,6 +14,7 @@ from django.views.generic import View
 from django.contrib.auth.models import User
 from hospital.models import *
 from syslogging.models import *
+from user.viewhelper import healthUserFromDjangoUser
 
 
 #todo see if needed
@@ -99,11 +100,11 @@ class DoctorRegister(View):
 
                 d.save()
 
-                user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
-                login(request, user)
+                #user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
+                #login(request, user)
 
                 Syslog.userCreate(d)
-                return HttpResponseRedirect(reverse('user:dashboard'))
+                return HttpResponseRedirect(reverse('login'))
 
         else:
             form = DoctorRegistrationForm(request.POST)
@@ -135,11 +136,8 @@ class NurseRegister(View):
                 n = Nurse.objects.create(user=user, hospital=form.cleaned_data['hospital'])
                 n.save()
 
-                user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
-                login(request, user)
-
                 Syslog.userCreate(n)
-                return HttpResponseRedirect(reverse('user:dashboard'))
+                return HttpResponseRedirect(reverse('login'))
 
         else:
             form = RegistrationForm(request.POST)
@@ -161,6 +159,15 @@ class LoginView(View):
         if(lform.is_valid()):
             user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
             if user is not None:
+                if healthUserFromDjangoUser(user).getType() == 'doctor' or healthUserFromDjangoUser(user).getType() == 'nurse':
+                    if healthUserFromDjangoUser(user).accepted == True:
+                        login(request, user)
+                        Syslog.userLogin(user)
+                        return HttpResponseRedirect(reverse('user:dashboard'))
+                    else:
+                        return HttpResponseRedirect(reverse('login'))
+                        #form = LoginForm()
+                        #return render(request, 'logIn/index.html', {'something': True, 'form': form})
                 login(request, user)
                 Syslog.userLogin(user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
