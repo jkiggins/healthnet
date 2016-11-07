@@ -7,13 +7,11 @@ def getAttrIfExists(obj, attr):
 def patientHasCompletedProfile(user):
     if user.getType() == "patient":
         auth=True
-        print(auth)
         auth &= not((user.hospital is None) or (user.doctor is None))
-        print(auth)
-        auth &= user.user.get_full_name() != ''
-        print(auth)
+        auth &= (user.user.get_full_name() != '') and (user.phone != '') and (user.address != '')
         auth &= not(user.contact is None)
-        print(auth)
+
+        return auth
 
     return True
 
@@ -100,41 +98,56 @@ def isHAdmin(user):
 
 
 def userCan_EMR(cuser, patient, *actions):
-    auth = False
+    auth = True
     utype = cuser.getType()
 
     if 'view' in actions:
+        auth_l = False
         if utype == 'patient':
             return patientHasCompletedProfile(cuser)
         elif utype == 'doctor':
-            auth |= patient in cuser.patient_set.all()
-            auth |= patient.hospital in cuser.hospitals.all()
+            auth_l |= patient in cuser.patient_set.all()
+            auth_l |= patient.hospital in cuser.hospitals.all()
         elif utype == 'nurse':
-            auth |= patient.hospital == cuser.hospital
+            auth_l |= patient.hospital == cuser.hospital
+        auth_l |= (utype == 'hosAdmin')
+        auth &= auth_l
 
-        auth |= utype == 'hosAdmin'
+    if 'prescribe' in actions:
+        auth_l = False
+        if utype == 'doctor':
+            auth_l |= patient.hospital in cuser.hospitals.all()
+        elif utype == 'hosAdmin':
+            auth_l |= patient.hospital == cuser.hospital
+        auth &= auth_l
 
     if 'view_hidden' in actions:
         if utype == 'patient':
             return False
 
     if 'edit' in actions:
+        auth_l=False
         if utype == 'doctor':
-            auth |= patient.hospital in cuser.hospitals.all()
+            auth_l |= patient.hospital in cuser.hospitals.all()
         elif utype == 'nurse':
-            auth |= nurseIsTrusted(cuser, patient.doctor)
+            auth_l |= nurseIsTrusted(cuser, patient.doctor)
         else:
-            auth |= (cuser.getType() == 'hosAdmin') and (cuser.hospital == patient.hospital)
+            auth_l |= (cuser.getType() == 'hosAdmin') and (cuser.hospital == patient.hospital)
+        auth &= auth_l
 
     if 'vitals' in actions:
+        auth_l=False
         if utype == 'patient':
-            auth |= (patient == cuser)
+            auth_l |= (patient == cuser)
+        auth &= auth_l
 
     if 'admit' in actions:
+        auth_l=False
         if utype == 'doctor':
-            auth |= patient.hospital in cuser.hospitals.all()
+            auth_l |= patient.hospital in cuser.hospitals.all()
         elif utype in ['nurse', 'hosAdmin']:
-            auth |= patient.hospital == cuser.hospital
+            auth_l |= patient.hospital == cuser.hospital
+        auth &= auth_l
 
     return auth
 

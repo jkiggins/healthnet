@@ -233,6 +233,7 @@ DIV.fieldWrapper
 	width: 25%;
 	margin: 2%;
 	box-shadow: 3px 3px 20px #000;
+	word-wrap: break-word;
 }
 
 .card_hf

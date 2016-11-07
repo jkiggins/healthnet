@@ -28,7 +28,8 @@ class viewEMR(DetailView):
     def getPermissionsContext(self, cuser, patient):
         return {'canEdit': userauth.userCan_EMR(cuser, patient, 'edit'),
                 'canVitals': userauth.userCan_EMR(cuser, patient, 'vitals'),
-                'admit': userauth.userCan_EMR(cuser, patient, 'admit')}
+                'admit': userauth.userCan_EMR(cuser, patient, 'admit'),
+                'canPrescribe': userauth.userCan_EMR(cuser, patient, 'prescribe')}
 
     def get(self, request, *args, **kwargs):
     #### AUTHORIZE FOR VIEW####
@@ -40,7 +41,7 @@ class viewEMR(DetailView):
 
         if not userauth.userCan_EMR(cuser, patient, 'view'):
             Syslog.unauth_acess(request)
-            return HttpResponseRedirect(reverse('user:dahsboard'))
+            return HttpResponseRedirect(reverse('user:dashboard'))
     ############################
 
         emr = patient.emritem_set.all()
@@ -132,6 +133,16 @@ class EMRItemCreate(View):
                 form = VitalsCreateForm(post, initial={'emrpatient': patient.pk})
             else:
                 form = VitalsCreateForm(initial={'emrpatient': patient.pk})
+        elif self.type == 'item':
+            if post != None:
+                form = EMRItemCreateForm(post, initial={'emrpatient': patient.pk})
+            else:
+                form = EMRItemCreateForm(initial={'emrpatient': patient.pk})
+        elif self.type == 'prescription':
+            if post != None:
+                form = prescriptionCreateForm(post, initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
+            else:
+                form = prescriptionCreateForm(initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
 
 
         return form
@@ -143,6 +154,10 @@ class EMRItemCreate(View):
             return HttpResponseRedirect(reverse('login'))
 
         patient = get_object_or_404(Patient, pk=pk)
+
+        if self.type in ['item', 'test'] and userauth.userCan_EMR(cuser, patient, 'edit'):
+            return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
+
         form = self.getFormFromReqType(patient, cuser)
 
         return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})

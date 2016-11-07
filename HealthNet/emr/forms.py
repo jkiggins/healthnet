@@ -91,7 +91,7 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRPrescription
-        fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate', 'patient']
+        fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate', 'proivder']
 
 
 class ProfileCreateForm(EMRItemCreateForm):

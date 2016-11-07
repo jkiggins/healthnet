@@ -34,14 +34,16 @@
             <div class="emr_toolbox_wrap">
                 <input type = "button" class="emr_toolbox_item" value="Actions"/>
                 <div class="drop_down">
-                    {% if permissions.canVitals or permissions.canAdd %}
+                    {% if permissions.canVitals or permissions.canEdit %}
                         <input type = "button" class="emr_toolbox_action" value="New Vitals" data-action = "get_new" onclick="window.location='{% url 'emr:cvitals' tuser.id %}'"/>
                     {% endif %}
                     {% if permissions.canEdit %}
                         <input type = "button" class="emr_toolbox_action" value="New Test" onclick="window.location='{% url 'emr:ctest' tuser.id %}'"/>
                         <input type = "button" class="emr_toolbox_action" value="New EMR Item" onclick="window.location='{% url 'emr:citem' tuser.id %}'"/>
                     {% endif %}
-
+                    {% if permissions.canPrescribe %}
+                        <input type = "button" class="emr_toolbox_action" value="New Prescription" onclick="window.location='{% url 'emr:cpre' tuser.id %}'"/>
+                    {% endif %}
                     {% if permissions.canAdmit %}
                         <input type = "button" class="emr_toolbox_action" value="Admit Patient" onclick="window.location='{% url 'emr:admit' tuser.id %}'"/>
                         <input type = "button" class="emr_toolbox_action" value="Discharge Patient" onclick="window.location='{% url 'emr:discharge' tuser.id %}'"/>

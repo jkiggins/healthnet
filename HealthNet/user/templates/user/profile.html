@@ -12,7 +12,7 @@
         <li>Doctor: <a href = "{% url 'user:vProfile' tuser.doctor.user.id %}">{{ tuser.doctor.user.get_full_name }}</a></li>
 
         {% if user.getType != 'patient' %}
-            <li><a href="{% url 'emr:vemr' tuser.user.id %}" class="button">EMR</a></li>
+            <li><a href="{% url 'emr:vemr' tuser.id %}" class="button">EMR</a></li>
         {% endif %}
 
         {% if user.getType == 'patient' or user.getType == 'hosAdmin' %}
