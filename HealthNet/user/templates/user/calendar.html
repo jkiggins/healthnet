@@ -50,7 +50,8 @@
 			// allows for easy selection of an event
 			{% if canAccessDay != None %}
 				dayClick: function(date, jsEvent, view) {
-					document.getElementById("dateTimeId_0").value=date.format();
+					document.getElementById("dateTimeId_0").value=date.format('YYYY-MM-DD');
+					document.getElementById("dateTimeId_1").value=date.format('HH:mm:ss')
 				}
 			{% endif %}
 		})

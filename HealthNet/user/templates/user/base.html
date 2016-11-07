@@ -22,7 +22,7 @@
     <li><a href="{% url 'user:vProfilec' %}">Profile</a></li>
 	
 	{% if user.getType == "patient" %}
-        <li><a href="{% url 'emr:vsemr' %}">Emr</a></li>
+        <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
 
     {% elif user.getType == "nurse" or user.getType == "doctor" %}
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
