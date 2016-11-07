@@ -37,13 +37,30 @@ class EMRItemCreateForm(forms.ModelForm):
     def save(self, **kwargs):
         m = super(EMRItemCreateForm, self).save(commit=False)
 
-        m.date_created = timezone.now()
-        m.patient = kwargs['patient']
+        if 'update' in kwargs:
+            model = kwargs['update']
+            for key in self.cleaned_data:
+                if hasattr(model, key):
+                    setattr(model, key, self.cleaned_data[key])
+            model.save()
+        else:
+            m.date_created = timezone.now()
+            m.patient = kwargs['patient']
 
 
-        if ('commit' in kwargs) and kwargs['commit']:
-            m.save()
+            if ('commit' in kwargs) and kwargs['commit']:
+                m.save()
+
         return m
+
+    def populateFromModel(self, model):
+        for key in self.fields:
+            if hasattr(model, key):
+                self.fields[key].initial = getattr(model, key)
+
+    def defaults(self, model):
+        self.populateFromModel(model)
+
 
 
     class Meta:
@@ -55,12 +72,23 @@ class TestCreateForm(EMRItemCreateForm):
 
     images = forms.FileField(widget=forms.ClearableFileInput(), required=False)
 
+    def defaults(self, model):
+        super(TestCreateForm, self).defaults(model)
+        if hasattr(model, 'emrtest'):
+            self.populateFromModel(model.emrtest)
+
     class Meta:
         model = EMRTest
         fields = ['title', 'content', 'priority', 'images', 'released']
 
 
 class VitalsCreateForm(EMRItemCreateForm):
+
+    def defaults(self, model):
+        super(VitalsCreateForm, self).defaults(model)
+        if hasattr(model, 'emrvitals'):
+            self.populateFromModel(model.emrvitals)
+
     class Meta:
         model = EMRVitals
         fields = ['title', 'content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
@@ -68,11 +96,14 @@ class VitalsCreateForm(EMRItemCreateForm):
 
 class prescriptionCreateForm(EMRItemCreateForm):
 
-    proivder = forms.ModelChoiceField(disabled=True, queryset=Doctor.objects.all())
+    proivder = forms.ModelChoiceField(disabled=True, queryset=User.objects.all().filter(patient=None).filter(nurse=None))
 
-    def save(self, commit=False):
-        m = super(prescriptionCreateForm, self).save(commit=False)
+    def save(self, **kwargs):
+        commit = kwargs['commit']
+        kwargs['commit'] = False
+        m = super(prescriptionCreateForm, self).save(**kwargs)
         m.deactivated = False
+        m.provider = kwargs['provider']
 
         if commit:
             m.save()
@@ -88,22 +119,33 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
         return valid
 
+    def defaults(self, model):
+        super(prescriptionCreateForm, self).defaults(model)
+        if hasattr(model, 'emrprescription'):
+            self.populateFromModel(model.emrprescription)
 
     class Meta:
         model = EMRPrescription
         fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate', 'proivder']
 
 
-class ProfileCreateForm(EMRItemCreateForm):
-    def save(self, commit=False, patient=None, doctor=None):
-        m = super(ProfileCreateForm, self).save(commit=False)
+class ProfileCreateForm(forms.ModelForm):
 
-        m.title = "Profile"
+    emrpatient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, disabled=True, label="Patient")
 
-        if commit:
+    def save(self, **kwargs):
+        model = kwargs['patient'].emrprofile
+
+        if model is None:
+            m = super(ProfileCreateForm, self).save(commit=False)
+            m.patient = kwargs['patient']
             m.save()
+        else:
+            for key in self.cleaned_data:
+                if hasattr(model, key):
+                    setattr(model, key, self.cleaned_data[key])
 
-        return m
+            model.save()
 
     def is_valid(self):
         valid = super(ProfileCreateForm, self).is_valid()
@@ -111,12 +153,17 @@ class ProfileCreateForm(EMRItemCreateForm):
             return valid
 
         valid &= formvalid.birthdayInPast(self, {'birthday': "your birthday must be in the past"}, {})
-        valid &= formvalid.ageIsLessThan(self, 140, {'birthday': "You aren't > 140 years old, come on"})
+        valid &= formvalid.ageIsLessThan(self, 140, {'birthday': "You aren't > 140 years old, come on"}, {})
 
         return valid
+
+    def defaults(self, model):
+        for key in model.__dict__:
+            if key in self.fields:
+                self.fields[key].initial = model.__dict__[key]
 
 
     class Meta:
         model = EMRProfile
-        fields = ['content', 'birthdate', 'gender', 'blood_type', 'patient']
+        fields = ['birthdate', 'gender', 'blood_type', 'family_history', 'comments']
 

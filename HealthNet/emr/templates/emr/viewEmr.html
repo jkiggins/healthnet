@@ -36,6 +36,7 @@
                 <div class="drop_down">
                     {% if permissions.canVitals or permissions.canEdit %}
                         <input type = "button" class="emr_toolbox_action" value="New Vitals" data-action = "get_new" onclick="window.location='{% url 'emr:cvitals' tuser.id %}'"/>
+                        <input type = "button" class="emr_toolbox_action" value="EMR Profile" onclick="window.location='{% url 'emr:eprofile' tuser.id %}'"/>
                     {% endif %}
                     {% if permissions.canEdit %}
                         <input type = "button" class="emr_toolbox_action" value="New Test" onclick="window.location='{% url 'emr:ctest' tuser.id %}'"/>
@@ -54,19 +55,54 @@
             <input type = "submit" value="Submit" class="emr_toolbox_submit" />
         </div>
     </form>
+
+    {% if EMRProfile %}
+    <div class="card_wrapper">
+        <div class="card_hf bottomborder profile">{{ tuser.user.get_full_name }}'s Profile</div>
+        <div class="card_body">
+            <table>
+               <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
+                <tr><td>Birthdate: </td><td>{{ EMRProfile.birthdate }}</td></tr>
+                <tr><td>Age:</td><td>{{ EMRProfile.getAge }}</td></tr>
+                <tr><td>Gender: </td><td>{{ EMRProfile.gender }}</td></tr>
+                <tr><td>Blood Type: </td><td>{{ EMRProfile.blood_type }}</td></tr>
+                <tr><td>Family History: </td><td>{{ EMRProfile.family_history }}</td></tr>
+                <tr><td>Comments: </td><td>{{ EMRProfile.comments }}</td></tr>
+            </table>
+        </div>
+        <div class="card_hf topborder"><input type = "button" value = "details"/>
+                <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eprofile' tuser.id %}'"/></div>
+    </div>
+    {% endif %}
+
     {% for item in EMRItems %}
         <div class = "card_wrapper">
             <div class="card_hf bottomborder {{ item.getType }}">{{ item.title }}</div>
 
             <div class = "card_body">
-                {% if item.emrtest != None %}
-                    <img src="{{ item.emrtest.image.path }}" />
-                {% endif %}
-                {{ item.content }}
+                <table>
+                    {% if item.emrtest %}
+                        <img src="{{ item.emrtest.image.path }}" />
+                    {% elif item.emrvitals %}
+                        <tr><td>Resting BPM:</td><td>{{ item.emrvitals.restingBPM }}</td></tr>
+                        <tr><td>Blood Pressure:</td><td>{{ item.emrvitals.bloodPressure }}</td></tr>
+                        <tr><td>Height:</td><td>{{ item.emrvitals.height }}</td></tr>
+                        <tr><td>Weight:</td><td>{{ item.emrvitals.weight }}</td></tr>
+                    {% elif item.emrprescription %}
+                        <tr><td>Dosage:</td><td>{{ item.emrprescription.dosage }}</td></tr>
+                        <tr><td>Dose/day:</td><td>{{ item.emrprescription.amountPerDay }}</td></tr>
+                        <tr><td>Start Date:</td><td>{{ item.emrprescription.startDate }}</td></tr>
+                        <tr><td>End Date:</td><td>{{ item.emrprescription.endDate }}</td></tr>
+                        <tr><td>Provider:</td><td>{{ item.emrprescription.proivder.get_full_name }}</td></tr>
+                    {% endif %}
+                    {{ item.content }}
+                </table>
             </div>
 
             <div class = "card_hf topborder">
-                <input type = "button" value = "details" onclick="window.location='{% url 'emr:vemrItem' item.id %}'"/>
+                <input type = "button" value = "details" />
+                <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eemrItem' item.id %}'"/>
+                <li>Priority: {{ item.priority }}</li>
             </div>
         </div>
     {% endfor %}

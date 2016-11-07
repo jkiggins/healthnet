@@ -15,6 +15,9 @@ class EMRItem(models.Model):
 
 
     def getType(self):
+        for subtype in ['emrvitals', 'emrprofile', 'emrtest', 'emrprescription']:
+            if hasattr(self, subtype):
+                return getattr(self, subtype).getType()
         return 'generic_item'
 
 
@@ -29,10 +32,27 @@ class EMRVitals(EMRItem):
         return 'vitals'
 
 
-class EMRProfile(EMRItem):
+class EMRProfile(models.Model):
+    patient = models.OneToOneField(Patient, blank=True, null=True)
     birthdate = models.DateTimeField(default=timezone.now)
     gender = models.CharField(max_length=10, default="")
     blood_type = models.CharField(max_length=3, default="")
+    family_history = models.CharField(max_length=200, default="")
+    comments = models.CharField(max_length=200, default="")
+
+    def getInumber(self):
+        return self.patient.insuranceNum
+
+    def getAge(self):
+        years = timezone.now().year - self.birthdate.year
+        months = timezone.now().month - self.birthdate.month
+        days = timezone.now().day - self.birthdate.day
+
+        inc = (months>=0) and (days>=0)
+        if inc:
+            years += 1
+
+        return years
 
     def getType(self):
         return 'profile'

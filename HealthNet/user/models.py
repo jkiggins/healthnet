@@ -65,7 +65,6 @@ class Contact(models.Model):
             if hasattr(self.user, 'patient'):
                 self.phone=self.user.patient.phone
 
-
 #this extension of user represents a doctor
 
 class Doctor(models.Model):

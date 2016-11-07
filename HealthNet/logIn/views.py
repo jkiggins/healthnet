@@ -158,6 +158,8 @@ class LoginView(View):
 
         if(lform.is_valid()):
             user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
+
+            print(user)
             if user is not None:
                 if healthUserFromDjangoUser(user).getType() == 'doctor' or healthUserFromDjangoUser(user).getType() == 'nurse':
                     if healthUserFromDjangoUser(user).accepted == True:

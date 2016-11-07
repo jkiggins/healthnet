@@ -5,6 +5,5 @@ from .models import *
 
 admin.site.register(EMRItem)
 admin.site.register(EMRPrescription)
-admin.site.register(EMRProfile)
 admin.site.register(EMRTest)
 admin.site.register(EMRVitals)
