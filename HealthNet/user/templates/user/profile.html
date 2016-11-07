@@ -38,6 +38,8 @@
             <li>{{ h.name }}</li>
 
         {% endfor %}
+
+        {% include 'user/AppRemCheckbox.html' %}
     {% endif %}
 
     {% if tuser.getType == "nurse" %}
@@ -48,5 +50,7 @@
             <li><a href = "{% url 'user:vProfile' d.user.id %}">{{ d.user.get_full_name }}</a></li>
 
         {% endfor %}
+
+        {% include 'user/AppRemCheckbox.html' %}
     {% endif %}
     </ul>

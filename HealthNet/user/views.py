@@ -46,14 +46,14 @@ class Registry(View):
 
         if 'patient' in form.cleaned_data['filterBy']:
             for word in words:
-                patients |= Patient.objects.filter(user__first_name__contains=word)
-                patients |= Patient.objects.filter(user__last_name__contains=word)
-                patients |= Patient.objects.filter(hospital__name__contains=word)
+                patients |= Patient.objects.filter(user__first_name__contains=word).filter(user__is_active=True)
+                patients |= Patient.objects.filter(user__last_name__contains=word).filter(user__is_active=True)
+                patients |= Patient.objects.filter(hospital__name__contains=word).filter(user__is_active=True)
 
         if 'doctor' in form.cleaned_data['filterBy']:
             for word in words:
-                doctors |= Doctor.objects.filter(user__first_name__contains=word).filter(accepted=True)
-                doctors |= Doctor.objects.filter(user__last_name__contains=word).filter(accepted=True)
+                doctors |= Doctor.objects.filter(user__first_name__contains=word).filter(user__is_active=True).filter(accepted=True)
+                doctors |= Doctor.objects.filter(user__last_name__contains=word).filter(user__is_active=True).filter(accepted=True)
 
         if 'event' in form.cleaned_data['filterBy']:
             for word in words:
@@ -67,8 +67,8 @@ class Registry(View):
         if cuser.getType() == "hosAdmin":
             pendingdoc = Doctor.objects.none()
             pendingnur = Nurse.objects.none()
-            pendingdoctor = cuser.hospital.doctor_set.filter(accepted=False)
-            pendingnurse = cuser.hospital.nurse_set.filter(accepted=False)
+            pendingdoctor = cuser.hospital.doctor_set.filter(user__is_active=True).filter(accepted=False)
+            pendingnurse = cuser.hospital.nurse_set.filter(user__is_active=True).filter(accepted=False)
             if 'pending' in form.cleaned_data['filterBy']:
                 for word in words:
                     pendingdoc |= pendingdoctor.filter(user__first_name__contains=word)
@@ -127,34 +127,119 @@ def viewProfileSelf(request):
         return render(request, 'user/viewprofile.html', {'user': cuser, 'tuser': cuser})
 
 
-def viewProfile(request, pk):
-    tuser=None
-    cuser = get_user(request)
-    if cuser is None:
-        return HttpResponseRedirect(reverse('login'))
+class viewProfile(View):
 
-    tuser = get_object_or_404(User, pk=pk)
-    tuser = healthUserFromDjangoUser(tuser)
+    def post(self, request, **kwargs):
+        tuser = None
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
 
-    if not userauth.userCan_Profile(cuser, tuser, 'view'):
-        Syslog.unauth_acess(request)
-        return HttpResponseRedirect(reverse('user:dashboard'))
+        tuser = get_object_or_404(User, pk=kwargs['pk'])
+        tuser = healthUserFromDjangoUser(tuser)
 
-    if cuser.user.pk == tuser.user.pk:
-        return HttpResponseRedirect(reverse('user:vProfilec'))
+        if not userauth.userCan_Profile(cuser, tuser, 'view'):
+            Syslog.unauth_acess(request)
+            return HttpResponseRedirect(reverse('user:dashboard'))
 
-    if tuser.getType() != 'nurse':
-        context = {'user': cuser,
-               'tuser': tuser,
-               'events': getVisibleEvents(tuser),
-               'view_calendar': True}
-    else:
-        context = {'user': cuser,
-                'tuser': tuser,
-                'events': None,
-                'view_calendar': False}
+        if cuser.user.pk == tuser.user.pk:
+            return HttpResponseRedirect(reverse('user:vProfilec'))
 
-    return render(request, 'user/viewprofile.html', context)
+        if tuser.accepted:
+            removeform = RemoveApproval(request.POST)
+            if removeform.is_valid():
+                if removeform.cleaned_data['remove']:
+                    tuser.accepted = False
+                    tuser.save()
+                    tuser.user.is_active = False
+                    tuser.user.save()
+                else:
+                    tuser.user.is_active = True
+                    tuser.user.save()
+            return HttpResponseRedirect(reverse('user:dashboard'))
+        else:
+            approveform = ApproveForm(request.POST)
+            if approveform.is_valid():
+                if approveform.cleaned_data['approved']:
+                    tuser.accepted = True
+                    tuser.save()
+                else:
+                    tuser.accepted = False
+                    tuser.save()
+
+            if tuser.getType() == "patient":
+                context = {'user': cuser,
+                           'tuser': tuser,
+                           'events': getVisibleEvents(tuser),
+                           'view_calendar': True}
+            elif tuser.getType() == "nurse":
+                context = {'user': cuser,
+                           'tuser': tuser,
+                           'events': None,
+                           'view_calendar': False,
+                           'form': approveform}
+            else:
+                context = {'user': cuser,
+                           'tuser': tuser,
+                           'events': None,
+                           'view_calendar': True,
+                           'form': approveform}
+
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
+
+    def get(self, request, **kwargs):
+        tuser=None
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        tuser = get_object_or_404(User, pk=kwargs['pk'])
+        tuser = healthUserFromDjangoUser(tuser)
+
+        if not userauth.userCan_Profile(cuser, tuser, 'view'):
+            Syslog.unauth_acess(request)
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
+        if cuser.user.pk == tuser.user.pk:
+            return HttpResponseRedirect(reverse('user:vProfilec'))
+
+        if tuser.accepted:
+            form = RemoveApproval()
+        else:
+            form = ApproveForm()
+
+        if cuser.getType() == "hosAdmin":
+            if tuser.getType() == "patient":
+                context = {'user': cuser,
+                    'tuser': tuser,
+                    'events': getVisibleEvents(tuser),
+                    'view_calendar': True}
+            elif tuser.getType() == "nurse":
+                context = {'user': cuser,
+                    'tuser': tuser,
+                    'events': None,
+                    'view_calendar': False,
+                    'form': form}
+            else:
+                context = {'user': cuser,
+                    'tuser': tuser,
+                    'events': None,
+                    'view_calendar': True,
+                    'form': form}
+        else:
+            if tuser.getType() == "nurse":
+                context = {'user': cuser,
+                    'tuser': tuser,
+                    'events': None,
+                    'view_calendar': False}
+            else:
+                context = {'user': cuser,
+                    'tuser': tuser,
+                    'events': None,
+                    'view_calendar': True}
+
+        return render(request, 'user/viewprofile.html', context)
 
 
 class EditProfile(View):
