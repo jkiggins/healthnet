@@ -49,9 +49,10 @@ def get_user(request):
     return None
 
 
-def add_dict_to_model(dict, event):
+def add_dict_to_model(dict, model):
     for key in dict:
-        setattr(event, key, dict[key])
+        if hasattr(model, key):
+            setattr(model, key, dict[key])
 
 
 def elevate_if_trusted(form, user):

@@ -10,8 +10,10 @@ def try_parse(s):
         return False
 
 def getPatientAdmitStatus(patient):
-    if patient.emritem_set.all().exclude(emradmitstatus=None).order_by('date_created')[0].admit:
-        return 'admit'
+    if hasattr(patient, 'emrprofile'):
+        if hasattr(patient.emrprofile, 'admit_status'):
+            if patient.emrprofile.admit_status.admit:
+                return 'admit'
     return 'discharge'
 
 

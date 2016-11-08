@@ -13,7 +13,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/createTest$', views.EMRItemCreate.as_view(type='test'), name='ctest'),
     url(r'^(?P<pk>[0-9]+)/createVitals$', views.EMRItemCreate.as_view(type='vitals'), name='cvitals'),
     url(r'^(?P<pk>[0-9]+)/createPrescript$', views.EMRItemCreate.as_view(type='prescription'), name='cpre'),
-    url(r'^(?P<pk>[0-9]+)/admit$', views.feedBackView, name='admit'),
-    url(r'^(?P<pk>[0-9]+)/discharge$', views.feedBackView, name='discharge')
+    url(r'^(?P<pk>[0-9]+)/admitDischarge$', views.AdmitDishchargeView.as_view(), name='admitdischarge'),
 ]
 

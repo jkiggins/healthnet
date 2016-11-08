@@ -48,6 +48,10 @@ class Patient(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
+    def admittedHospital(self):
+        if hasattr(self, 'emrprofile'):
+            return self.emrprofile.admit_status.hospital
+
     def profileFinished(self):
         auth=True
         auth &= not((self.hospital is None) or (self.doctor is None))

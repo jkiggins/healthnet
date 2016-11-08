@@ -47,9 +47,9 @@
                     {% endif %}
                     {% if permissions.canAdmit %}
                         {% if admit == 'admit' %}
-                            <input type = "button" class="emr_toolbox_action" value="Discharge Patient" onclick="window.location='{% url 'emr:discharge' tuser.id %}'"/>
+                            <input type = "button" class="emr_toolbox_action" value="Discharge Patient" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
                         {% else %}
-                            <input type = "button" class="emr_toolbox_action" value="Admit Patient" onclick="window.location='{% url 'emr:admit' tuser.id %}'"/>
+                            <input type = "button" class="emr_toolbox_action" value="Admit Patient" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -71,6 +71,9 @@
                 <tr><td>Blood Type: </td><td>{{ EMRProfile.blood_type }}</td></tr>
                 <tr><td>Family History: </td><td>{{ EMRProfile.family_history }}</td></tr>
                 <tr><td>Comments: </td><td>{{ EMRProfile.comments }}</td></tr>
+                {% if hospital %}
+                    <tr><td>Admitted To:</td><td>{{ hospital.name }}</td></tr>
+                {% endif %}
             </table>
         </div>
         <div class="card_hf topborder"><input type = "button" value = "details"/>

@@ -1,6 +1,9 @@
 {% extends 'User/base.html' %}
 
 {% block content %}
+    {% if formtitle %}
+        <h1>{{ formtitle }}</h1>
+    {% endif %}
 <form enctype="multipart/form-data" action="" method="post">
 	{% csrf_token %}
     {{ form.as_ul }}

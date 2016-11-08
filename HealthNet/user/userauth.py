@@ -70,6 +70,8 @@ def userCan_Profile(cuser, tuser, *actions):
             auth |= (tuser.hospitals.all() & cuser.hospitals.all()).count() > 0
         elif (tutype == 'nurse' and utype == 'nurse'):
             auth |= (tuser.hospital == cuser.hospital)
+        elif (tutype == "patient" and utype == "doctor"):
+            auth |= (tuser.hospital in cuser.hospitals.all()) or (tuser.admittedHospital() in cuser.hospitals.all())
         elif (tuser.pk==cuser.pk):
             auth |= patientHasCompletedProfile(tuser)
 
@@ -143,9 +145,17 @@ def userCan_EMR(cuser, patient, *actions):
         auth_l=False
         if utype == 'doctor':
             auth_l |= patient.hospital in cuser.hospitals.all()
+            auth_l |= patient.admittedHospital() in cuser.hospitals.all()
         elif utype in ['nurse', 'hosAdmin']:
             auth_l |= patient.hospital == cuser.hospital
         auth &= auth_l
+
+    if 'dishcharge' in actions:
+        auth_l=False
+        if utype in ['doctor', 'hosAdmin']:
+            auth_l = userCan_EMR(cuser, patient, 'admit')
+        elif utype == 'nurse':
+            return False
 
     return auth
 

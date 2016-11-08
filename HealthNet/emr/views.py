@@ -9,6 +9,8 @@ from .models import *
 from .forms import *
 from .viewhelper import *
 from syslogging.models import *
+from user.viewhelper import add_dict_to_model
+
 from reportlab.pdfgen import canvas
 
 def exportPdf(request):
@@ -46,7 +48,7 @@ class viewEMR(DetailView):
     def getPermissionsContext(self, cuser, patient):
         return {'canEdit': userauth.userCan_EMR(cuser, patient, 'edit'),
                 'canVitals': userauth.userCan_EMR(cuser, patient, 'vitals'),
-                'admit': userauth.userCan_EMR(cuser, patient, 'admit'),
+                'canAdmit': userauth.userCan_EMR(cuser, patient, 'admit'),
                 'canPrescribe': userauth.userCan_EMR(cuser, patient, 'prescribe')}
 
     def get(self, request, *args, **kwargs):
@@ -71,6 +73,9 @@ class viewEMR(DetailView):
         ctx = {'EMRItems': emr,'form': form, 'user': cuser, 'tuser': patient,
                'permissions': self.getPermissionsContext(cuser, patient),
                'admit': getPatientAdmitStatus(patient)}
+
+        if ctx['admit'] == 'admit':
+            ctx['hospital'] = patient.admittedHospital()
 
         if hasattr(patient, 'emrprofile'):
             ctx['EMRProfile'] = patient.emrprofile
@@ -171,7 +176,9 @@ def getFormFromReqType(mtype, patient, provider, post=None):
         if hasattr(patient, 'emrprofile'):
             form.defaults(patient.emrprofile)
 
+
     return form
+
 
 def canCreateEditEmr(mtype, patient, provider):
     auth = True
@@ -257,4 +264,114 @@ class EditEmrItem(DetailView):
             return HttpResponseRedirect(reverse('emr:vsemr'))
         else:
             return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
+
+
+class AdmitDishchargeView(DetailView):
+    model = Patient
+    type=None
+
+    def kick(self, patient):
+        return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
+
+    def get(self, request, **kwargs):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        patient = self.get_object()
+
+        if not canCreateEditEmr(self.type, patient, cuser) or not userauth.userCan_EMR(cuser,patient, 'admit'):
+            return self.kick(patient)
+
+        form = AdmitDishchargeForm(initial={'emrpatient': patient.pk})
+
+        ctx = {'user': cuser, 'form': form}
+
+        if patient.admittedHospital() is None:
+            if not userauth.userCan_EMR(cuser, patient, 'admit'):
+                return self.kick(patient)
+
+            ctx['formtitle'] = "Admission Form"
+            form.lockField('admit', True)
+            form.lockField('title', 'Admission')
+
+            if cuser.getType() in ['nurse', 'hosAdmin']:
+                form.lockField('hospital', cuser.hospital)
+            elif cuser.getType() == 'doctor':
+                form.fields['hospital'].queryset = cuser.hospitals.all()
+
+        else:
+            if not userauth.userCan_EMR(cuser, patient, 'discharge'):
+                return self.kick(patient)
+
+            ctx['formtitle'] = "Discharge Form"
+            form.lockField('admit', False)
+            form.lockField('title', 'Discharge')
+
+            form.lockField('hospital', '')
+
+
+        return render(request, 'emr/emrtest_form.html', ctx)
+
+
+    def post(self, request, **kwargs):
+        cuser = get_user(request)
+        if cuser is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        patient = self.get_object()
+
+        form = AdmitDishchargeForm(request.POST, initial={'emrpatient': patient.pk})
+        ctx = {'user': cuser, 'form': form}
+
+        title=None
+
+        mdict = {}
+
+        if patient.admittedHospital() is None:
+            ctx['formtitle'] = "Admission Form"
+            form.lockField('admit', True)
+            mdict['title'] = "Admission"
+
+            if cuser.getType() in ['nurse', 'hosAdmin']:
+                form.lockField('hospital', cuser.hospital)
+                mdict['hospital'] = cuser.hospital
+            elif cuser.getType() == 'doctor':
+                form.fields['hospital'].queryset = cuser.hospitals.all()
+
+        else:
+            ctx['formtitle'] = "Discharge Form"
+            form.lockField('admit', False)
+            form.lockField('hospital', '')
+            mdict['title']="Discharge"
+            mdict['admit']=False
+
+
+        if form.is_valid():
+            m = form.save(commit=False, patient=patient, provider=cuser)
+
+            add_dict_to_model(mdict, m)
+            m.save()
+
+            if not hasattr(patient, 'emrprofile'):
+                patient.emrprofile = EMRProfile.objects.create()
+                patient.save()
+
+            patient.emrprofile.admit_status = m
+            patient.emrprofile.save()
+
+            return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
+        else:
+            return render(request, 'emr/emrtest_form.html', ctx)
+
+
+
+
+
+
+
+
+
+
+
 

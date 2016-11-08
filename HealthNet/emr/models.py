@@ -47,6 +47,8 @@ class EMRProfile(models.Model):
     family_history = models.CharField(max_length=200, default="")
     comments = models.CharField(max_length=200, default="")
 
+    admit_status = models.OneToOneField(EMRAdmitStatus, blank=True, null=True)
+
 
     def getInumber(self):
         return self.patient.insuranceNum

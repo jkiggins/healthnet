@@ -167,3 +167,41 @@ class ProfileCreateForm(forms.ModelForm):
         model = EMRProfile
         fields = ['birthdate', 'gender', 'blood_type', 'family_history', 'comments']
 
+
+class AdmitDishchargeForm(EMRItemCreateForm):
+
+    def save(self, **kwargs):
+        commit = kwargs['commit']
+        kwargs['commit'] = False
+        m = super(AdmitDishchargeForm, self).save(**kwargs)
+
+        if commit:
+            m.save()
+        return m
+
+
+    def lockField(self, field, value):
+        if field in self.fields:
+            self.fields[field].initial = value
+            self.fields[field].disabled = True
+
+
+    # def addTags(self, tags):
+    #     for tag in tags:
+    #         if hasattr(self, tag):
+    #             mtag = getattr(self, tag)
+    #             if callable(mtag):
+    #                 mtag(tags[tag])
+    #             else:
+    #                 setattr(self, tag, tags[tag])
+
+
+
+    def defaults(self, model):
+        super(AdmitDishchargeForm, self).defaults(model)
+        if hasattr(model, 'emradmitstatus'):
+            self.populateFromModel(model.emradmitstatus)
+
+    class Meta:
+        model=EMRAdmitStatus
+        fields = ['content', 'priority', 'hospital']
