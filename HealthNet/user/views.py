@@ -66,13 +66,14 @@ class Registry(View):
                 doctors |= dqset.filter(user__last_name__contains=word)
 
         if 'event' in form.cleaned_data['filterBy']:
+            evqset = Event.objects.filter(visible=True)
             for word in words:
-                events |= Event.objects.filter(doctor__user__first_name__contains=word)
-                events |= Event.objects.filter(patient__user__last_name__contains=word)
-                events |= Event.objects.filter(patient__user__first_name__contains=word)
-                events |= Event.objects.filter(doctor__user__last_name__contains=word)
-                events |= Event.objects.filter(title__contains=word)
-                events |= Event.objects.filter(description__contains=word)
+                events |= evqset.filter(doctor__user__first_name__contains=word)
+                events |= evqset.filter(patient__user__last_name__contains=word)
+                events |= evqset.filter(patient__user__first_name__contains=word)
+                events |= evqset.filter(doctor__user__last_name__contains=word)
+                events |= evqset.filter(title__contains=word)
+                events |= evqset.filter(description__contains=word)
 
         if cuser.getType() == "hosAdmin":
             pendingdoc = Doctor.objects.none()

@@ -63,8 +63,6 @@ class EventCreationFormValidator:
         p = form.cleaned_data['patient']
         h = form.cleaned_data['hospital']
 
-        print(p.hospital == h)
-
         if p != None and h != None:
             if (p.hospital != h) or not(h in p.doctor.hospitals.all()):
                 EventCreationFormValidator.add_messages(form, error, help)
