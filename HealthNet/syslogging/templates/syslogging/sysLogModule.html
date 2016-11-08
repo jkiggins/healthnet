@@ -1,7 +1,18 @@
 
-{% for entry in system_log.all %}
+
+<div class = "horizontal_form">
+
+    <form action={% url 'syslogging:viewlog' %} method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ search_form.as_ul }}
+        <input type="submit" class="button" value="Search" />
+        <button type="button" onclick="window.location.href='/syslog/'" class="button">Clear</button>
+    </form>
+    <text>{{message}}</text>
+</div>
+
+{% for entry in system_log %}
     <ul class="inline_card_list">
         <li>{{entry.date_created}} {{ entry.type }} {{ entry.message}}</li>
     </ul>
-
 {% endfor %}
