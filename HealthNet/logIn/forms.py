@@ -37,7 +37,7 @@ class RegistrationFormFull(RegistrationForm):
         label="Password (again)")
 
     def is_valid(self):
-        valid = super(RegistrationForm, self).is_valid()
+        valid = super(RegistrationFormFull, self).is_valid()
         if not valid:
             return valid
 
