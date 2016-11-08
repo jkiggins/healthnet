@@ -70,9 +70,7 @@ def userCan_Profile(cuser, tuser, *actions):
             auth |= (tuser.hospitals.all() & cuser.hospitals.all()).count() > 0
         elif (tutype == 'nurse' and utype == 'nurse'):
             auth |= (tuser.hospital == cuser.hospital)
-        elif (tutype == 'patient' and utype == 'doctor'):
-            auth |= (tuser.hospital in cuser.hospitals.all())
-        elif (tutype == 'patient'):
+        elif (tuser.pk==cuser.pk):
             auth |= patientHasCompletedProfile(tuser)
 
         auth |= (utype == 'hosAdmin')

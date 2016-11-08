@@ -145,46 +145,42 @@ class viewProfile(View):
         if cuser.user.pk == tuser.user.pk:
             return HttpResponseRedirect(reverse('user:vProfilec'))
 
-        if cuser.getType() == 'hosAdmin':
-            if tuser.getType() == 'nurse' or tuser.getType() == 'doctor':
-                if tuser.accepted:
-                    removeform = RemoveApproval(request.POST)
-                    if removeform.is_valid():
-                        if removeform.cleaned_data['remove']:
-                            tuser.accepted = False
-                            tuser.save()
-                            tuser.user.is_active = False
-                            tuser.user.save()
-                        else:
-                            tuser.user.is_active = True
-                            tuser.user.save()
-                    return HttpResponseRedirect(reverse('user:dashboard'))
+        if tuser.accepted:
+            removeform = RemoveApproval(request.POST)
+            if removeform.is_valid():
+                if removeform.cleaned_data['remove']:
+                    tuser.accepted = False
+                    tuser.save()
+                    tuser.user.is_active = False
+                    tuser.user.save()
                 else:
-                    approveform = ApproveForm(request.POST)
-                    if approveform.is_valid():
-                        if approveform.cleaned_data['approved']:
-                            tuser.accepted = True
-                            tuser.save()
-                        else:
-                            tuser.accepted = False
-                            tuser.save()
+                    tuser.user.is_active = True
+                    tuser.user.save()
+            return HttpResponseRedirect(reverse('user:dashboard'))
+        else:
+            approveform = ApproveForm(request.POST)
+            if approveform.is_valid():
+                if approveform.cleaned_data['approved']:
+                    tuser.accepted = True
+                    tuser.save()
+                else:
+                    tuser.accepted = False
+                    tuser.save()
 
-                    if tuser.getType() == "nurse":
-                        context = {'user': cuser,
-                                   'tuser': tuser,
-                                   'events': None,
-                                   'view_calendar': False,
-                                   'form': approveform}
-                    else:
-                        context = {'user': cuser,
-                                   'tuser': tuser,
-                                   'events': None,
-                                   'view_calendar': True,
-                                   'form': approveform}
+            if tuser.getType() == "nurse":
+                context = {'user': cuser,
+                           'tuser': tuser,
+                           'events': None,
+                           'view_calendar': False,
+                           'form': approveform}
+            else:
+                context = {'user': cuser,
+                           'tuser': tuser,
+                           'events': None,
+                           'view_calendar': True,
+                           'form': approveform}
 
-                    return HttpResponseRedirect(reverse('user:dashboard'))
-        #else:
-        #    return HttpResponseRedirect(reverse('user:vProfile'), tuser.user.pk)
+            return HttpResponseRedirect(reverse('user:dashboard'))
 
 
     def get(self, request, **kwargs):
