@@ -62,4 +62,9 @@
             {% include 'user/AppRemCheckbox.html' %}
         {% endif %}
     {% endif %}
+
+    {% if tuser.getType == "hosAdmin" %}
+        <h3>Hospital</h3>
+        <li>{{ tuser.hospital.name }}</li>
+    {% endif %}
     </ul>

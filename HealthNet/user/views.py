@@ -223,8 +223,6 @@ class viewProfile(View):
         elif tuser.getType() == 'patient':
             form = RemoveApproval()
 
-        print(tuser.doctor_set.all())
-
         if cuser.getType() == "hosAdmin":
             if tuser.getType() == "nurse":
                 if tuser.accepted:
@@ -252,7 +250,8 @@ class viewProfile(View):
                 context = {'user': cuser,
                     'tuser': tuser,
                     'events': None,
-                    'view_calendar': True}
+                    'view_calendar': True,
+                    'form': form}
         else:
             if tuser.getType() == "nurse":
                 context = {'user': cuser,
