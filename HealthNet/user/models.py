@@ -21,7 +21,7 @@ class Nurse(models.Model):
 
 class HospitalAdmin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null = True, blank = True)
-    hospital = models.OneToOneField('hospital.Hospital', null=True, blank=True)
+    hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     user.is_staff = True
 
     def __str__(self):
@@ -88,7 +88,7 @@ class Doctor(models.Model):
     accepted = models.BooleanField(default=False)
 
     def acceptedPatients(self):
-        return self.patient_set.all().filter(accepted=True)
+        return self.patient_set.all()#.filter(accepted=True)
 
     def __str__(self):
         return self.user.get_full_name()

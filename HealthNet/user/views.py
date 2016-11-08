@@ -59,6 +59,8 @@ class Registry(View):
                 patients |= pqset.filter(user__last_name__contains=word)
                 patients |= pqset.filter(hospital__name__contains=word)
 
+            print(pqset)
+
         if 'doctor' in form.cleaned_data['filterBy']:
             dqset = Doctor.objects.filter(user__is_active=True).filter(accepted=True)
             for word in words:
