@@ -15,6 +15,7 @@ Installation
     ------------------
         - Unzip healthnet in target folder
 	- Open a cmd window in the healnet root directory, it will be folder containing manage.py
+	- type in command "pip install pillow" wait for it to finish
 	- type in command "python manage.py makemigrations" wait for it to finish
 	- type in command "python manage.py migrate" wait for it to finish
 	- type in command "python manage.py shell < build_test_db.py" this creates default/basic users
@@ -33,7 +34,7 @@ Running
         - Type "python manage.py shell < build_test_db.py"
 
     Default Users
-    --------------
+    -------------
         These uses can be used to test the system
         Doctor - Doctor Strange, username: drstrange and password: pass
         Nurse - Nurse Normal, username: nursenormal and password: pass
@@ -49,13 +50,40 @@ Running
  
     Known Bugs R-2 Beta
     -------------------
-	-
-
+	- When selecting a emergency contact, if you select a emergency contact that someone else has already selected, an integrety error is thrown because of a unique field.
+	- User, without fill out profile info, clicks on create event but isn't told why (need a pop up to inform profile fill out is needed)
+	- user clicks on event in calendar.io, goes to edit event, no 'mini' calendar is displayed
+	- User clicks on event in calendar.io, goes to edit event, changes date to past, it saves (shouldn't allow for previous date change)
+	- User is viewing event details, clicks on doctor, gets sent back to dashboard (Needs to have a pop up to say you're now allowed here)
+	- New nurse can't "Create Event"
+	- Nurse can't edit their own profile
+	- New nurse, on search healthnet, check mark doctors, click search, no doctors displayed
+	- Nurse, viewing patient, clicks on doctor within patient, kicked back to dashboard (patient One -> Doctor normal)
+	- Doctor default calendar view is NOT on day view
+	- Patient Registering can select a doctor that's not approved (filter for approval, like patient cap)
+	- patient can reference self as a emergency contact
+	- Patient registering can pick a hospital that a doctor isn't associated with
+	- Doctor editing event can change hospitals (no, shouldn't be allowed to change)
+	- Doctor editing event can change patient relating to event (no, shouldn't be allowed to change)
+	- Doctor edits an event, changes duration, saves, goes back to edit the event, the duration is reset to 30 mins
+	- Users (but admin) shouldn't edit or change past events
+	- Doctor can't access Patient via Doctor's profile
+	- weird submit button on Doctor's profile page
+	- Doctor registration, doesn't select hospital, clicks register, POP UP happens before informing that hospital isn't selected. (Should say, field is required before the pop up occurs)
+	- New registered doctor, with no patients, can go to create event and select a patient from his hospital and make an appointment with said patient (should only be allowed to make an appointment with patient connected with him)
+	- Doctor's creating event is not restricted enough. Doctor can select any patient and any hospital. Needs more restrictions
+	- random submit button when viewing doctor profile via a patient
+	- Doctor at hospital A goes to search healthnet, clicks on patient, nothing shows up
+	- new patient makes basic profile, hospital doctor selection, then goes to EMR (BLOWS UP)
+	- when you hit save on some fields, it is saved data but it is not visible.
+	- 
 
     Missing Features R-2 Beta
     -------------------------
 	- Messaging is not yet implemented
 	- Notifications are not yet implemented
+	- Doctor Patient Cap is unimplemented
+	- 
 
 
     Released Features R-2 Beta
