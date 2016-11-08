@@ -10,11 +10,10 @@ def try_parse(s):
         return False
 
 def getPatientAdmitStatus(patient):
-    if hasattr(patient, 'emrprofile'):
-        if hasattr(patient.emrprofile, 'admit_status'):
-            if patient.emrprofile.admit_status.admit:
-                return 'admit'
-    return 'discharge'
+    if patient.admittedHospital() is None:
+        return 'discharge'
+    return 'admit'
+
 
 
 # TODO: this would be relly cool, do it for real R2

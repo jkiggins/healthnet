@@ -50,7 +50,9 @@ class Patient(models.Model):
 
     def admittedHospital(self):
         if hasattr(self, 'emrprofile'):
-            return self.emrprofile.admit_status.hospital
+            if hasattr(self.emrprofile, 'admit_status'):
+                if hasattr(self.emrprofile.admit_status, 'hospital'):
+                    return self.emrprofile.admit_status.hospital
 
     def profileFinished(self):
         auth=True

@@ -38,11 +38,7 @@ class EMRItemCreateForm(forms.ModelForm):
         m = super(EMRItemCreateForm, self).save(commit=False)
 
         if 'update' in kwargs:
-            model = kwargs['update']
-            for key in self.cleaned_data:
-                if hasattr(model, key):
-                    setattr(model, key, self.cleaned_data[key])
-            model.save()
+            self.saveToModel(kwargs['update'])
         else:
             m.date_created = timezone.now()
             m.patient = kwargs['patient']
@@ -61,6 +57,11 @@ class EMRItemCreateForm(forms.ModelForm):
     def defaults(self, model):
         self.populateFromModel(model)
 
+    def saveToModel(self, model):
+        for key in self.cleaned_data:
+            if hasattr(model, key):
+                setattr(model, key, self.cleaned_data[key])
+        model.save()
 
 
     class Meta:
@@ -70,12 +71,24 @@ class EMRItemCreateForm(forms.ModelForm):
 
 class TestCreateForm(EMRItemCreateForm):
 
-    images = forms.FileField(widget=forms.ClearableFileInput(), required=False)
+    images = forms.FileField(widget=forms.FileInput(), required=False)
 
     def defaults(self, model):
         super(TestCreateForm, self).defaults(model)
         if hasattr(model, 'emrtest'):
             self.populateFromModel(model.emrtest)
+
+    def save(self, **kwargs):
+        m = super(TestCreateForm, self).save(**kwargs)
+
+        if 'update' in kwargs:
+            self.saveToModel(kwargs['update'].emrtest)
+
+        if 'commit' in kwargs:
+            if kwargs['commit']:
+                m.save()
+        return m
+
 
     class Meta:
         model = EMRTest
@@ -134,7 +147,9 @@ class ProfileCreateForm(forms.ModelForm):
     emrpatient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, disabled=True, label="Patient")
 
     def save(self, **kwargs):
-        model = kwargs['patient'].emrprofile
+        model = None
+        if hasattr(kwargs['patient'], 'emritem'):
+            model = kwargs['patient'].emritem
 
         if model is None:
             m = super(ProfileCreateForm, self).save(commit=False)

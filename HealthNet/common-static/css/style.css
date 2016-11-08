@@ -307,6 +307,11 @@ DIV.fieldWrapper
 	border-bottom: 2px solid #2D6597;
 }
 
+.card_body img{
+	max-width: 100%;
+	margin:auto;
+}
+
 /*********INLINE CARD***********/
 .inline_card
 {

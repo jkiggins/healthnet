@@ -24,8 +24,8 @@
             <div class="emr_toolbox_wrap">
                 <input type = "button" class="emr_toolbox_item" value="Sort"/>
                 <div class="drop_down">
-                    <input class="emr_toolbox_label" value="Alphabetical" />{{ form.sort.0.tag }}
-                    <input class="emr_toolbox_label" value="Date" />{{ form.sort.1.tag }}
+                    <input class="emr_toolbox_label" value="Alphabetical" />{{ form.sort.1.tag }}
+                    <input class="emr_toolbox_label" value="Date" />{{ form.sort.0.tag }}
                     <input class="emr_toolbox_label" value="Priority" />{{ form.sort.2.tag }}
                     <input type = "button" class="emr_toolbox_action" value="Reset Radio Buttons" onclick="unselect_radio_set('sort')"/>
                 </div>
@@ -88,7 +88,7 @@
             <div class = "card_body">
                 <table>
                     {% if item.emrtest %}
-                        <img src="{{ item.emrtest.image.path }}" />
+                        <img src="{% url 'emr:testmedia' item.pk %}" />
                     {% elif item.emrvitals %}
                         <tr><td>Resting BPM:</td><td>{{ item.emrvitals.restingBPM }}</td></tr>
                         <tr><td>Blood Pressure:</td><td>{{ item.emrvitals.bloodPressure }}</td></tr>

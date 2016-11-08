@@ -10,6 +10,7 @@ from .forms import *
 from .viewhelper import *
 from syslogging.models import *
 from user.viewhelper import add_dict_to_model
+from PIL import Image
 
 def viewSelfEmr(request):
     cuser = get_user(request)
@@ -46,7 +47,7 @@ class viewEMR(DetailView):
 
         emr = patient.emritem_set.all()
 
-        if not userauth.userCan_EMR(cuser, patient, 'view_full'):
+        if not userauth.userCan_EMR(cuser, patient, 'view_hidden'):
             emr = emr.exclude(emrtest__released=False)
 
         form = FilterSortForm()
@@ -78,13 +79,6 @@ class viewEMR(DetailView):
         form = FilterSortForm(request.POST)
 
         if form.is_valid():
-            if 'sort' in form.cleaned_data:
-                if 'date' in form.cleaned_data['sort']:
-                    emr = emr.order_by('date_created')
-                elif 'priority' in form.cleaned_data['sort']:
-                    emr = emr.order_by('-priority')
-                elif 'aplph' in form.cleaned_data['sort']:
-                    emr = emr.order_by('title')
 
 
             if ('filters' in form.cleaned_data) and (form.cleaned_data['filters'] != []):
@@ -121,15 +115,28 @@ class viewEMR(DetailView):
 
                 emr=build
 
-        return render(request, 'emr/viewEmr.html', {'EMRItems': emr, 'form': form, 'user': cuser, 'tuser': patient,
-                                                    'permissions': self.getPermissionsContext(cuser, patient)})
+
+            if 'sort' in form.cleaned_data:
+                if 'date' in form.cleaned_data['sort']:
+                    emr = emr.order_by('-date_created')
+                elif 'priority' in form.cleaned_data['sort']:
+                    emr = emr.order_by('-priority')
+                elif 'aplph' in form.cleaned_data['sort']:
+                    emr = emr.order_by('title')
+
+        ctx = {'EMRItems': emr, 'form': form, 'user': cuser, 'tuser': patient, 'permissions': self.getPermissionsContext(cuser, patient)}
+
+        if hasattr(patient, 'emrprofile'):
+            ctx['EMRProfile'] = patient.emrprofile
+
+        return render(request, 'emr/viewEmr.html', ctx)
 
 
-def getFormFromReqType(mtype, patient, provider, post=None):
+def getFormFromReqType(mtype, patient, provider, post=None, files=None):
     form = None
     if mtype == 'test':
         if post != None:
-            form = TestCreateForm(post)
+            form = TestCreateForm(post, files)
         else:
             form = TestCreateForm(initial={'emrpatient': patient.pk})
     elif mtype == 'vitals':
@@ -237,11 +244,11 @@ class EditEmrItem(DetailView):
             return HttpResponseRedirect(reverse('login'))
 
         emritem = self.get_object()
-        form = getFormFromReqType(self.getTypeFromModel(emritem), emritem.patient, cuser, post=request.POST)
+        form = getFormFromReqType(self.getTypeFromModel(emritem), emritem.patient, cuser, post=request.POST, files=request.FILES)
 
         if form.is_valid():
             form.save(update=emritem)
-            return HttpResponseRedirect(reverse('emr:vsemr'))
+            return HttpResponseRedirect(reverse('emr:vemr', args=(emritem.patient.pk,)))
         else:
             return render(request, 'emr/emrtest_form.html', {'user': cuser, 'form': form})
 
@@ -345,7 +352,30 @@ class AdmitDishchargeView(DetailView):
             return render(request, 'emr/emrtest_form.html', ctx)
 
 
+def serveTestMedia(request, pk):
+    cuser = get_user(request)
+    if cuser is None:
+        return HttpResponseRedirect(reverse('login'))
 
+    emritem = get_object_or_404(EMRItem, pk=pk)
+    patient = emritem.patient
+
+    path = None
+
+    if hasattr(emritem, 'emrtest'):
+        if emritem.emrtest.released or userauth.userCan_EMR(cuser, patient, 'view_full'):
+            try:
+                with open(emritem.emrtest.images.path, "rb") as f:
+                    return HttpResponse(f.read(), content_type="image/jpeg")
+            except IOError:
+                return getBlankImage()
+    return getBlankImage()
+
+def getBlankImage():
+    red = Image.new('RGBA', (1, 1), (255, 255, 255, 0))
+    response = HttpResponse(content_type="image/jpeg")
+    red.save(response, "JPEG")
+    return response
 
 
 
