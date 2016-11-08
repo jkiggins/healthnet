@@ -207,3 +207,15 @@ def getResultsFromModelQuerySet(qset):
         results.append(getResultFromModel(q))
 
     return results
+
+def getTypeOfForm(request):
+    remform = RemoveApproval(request.POST)
+    appform = ApproveForm(request.POST)
+    truform = TrustedNurses(request.POST)
+
+    if remform.is_valid() or appform.is_valid():
+        return 1
+    elif truform.is_valid():
+        return 2
+    else:
+        return 3

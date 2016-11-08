@@ -35,7 +35,7 @@
     <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form_emergency.as_ul }}
-        <input type = "button" value = "Save" onclick="submit_form(this)" class="button"/>
+        <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
     </form>
 </div>
 {% endif %}

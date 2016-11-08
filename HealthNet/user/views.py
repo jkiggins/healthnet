@@ -158,7 +158,7 @@ class viewProfile(View):
         if cuser.user.pk == tuser.user.pk:
             return HttpResponseRedirect(reverse('user:vProfilec'))
 
-        if tuser.getType() != 'patient':
+        if getTypeOfForm(request) == 1:
             if tuser.accepted:
                 removeform = RemoveApproval(request.POST)
                 if removeform.is_valid():
@@ -182,31 +182,17 @@ class viewProfile(View):
                             tuser.accepted = False
                             tuser.save()
 
-                    if tuser.getType() == "nurse":
-                        context = {'user': cuser,
-                               'tuser': tuser,
-                               'events': None,
-                               'view_calendar': False,
-                               'form': approveform}
-                    else:
-                        context = {'user': cuser,
-                               'tuser': tuser,
-                               'events': None,
-                               'view_calendar': True,
-                               'form': approveform}
-
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
-        if tuser.getType() == 'patient':
-            removeform = RemoveApproval(request.POST)
-            if removeform.is_valid():
-                if removeform.cleaned_data['remove']:
-                    tuser.user.is_active = False
-                    tuser.user.save()
-                else:
-                    tuser.user.is_active = True
-                    tuser.user.save()
+        elif getTypeOfForm(request) == 2:
+            trustform = TrustedNurses(request.POST)
+            if trustform.is_valid():
+                if trustform.cleaned_data['docs']:
+                    trustform.cleaned_data['docs'].nurses.add(tuser)
+
             return HttpResponseRedirect(reverse('user:dashboard'))
+
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
 
     def get(self, request, **kwargs):
@@ -228,14 +214,35 @@ class viewProfile(View):
 
         if tuser.getType() == 'doctor' or tuser.getType() == 'nurse':
             if tuser.accepted:
+                trustform = TrustedNurses()
+                trustform.setQuerySet(cuser.hospital.doctor_set.all())
                 form = RemoveApproval()
             else:
+                trustform = None
                 form = ApproveForm()
         elif tuser.getType() == 'patient':
             form = RemoveApproval()
 
+        print(tuser.doctor_set.all())
+
         if cuser.getType() == "hosAdmin":
             if tuser.getType() == "nurse":
+                if tuser.accepted:
+                    context = {'user': cuser,
+                        'tuser': tuser,
+                        'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
+                        'events': None,
+                        'view_calendar': False,
+                        'trustform': trustform,
+                        'form': form}
+                else:
+                    context = {'user': cuser,
+                        'tuser': tuser,
+                        'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
+                        'events': None,
+                        'view_calendar': False,
+                        'form': form}
+            elif tuser.getType() == "doctor":
                 context = {'user': cuser,
                     'tuser': tuser,
                     'events': None,
@@ -245,12 +252,12 @@ class viewProfile(View):
                 context = {'user': cuser,
                     'tuser': tuser,
                     'events': None,
-                    'view_calendar': True,
-                    'form': form}
+                    'view_calendar': True}
         else:
             if tuser.getType() == "nurse":
                 context = {'user': cuser,
                     'tuser': tuser,
+                    'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
                     'events': None,
                     'view_calendar': False}
             else:

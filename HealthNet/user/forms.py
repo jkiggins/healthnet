@@ -284,3 +284,9 @@ class ApproveForm(forms.Form):
 
 class RemoveApproval(forms.Form):
     remove = forms.BooleanField(label="Remove From Hospital")
+
+class TrustedNurses(forms.Form):
+    docs = forms.ModelChoiceField(queryset=Doctor.objects.none(), label="Doctors")
+
+    def setQuerySet(self , qset):
+        self.fields['docs'].queryset = qset

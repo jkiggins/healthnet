@@ -19,8 +19,9 @@
             <li><a href="{% url 'user:eProfile' %}" class="button">Edit</a></li>
         {% endif %}
 
-        {% include 'user/AppRemCheckbox.html' %}
-
+        {% if user.getType == 'hosAdmin' %}
+            {% include 'user/AppRemCheckbox.html' %}
+        {% endif %}
     {% elif tuser.getType == "doctor" %}
 
 {% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S patients %%%%%%%%%%{% endcomment %}
@@ -41,18 +42,24 @@
 
         {% endfor %}
 
-        {% include 'user/AppRemCheckbox.html' %}
+        {% if user.getType == 'hosAdmin' %}
+            {% include 'user/AppRemCheckbox.html' %}
+        {% endif %}
     {% endif %}
 
     {% if tuser.getType == "nurse" %}
 
          <h2>Trusted By:</h2>
-        {% for d in tuser.doctor_set.all %}
 
+        {% for d in trustdocs.all %}
             <li><a href = "{% url 'user:vProfile' d.user.id %}">{{ d.user.get_full_name }}</a></li>
-
         {% endfor %}
 
-        {% include 'user/AppRemCheckbox.html' %}
+        {% if user.getType == 'hosAdmin' %}
+            {% if tuser.accepted %}
+                {% include 'user/TrustDropdown.html' %}
+            {% endif %}
+            {% include 'user/AppRemCheckbox.html' %}
+        {% endif %}
     {% endif %}
     </ul>
