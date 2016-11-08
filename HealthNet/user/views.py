@@ -442,6 +442,9 @@ class CreateEvent(View):
             otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
         elif user.getType() in ['nurse', 'hadmin']:
             eventForm.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+        elif user.getType() == 'doctor':
+            eventForm.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+
 
         return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
 
@@ -473,6 +476,7 @@ class CreateEvent(View):
 
         if user.getType() == 'doctor' and getVisibleEvents(event_form.cleaned_data['patient']) is not None:
             otherEvents = getVisibleEvents(event_form.cleaned_data['patient']).exclude(doctor = user)
+            event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
 
         elevate_if_trusted(event_form, user)
         return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})

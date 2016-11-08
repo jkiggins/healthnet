@@ -56,15 +56,17 @@ class EventCreationFormValidator:
         return True
 
     @staticmethod
-    def patientMatchesHospital(form, error, help):
+    def patientMatchesHospitalDoctor(form, error, help):
         if not dict_has_keys(['patient', 'hospital'], form.cleaned_data):
             return True
 
         p = form.cleaned_data['patient']
         h = form.cleaned_data['hospital']
 
+        print(p.hospital == h)
+
         if p != None and h != None:
-            if p.hospital != h:
+            if (p.hospital != h) or not(h in p.doctor.hospitals.all()):
                 EventCreationFormValidator.add_messages(form, error, help)
                 return False
         return True

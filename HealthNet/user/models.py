@@ -45,12 +45,18 @@ class Patient(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
+    def profileFinished(self):
+        auth=True
+        auth &= not((self.hospital is None) or (self.doctor is None))
+        auth &= (self.user.get_full_name() != '') and (self.phone != '') and (self.address != '')
+        auth &= not(self.contact is None)
+
+        return auth
+
+
     def getType(self):
         return "patient"
 
-    def init_permissions(self):
-        """Method Generates custom permissions for user"""
-        pass
 
 class Contact(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)

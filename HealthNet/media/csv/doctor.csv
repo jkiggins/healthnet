@@ -1,3 +1,3 @@
 Username,password,first_name,last_name,max_capacity,[phone_number],hospital1,[hospital2, …]
-drstrange,pass,Doctor,Strange,5,5555555555, Big Hos, The Hospital, Eth Hospital
-drnormal,pass,Doctor,Normal,5,5555555555, Big Hos, The Hospital
+drstrange,pass,Doctor,Strange,5,5555555555,Big Hos, The Hospital,Eht Hospital
+drnormal,pass,Doctor,Normal,5,5555555555,Big Hos, The Hospital

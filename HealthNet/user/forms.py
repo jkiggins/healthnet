@@ -129,9 +129,9 @@ class EventCreationFormDoctor(EventForm):
         if not valid:
             return valid
 
-        print(self.mode)
+
         valid &= doctor_nurse_shared_validation(self)
-        valid &= EventCreationFormValidator.patientMatchesHospital(self,
+        valid &= EventCreationFormValidator.patientMatchesHospitalDoctor(self,
                                                                    {'hospital': "The patient isn't at that hospital"},
                                                                    {})
 
