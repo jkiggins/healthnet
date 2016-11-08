@@ -35,9 +35,10 @@ Running
     Default Users
     --------------
         These uses can be used to test the system
-        - Doctor Strange, username: drstrange and password: pass
-        - Nurse Normal, username: nursenormal and password: pass
-        - Patient Zero, username: patientzero and password: pass
+        Doctor - Doctor Strange, username: drstrange and password: pass
+        Nurse - Nurse Normal, username: nursenormal and password: pass
+        Patient- Patient Zero, username: patientzero and password: pass
+	Hospital Administrator - Kid Cudi, username: cudi and password: pass
 
     Creating an Admin account
     -------------------------
@@ -45,19 +46,29 @@ Running
         - Type "python manage.py createsuperuser"
         - Follow the prompts
         - Once done you can login to the admin after starting the system by navigating to localhost:8000/admin
+ 
+    Known Bugs R-2 Beta
+    -------------------
+	-
 
-    Known Bugs
-    ----------
-        - When filling out any forms, if a field is left blank and the form is submitted an error page is displayed
-        - If a user doesn't fill out the hospital during registration it results in an unknown user state and various features stop working
-	- Clicking on Doctor link in Profile of Patient causes error
-	- There can be overlapping events with different people
-	
-    Features Missing in Release-1
-    -----------------------------
-	-Month, Week, Day view for Patient, Nurse, and Doctor respectfully
-	-Patient emerency contact can't be linked to another user in system
-	-Trusted nurses aren't implemeneted
+
+    Missing Features R-2 Beta
+    -------------------------
+	- Messaging is not yet implemented
+	- Notifications are not yet implemented
+
+
+    Released Features R-2 Beta
+    --------------------------
+	- Addition/removal of perscriptions by doctors to patients records
+	- Nurses can view patient perscritions
+	- Doctors can view and edit the Patient EMR
+	- Patients are able to view test results only after doctors have released them
+	- User Activity is logged and The hosptial Admin can view and search through it by date/time. 
+	- A doctor or nurse can admit a patient to the hospital and a doctor can discharge him/her
+	- Administrators/Doctors can transfer patients to other hosptials
+	- Doctors can upload test results for Patients (NOTE: Must pip install pillow!) 
+	- Exporting and importing CSV data for EMR information
 
     Features in Release-1
     ---------------------
