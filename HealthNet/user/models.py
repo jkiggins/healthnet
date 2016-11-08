@@ -10,6 +10,7 @@ class Nurse(models.Model):
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     accepted = models.BooleanField(default=False)
 
+
     def __str__(self):
         return self.user.get_full_name()
 
@@ -41,6 +42,8 @@ class Patient(models.Model):
     phone = models.CharField(max_length=10, default="")
 
     contact = models.ForeignKey('Contact', null=True, blank=True)
+
+    accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -79,6 +82,9 @@ class Doctor(models.Model):
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have
     nurses = models.ManyToManyField('Nurse')
     accepted = models.BooleanField(default=False)
+
+    def acceptedPatients(self):
+        return self.patient_set.all().filter(accepted=True)
 
     def __str__(self):
         return self.user.get_full_name()

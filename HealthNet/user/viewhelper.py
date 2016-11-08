@@ -188,6 +188,9 @@ def getResultFromModel(model):
         return [{'type': 'Nurse'}, {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()}]
 
     if isinstance(model, Patient):
+        label = model.user.get_full_name()
+        if label == "":
+            label = model.user.username
         return [{'type': 'Patient'},
                 {'url': reverse('user:vProfile', args=(model.user.id,)), 'label': model.user.get_full_name()},
                 {'url': reverse('emr:vemr', args=(model.id,)), 'label': "EMR"}]

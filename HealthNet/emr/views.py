@@ -51,7 +51,8 @@ class viewEMR(DetailView):
 
         form = FilterSortForm()
         ctx = {'EMRItems': emr,'form': form, 'user': cuser, 'tuser': patient,
-               'permissions': self.getPermissionsContext(cuser, patient)}
+               'permissions': self.getPermissionsContext(cuser, patient),
+               'admit': getPatientAdmitStatus(patient)}
 
         if hasattr(patient, 'emrprofile'):
             ctx['EMRProfile'] = patient.emrprofile

@@ -3,6 +3,7 @@ from django.utils import timezone
 import datetime
 from user.models import Doctor, Patient
 from django.contrib.auth.models import User
+from hospital.models import *
 
 
 class EMRItem(models.Model):
@@ -32,6 +33,12 @@ class EMRVitals(EMRItem):
         return 'vitals'
 
 
+class EMRAdmitStatus(EMRItem):
+    hospital = models.ForeignKey(Hospital, null=True, blank=True)
+    admit = models.BooleanField(default=True)
+
+
+
 class EMRProfile(models.Model):
     patient = models.OneToOneField(Patient, blank=True, null=True)
     birthdate = models.DateTimeField(default=timezone.now)
@@ -39,6 +46,7 @@ class EMRProfile(models.Model):
     blood_type = models.CharField(max_length=3, default="")
     family_history = models.CharField(max_length=200, default="")
     comments = models.CharField(max_length=200, default="")
+
 
     def getInumber(self):
         return self.patient.insuranceNum

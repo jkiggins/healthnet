@@ -104,7 +104,7 @@ def userCan_EMR(cuser, patient, *actions):
         if utype == 'patient':
             return patientHasCompletedProfile(cuser)
         elif utype == 'doctor':
-            auth_l |= patient in cuser.patient_set.all()
+            auth_l |= patient in cuser.patient_set.all().filter(accepted=True)
             auth_l |= patient.hospital in cuser.hospitals.all()
         elif utype == 'nurse':
             auth_l |= patient.hospital == cuser.hospital

@@ -31,6 +31,11 @@ class Registry(View):
         if cuser is None:
             return HttpResponseRedirect(reverse('login'))
 
+
+        pqset = None
+        dqset = None
+        evqset = None
+
         if cuser.getType() == "hosAdmin":
             form = HosAdminSearchForm(request.POST)
             form.full_clean()
@@ -45,15 +50,17 @@ class Registry(View):
         events = Event.objects.none()
 
         if 'patient' in form.cleaned_data['filterBy']:
+            pqset = Patient.objects.filter(user__is_active=True).filter(accepted=True)
             for word in words:
-                patients |= Patient.objects.filter(user__first_name__contains=word).filter(user__is_active=True)
-                patients |= Patient.objects.filter(user__last_name__contains=word).filter(user__is_active=True)
-                patients |= Patient.objects.filter(hospital__name__contains=word).filter(user__is_active=True)
+                patients |= pqset.filter(user__first_name__contains=word)
+                patients |= pqset.filter(user__last_name__contains=word)
+                patients |= pqset.filter(hospital__name__contains=word)
 
         if 'doctor' in form.cleaned_data['filterBy']:
+            dqset = Doctor.objects.filter(user__is_active=True).filter(accepted=True)
             for word in words:
-                doctors |= Doctor.objects.filter(user__first_name__contains=word).filter(user__is_active=True).filter(accepted=True)
-                doctors |= Doctor.objects.filter(user__last_name__contains=word).filter(user__is_active=True).filter(accepted=True)
+                doctors |= dqset.filter(user__first_name__contains=word)
+                doctors |= dqset.filter(user__last_name__contains=word)
 
         if 'event' in form.cleaned_data['filterBy']:
             for word in words:

@@ -9,6 +9,11 @@ def try_parse(s):
     except ValueError:
         return False
 
+def getPatientAdmitStatus(patient):
+    if patient.emritem_set.all().exclude(emradmitstatus=None).order_by('date_created')[0].admit:
+        return 'admit'
+    return 'discharge'
+
 
 # TODO: this would be relly cool, do it for real R2
 # def parsePhrases(keywords):
