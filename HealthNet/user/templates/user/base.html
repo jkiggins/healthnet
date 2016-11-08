@@ -26,9 +26,9 @@
 
     {% elif user.getType == "nurse" or user.getType == "doctor" %}
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
+
     {% elif user.getType == "hosAdmin" %}
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
-
 
     {% endif %}
 	
