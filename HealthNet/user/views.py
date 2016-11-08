@@ -217,8 +217,9 @@ class viewProfile(View):
 
         if tuser.getType() == 'doctor' or tuser.getType() == 'nurse':
             if tuser.accepted:
-                trustform = TrustedNurses()
-                trustform.setQuerySet(cuser.hospital.doctor_set.all())
+                if cuser.getType() == "hosAdmin":
+                    trustform = TrustedNurses()
+                    trustform.setQuerySet(cuser.hospital.doctor_set.all())
                 form = RemoveApproval()
             else:
                 trustform = None
@@ -468,7 +469,8 @@ class CreateEvent(View):
         if not userauth.userCan_Event(user, None, 'create'):
             return HttpResponseRedirect(reverse('user:dashboard'))
 
-        myEvents = getVisibleEvents(user)
+        if not user.getType() in ['nurse', 'hosAdmin']:
+            myEvents = getVisibleEvents(user)
         otherEvents = None
         eventForm = getEventFormByUserType(user.getType())
         if user.getType() == 'patient':
@@ -478,8 +480,10 @@ class CreateEvent(View):
         elif user.getType() == 'doctor':
             eventForm.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
 
-
-        return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
+        if not user.getType() in ['nurse', 'hosAdmin']:
+            return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
+        else:
+            return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'otherEvents': otherEvents, 'canAccessDay': True})
 
     def post(self, request):
         user = get_user(request)
