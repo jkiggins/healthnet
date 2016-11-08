@@ -11,8 +11,6 @@ from .viewhelper import *
 from syslogging.models import *
 from user.viewhelper import add_dict_to_model
 
-from reportlab.pdfgen import canvas
-
 def viewSelfEmr(request):
     cuser = get_user(request)
     if cuser is None:
