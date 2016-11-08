@@ -1,0 +1,9 @@
+{% extends 'user/base.html' %}
+
+{% block name %} {{ cuser.user.get_full_name }} {% endblock %}
+
+{% block content %}
+
+    {% include 'syslogging/sysLogModule.html' %}
+
+{% endblock %}

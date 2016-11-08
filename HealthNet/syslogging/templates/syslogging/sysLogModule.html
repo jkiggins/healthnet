@@ -1,0 +1,7 @@
+
+{% for entry in system_log.all %}
+    <ul class="inline_card_list">
+        <li>{{entry.date_created}} {{ entry.type }} {{ entry.message}}</li>
+    </ul>
+
+{% endfor %}
