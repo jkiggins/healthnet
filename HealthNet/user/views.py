@@ -150,7 +150,10 @@ class viewProfile(View):
 
         if not userauth.userCan_Profile(cuser, tuser, 'view'):
             Syslog.unauth_acess(request)
+            request.session['message']="You are not authorized to view this content."
             return HttpResponseRedirect(reverse('user:dashboard'))
+            #message = "You are not authorized to view this content."
+            #return render(request, 'user/dashboard.html', {'message': message})
 
         if cuser.user.pk == tuser.user.pk:
             return HttpResponseRedirect(reverse('user:vProfilec'))

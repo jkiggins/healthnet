@@ -9,10 +9,11 @@
 
 <body>
 
-
+	{% if message %}
 	<script>
-		alert({{ message }});
+		alert('{{ message }}');
 	</script>
+	{% endif %}
 
 	<h1 id="banner">Welcome To HealthNet!</h1>
 	

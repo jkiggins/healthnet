@@ -159,7 +159,6 @@ class LoginView(View):
         if(lform.is_valid()):
             user = authenticate(username=lform.cleaned_data['username'], password=lform.cleaned_data['password'])
 
-            print(user)
             if user is not None:
                 if healthUserFromDjangoUser(user).getType() == 'doctor' or healthUserFromDjangoUser(user).getType() == 'nurse':
                     if healthUserFromDjangoUser(user).accepted == True:
@@ -170,18 +169,23 @@ class LoginView(View):
                         #return HttpResponseRedirect(reverse('login'))
                         form = LoginForm()
                         message = "Your hospital admin has not authenticated you."
-                        return render_to_response(request, 'logIn/index.html', {'message': message, 'form': form})
+                        return render(request, 'logIn/index.html', {'message': message, 'form': form})
                 login(request, user)
                 Syslog.userLogin(user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
-        return HttpResponseRedirect(reverse('login'))
+        message = "Something went wrong with your login, check if your username and password are correct."
+        form = LoginForm()
+        return render(request, 'logIn/index.html', {'message': message, 'form': form})
+        #return HttpResponseRedirect(reverse('login'))
 
     def get(self, request):
         if request.user.is_authenticated():
             return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = LoginForm()
+
+        #message = "Something went wrong with your login, check if your username and password are correct."
 
         return render(request, 'logIn/index.html', {'form': form})
 
