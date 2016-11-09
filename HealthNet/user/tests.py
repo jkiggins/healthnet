@@ -1,14 +1,4 @@
 from django.test import TestCase
-
-from .models import *
-from .forms import *
-from .formhelper import *
-from .formvalid import *
-from hospital.models import Hospital
-from emr.models import *
-from django.contrib.auth.models import User
-from django.utils import timezone
-import datetime
 from .viewhelper import *
 
 def setup_environment():

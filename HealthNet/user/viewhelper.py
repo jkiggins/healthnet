@@ -1,5 +1,3 @@
-from .formvalid import *
-from .models import *
 from .forms import *
 from django.shortcuts import get_object_or_404
 from django.http import Http404

@@ -1,8 +1,5 @@
 from django import forms
-from .models import *
 from django.contrib.admin import widgets
-from django.utils import timezone
-import datetime
 
 
 class DateSearchForm(forms.Form):

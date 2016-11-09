@@ -1,7 +1,6 @@
 from user.models import *
-from hospital.models import Hospital
 from emr.models import *
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 
 Hospital.objects.all().delete()
 User.objects.all().delete()

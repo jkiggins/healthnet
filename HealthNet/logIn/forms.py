@@ -1,5 +1,4 @@
 from django import forms
-from user.models import *
 from user.formvalid import dict_has_keys
 from hospital.models import *
 import re

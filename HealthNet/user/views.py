@@ -1,12 +1,6 @@
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404, JsonResponse
-from syslogging.models import *
-from .forms import *
+from django.http import HttpResponseRedirect
 from django.views.generic import View
-from logIn.models import *
-from .formvalid import *
-from django.contrib.auth import logout
 from .formhelper import *
 from .viewhelper import *
 
@@ -30,7 +24,6 @@ class Registry(View):
         cuser = get_user(request)
         if cuser is None:
             return HttpResponseRedirect(reverse('login'))
-
 
         pqset = None
         dqset = None

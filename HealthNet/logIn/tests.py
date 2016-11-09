@@ -1,6 +1,4 @@
 from django.test import TestCase
-from User.models import *
-from hospital.models import Hospital
 from emr.models import *
 from django.contrib.auth import authenticate
 

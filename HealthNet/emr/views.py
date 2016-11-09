@@ -2,10 +2,8 @@ from django.shortcuts import render , get_object_or_404
 from django.http import HttpResponse , HttpResponseRedirect
 from django.views.generic import DetailView, View
 from django.core.urlresolvers import reverse
-from user.models import Patient
 from user import userauth
 from user.viewhelper import get_user
-from .models import *
 from .forms import *
 from .viewhelper import *
 from syslogging.models import *

@@ -1,26 +1,16 @@
 from django.shortcuts import render
 from user.models import *
-from user.formvalid import dict_has_keys
-from django.contrib import messages
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
-from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.views.generic import View
 from django.contrib.auth.models import User
-from hospital.models import *
 from syslogging.models import *
 from user.viewhelper import healthUserFromDjangoUser
-
-
-#todo see if needed
-
-# from User.models import *
-# from .forms import PatientForm
 
 # Create your views here.
 

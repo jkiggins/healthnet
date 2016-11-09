@@ -1,10 +1,9 @@
 from django.test import TestCase
 from syslogging.models import Syslog
 from user.models import *
-from hospital.models import Hospital
 from emr.models import *
-from django.contrib.auth.models import Permission, User
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 def login_as_patient():
     """This will use the login app to login as a patient, giving the tests patient url access"""
