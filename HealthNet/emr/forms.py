@@ -1,7 +1,7 @@
 from django import forms
 from .models import *
 from django.contrib.auth.models import User
-import emr.formvalid as formvalid
+import HealthNet.formvalid as formvalid
 
 
 class FilterSortForm(forms.Form):
