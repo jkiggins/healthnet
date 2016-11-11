@@ -1,7 +1,10 @@
-from .forms import *
+from HealthNet.formvalid import *
+from user.models import *
+from django.forms import *
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.views.generic import View
 
 def augmentEventCreationFormForUpdate(form, augment=None):
     form.fields['delete'] = forms.BooleanField(label="Delete?", initial=False, widget=forms.CheckboxInput(), required=False)
@@ -9,15 +12,18 @@ def augmentEventCreationFormForUpdate(form, augment=None):
     if not(augment is None):
         augment(form)
 
+
 def disableAllFields(form):
     for key in form.fields:
         form.fields[key].disabled=True
+
 
 def deleteInPostIsTrue(post):
     if 'delete' in post:
         if post['delete']:
             return True
     return False
+
 
 def get_visible_event_or_404(pk):
     event = get_object_or_404(Event, pk=pk)
@@ -31,7 +37,7 @@ def getVisibleEvents(user):
     return user.event_set.all().filter(visible=True)
 
 
-def healthUserFromDjangoUser(user):
+def getHealthUser(user):
     if hasattr(user, 'patient'):
         return user.patient
     elif hasattr(user, 'doctor'):
@@ -41,9 +47,10 @@ def healthUserFromDjangoUser(user):
     elif hasattr(user, 'hospitaladmin'):
         return user.hospitaladmin
 
+
 def get_user(request):
     if (request.user.is_authenticated()):
-        return healthUserFromDjangoUser(request.user)
+        return getHealthUser(request.user)
     return None
 
 
@@ -206,6 +213,7 @@ def getResultsFromModelQuerySet(qset):
 
     return results
 
+
 def getTypeOfForm(request):
     remform = RemoveApproval(request.POST)
     appform = ApproveForm(request.POST)
@@ -217,3 +225,71 @@ def getTypeOfForm(request):
         return 2
     else:
         return 3
+
+
+def try_parse(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def isAdmitted(patient):
+    if patient.admittedHospital() is None:
+        return False
+    return True
+
+
+class HealthView(View):
+    """Generic View extension customized for healthnet
+        Depending on the user type a different method is called
+        setup and respond methods exists so no code is copied
+    """
+    POST = None
+
+    def doctor(self, request, user):
+        pass
+
+    def nurse(self, request, user):
+        pass
+
+    def patient(self, request, user):
+        pass
+
+    def hosAdmin(self, request, user):
+        pass
+
+    def setup(self, request, user, **kwargs):
+        pass
+
+    def respond(self, request, user):
+        pass
+
+    def unauthorized(self, request, **kwargs):
+        return HttpResponseRedirect(reverse('login'))
+
+
+    def get(self, request, **kwargs):
+        pk = None
+        user = get_user(request)
+
+        if user is None:
+            self.unauthorized(request, **kwargs);
+        elif user.getType() in ['patient', 'doctor', 'nurse', 'hosAdmin']:
+            self.setup(request, user, **kwargs)
+            call = getattr(self, user.getType())
+            if callable(call):
+                call(request, user)
+
+        return self.respond(request, user)
+
+
+    def post(self, request, **kwargs):
+        self.POST=request.POST
+        return self.get(request, **kwargs)
+
+
+def getVisibleEMR(patient):
+    """Returns a queryset of the EMR items that are released"""
+    return patient.emritem_set.all().exclude(emrtest__released=False)
