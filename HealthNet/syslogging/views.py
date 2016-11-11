@@ -1,10 +1,12 @@
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import View
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from .models import Syslog
-from user.viewhelper import get_user
+
+from HealthNet.viewhelper import get_user
 from .forms import DateSearchForm
+from .models import Syslog
+
 
 # Create your views here.
 
