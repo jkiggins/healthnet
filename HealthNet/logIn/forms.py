@@ -1,9 +1,12 @@
 from django import forms
-from user.formvalid import dict_has_keys
 from hospital.models import *
 import re
+
+from django import forms
 from django.contrib.auth.models import User
 
+from HealthNet.formvalid import dict_has_keys
+from hospital.models import *
 
 
 class RegistrationForm(forms.Form):
