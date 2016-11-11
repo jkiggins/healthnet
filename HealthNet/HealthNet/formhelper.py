@@ -1,6 +1,6 @@
 from hospital.models import Hospital
 from django import forms
-from .models import *
+from user.models import *
 
 def populateDependantFieldsPD(form, pqset, dqset, hospital):
     if ('patient' in form.cleaned_data) and ('doctor' in form.cleaned_data):
