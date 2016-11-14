@@ -37,7 +37,6 @@ class EMRAdmitStatus(EMRItem):
     admit = models.BooleanField(default=True)
 
 
-
 class EMRProfile(models.Model):
     patient = models.OneToOneField(Patient, blank=True, null=True)
     birthdate = models.DateTimeField(default=timezone.now)
@@ -74,6 +73,31 @@ class EMRTest(EMRItem):
     def getType(self):
         return 'test'
 
+
+def isTest(item):
+    return hasattr(item, 'emrtest')
+
+def isVital(item):
+    return hasattr(item, 'emrvitals')
+
+def isAdmit(item):
+    return hasattr(item, 'emrtest')
+
+def isPrescription(item):
+    return hasattr(item, 'emrprescription')
+
+def isNote(item):
+    return not(isAdmit(item) or isTest(item) or isVital(item) or isPrescription(item))
+
+def emrItemType(item):
+    if isTest(item):
+        return 'test'
+    elif isVital(item):
+        return 'vitals'
+    elif isPrescription(item):
+        return 'precription'
+
+    return 'note'
 
 """
 This Prescription class holds all the information relating to a single prescription

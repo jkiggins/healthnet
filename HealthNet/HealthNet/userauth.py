@@ -1,3 +1,5 @@
+from emr.models import *
+
 def getAttrIfExists(obj, attr):
     if hasattr(obj, attr):
         return getattr(obj, attr)
@@ -159,5 +161,31 @@ def userCan_EMR(cuser, patient, *actions):
 
     return auth
 
+
+def userCan_EMRItem(cuser, item, *actions):
+    auth = True
+
+    if 'view' in item:
+        auth_l = False
+
+        if cuser.getType() == 'doctor':
+            auth_l |= item.patient.hospital in cuser.hospitals.all()
+        elif cuser.getType() == 'patient':
+            if isTest(item):
+                auth_l |= item.emrtest.released
+            else:
+                auth_l = True
+        elif cuser.getType() == 'nurse':
+            auth_l |= item.patient.hospital == cuser.hospital
+        auth &= auth_l
+
+    if 'edit' in item:
+        auth_l = False
+        if cuser.getType() == 'patient':
+            return False
+        else:
+            auth_l = True
+        auth_l &= userCan_EMRItem(cuser, item, 'view')
+        auth &= auth_l
 
 

@@ -1,10 +1,23 @@
 function resolve_dependancy(e) {
-    if(e.form.action[e.form.action.length-1] != 'd') {
-        e.form.action += "d";
-    }
 
-    e.form.submit();
+    var oReq = new XMLHttpRequest();
+    oReq.onload = reqListener;
+    oReq.onerror = reqError;
+    oReq.open('get', 'd', true);
+    oReq.send();
+
 }
+
+function reqListener() {
+  var data = JSON.parse(this.responseText);
+  console.log(data);
+}
+
+function reqError(err) {
+  console.log('Fetch Error :-S', err);
+}
+
+
 
 function set_action_and_submit(e)
 {
