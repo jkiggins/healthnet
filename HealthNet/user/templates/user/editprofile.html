@@ -2,41 +2,30 @@
 
 {% block content %}
 
-{% if form_basic != None %}
-    <div id="registerBox">
-    <h2>Basic Profile Info</h2>
-        <form action="" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form_basic.as_ul }}
-            <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
-        </form>
-    </div>
-{% endif %}
+    {% if form_basic != None %}
+        <div id="registerBox">
+            <h2>Profile Info</h2>
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form_basic.as_ul }}
 
-<div id="registerBox">
-    <h2>Doctor and Hospital</h2>
-    {% if form_medical != None %}
-        <form action="" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form_medical.as_ul }}
-            <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
-        </form>
-    {% else %}
-        <ul>
-            <li>Doctor: {{ tuser.doctor }}</li>
-            <li>Hospital {{ tuser.hospital }}</li>
-        </ul>
+                {% if form_medical != None %}
+                    <h2>Doctor and Hospital</h2>
+                        {% csrf_token %}
+                        {{ form_medical.as_ul }}
+                {% else %}
+                <h2>Doctor and Hospital</h2>
+                    <li>Doctor: {{ tuser.doctor }}</li>
+                    <li>Hospital {{ tuser.hospital }}</li>
+                {% endif %}
+
+                {% if form_emergency != None %}
+                    <h2>Emergency Contact</h2>
+                        {% csrf_token %}
+                        {{ form_emergency.as_ul }}
+                <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
+            </form>
+            {% endif %}
+        </div>
     {% endif %}
-</div>
-
-{% if form_emergency != None %}
-<div id="registerBox">
-    <h2>Emergency Contact</h2>
-    <form action="" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form_emergency.as_ul }}
-        <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
-    </form>
-</div>
-{% endif %}
 {% endblock %}

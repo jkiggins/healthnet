@@ -215,14 +215,11 @@ class EditProfileForm_basic(forms.Form):
     phone = forms.CharField(max_length=10, label="Phone Number", required=False)
     address = forms.CharField(max_length=50, label="Your Address", required=False)
 
-    basic = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
-
 
 class EditProfileForm_emergency(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     full_name = forms.CharField(max_length=50, required=False)
-    phone = forms.CharField(max_length=10, label="Phone Number", required=False)
-    emergency = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
+    emphone = forms.CharField(max_length=10, label="Phone Number", required=False)
 
     def is_valid(self):
         valid = super(EditProfileForm_emergency, self).is_valid()
@@ -240,7 +237,6 @@ class EditProfileForm_emergency(forms.Form):
 class EditProfileForm_medical(forms.Form):
     doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
     hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False)
-    medical = forms.CharField(widget=forms.HiddenInput(), initial="HOLD")
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm_medical, self).__init__(*args, **kwargs)

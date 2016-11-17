@@ -1,16 +1,16 @@
  <h2>Profile of: {{ tuser.user.get_full_name }}</h2>
     <ul>
-        <li>Email:{{ tuser.user.email }}</li>
 
     {% if tuser.getType == "patient" %}
-
+        <li><h2>Personal Info</h2></li>
+        <li>Email:{{ tuser.user.email }}</li>
         <li>Phone: {{ tuser.phone }}</li>
-        <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
         <li>Address: {{ tuser.address }}</li>
+        <li><h2>Medical Info</h2></li>
         <li>Insurance #: {{ tuser.insuranceNum }}</li>
         <li>Hospital: {{ tuser.hospital.name }}</li>
         <li>Doctor: {{ tuser.doctor.user.get_full_name }}</li>
-
+        <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
         {% if user.getType != 'patient' %}
             <li><a href="{% url 'emr:vemr' tuser.id %}" class="button">EMR</a></li>
         {% endif %}
@@ -23,6 +23,7 @@
             {% include 'user/AppRemCheckbox.html' %}
         {% endif %}
     {% elif tuser.getType == "doctor" %}
+        <li>Email:{{ tuser.user.email }}</li>
 
 {% comment %} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY DOCTOR'S patients %%%%%%%%%%{% endcomment %}
         <h3>Patients</h3>
@@ -48,8 +49,9 @@
     {% endif %}
 
     {% if tuser.getType == "nurse" %}
+        <li>Email:{{ tuser.user.email }}</li>
 
-         <h2>Trusted By:</h2>
+        <h2>Trusted By:</h2>
 
         {% for d in trustdocs.all %}
             <li><a href = "{% url 'user:vProfile' d.user.id %}">{{ d.user.get_full_name }}</a></li>
@@ -64,7 +66,8 @@
     {% endif %}
 
     {% if tuser.getType == "hosAdmin" %}
-        <h3>Hospital</h3>
+        <li>Email:{{ tuser.user.email }}</li>
+        <h2>Hospital</h2>
         <li>{{ tuser.hospital.name }}</li>
     {% endif %}
     </ul>
