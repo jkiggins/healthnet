@@ -60,6 +60,8 @@ class EventForm(forms.ModelForm):
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)
 
+    mode='create'
+
     def __init__(self, *args, **kwargs):
 
         if 'mode' in kwargs:
@@ -113,8 +115,8 @@ class EventCreationFormDoctor(EventForm):
     def __init__(self, *args, **kwargs):
         super(EventCreationFormDoctor, self).__init__(*args, **kwargs)
         self.order_fields(['title', 'type', 'patient', 'hospital', 'startTime', 'duration', 'description'])
-        self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
-        self.fields['hospital'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['patient'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)", 'data-key': "patient"}
+        self.fields['hospital'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)", 'data-key': "hospital"}
 
     def getModel(self):
         m = super(EventCreationFormDoctor, self).getModel()
@@ -137,6 +139,20 @@ class EventCreationFormDoctor(EventForm):
         return valid
 
 
+    def dependantFields(self, pqset, hqset):
+        if ('patient' in self.cleaned_data) and ('hospital' in self.cleaned_data):
+            if (self.cleaned_data['patient'] is None) and (self.cleaned_data['hospital'] is None):
+                self.fields['patient'].queryset = pqset
+                self.fields['hospital'].queryset = hqset
+            elif not (self.cleaned_data['patient'] is None):
+                # TODO: add code to set defualt value of dropdown to the hospital
+                self.fields['hospital'].queryset = Hospital.objects.filter(pk=self.cleaned_data['patient'].hospital.pk)
+            elif not (self.cleaned_data['hospital'] is None):
+                patients = pqset.filter(hospital=self.cleaned_data['hospital'])
+                self.fields['patient'].queryset = patients
+                self.fields['hospital'].queryset = hqset
+
+
     def set_hospital_patient_queryset(self, hqset, pqset):
         self.fields['hospital'].queryset = hqset
         self.fields['patient'].queryset = pqset
@@ -154,10 +170,23 @@ class EventCreationFormNurse(EventForm):
     def __init__(self, *args, **kwargs):
         super(EventCreationFormNurse, self).__init__(*args, **kwargs)
         self.elevated = False
-        self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
-        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['patient'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
         self.fields['patient'].required = False
         self.fields['doctor'].required = False
+
+
+    def dependantFields(self, dqset, pqset, hospital):
+        if ('patient' in self.cleaned_data) and ('doctor' in self.cleaned_data):
+            if (self.cleaned_data['patient'] is None) and (self.cleaned_data['doctor'] is None):
+                self.fields['patient'].queryset = pqset
+                self.fields['doctor'].queryset = dqset
+            elif not (self.cleaned_data['patient'] is None):
+                # TODO: add code to set defualt value of dropdown to the doctor
+                self.fields['doctor'].queryset = Doctor.objects.filter(pk=self.cleaned_data['patient'].doctor.pk)
+            elif not (self.cleaned_data['doctor'] is None):
+                patients = self.cleaned_data['doctor'].patient_set.filter(hospital=hospital, accepted=True)
+                self.fields['patient'].queryset = patients
 
 
     def getModel(self):
@@ -200,8 +229,8 @@ class EventCreationFormHadmin(EventForm):
         self.fields['doctor'].queryset = doctor_qset
         self.fields['patient'].required = False
         self.fields['doctor'].required = False
-        self.fields['patient'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
-        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['patient'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
 
     class Meta:
         model = Event
@@ -240,8 +269,8 @@ class EditProfileForm_medical(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm_medical, self).__init__(*args, **kwargs)
-        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
-        self.fields['hospital'].widget.attrs = {'onchange': "resolve_dependancy(this)"}
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
+        self.fields['hospital'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
 
     def is_valid(self):
         self.fields['doctor'].required = True
@@ -277,11 +306,86 @@ class SearchForm(forms.Form):
 class ApproveForm(forms.Form):
     approved = forms.BooleanField(label="Approved")
 
+
 class RemoveApproval(forms.Form):
     remove = forms.BooleanField(label="Remove From Hospital")
+
 
 class TrustedNurses(forms.Form):
     docs = forms.ModelChoiceField(queryset=Doctor.objects.none(), label="Doctors")
 
     def setQuerySet(self , qset):
         self.fields['docs'].queryset = qset
+
+
+class EditProfileHelper:
+    @staticmethod
+    def getFormByPostData(post):
+        if dict_has_keys(['medical'], post):
+            return EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            return EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            return EditProfileForm_emergency(post)
+
+    @staticmethod
+    def getContextWithPopulatedForm(post):
+        ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
+
+        if dict_has_keys(['medical'], post):
+            ret['form_medical'] = EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            ret['form_basic'] = EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            ret['form_emergency'] = EditProfileForm_emergency(post)
+
+        return ret
+
+
+    @staticmethod
+    def getContextFromForm(form):
+        ctx = {}
+        if 'medical' in form.fields:
+            ctx['form_medical']=form
+        elif 'emergency' in form.fields:
+            ctx['form_emergency']=form
+        elif 'basic' in form.fields:
+            ctx['form_basic']=form
+
+        return ctx
+
+    @staticmethod
+    def updateUserProfile(form, user):
+        if 'medical' in form.fields:
+            user.hospital = form.cleaned_data['hospital']
+            user.doctor = form.cleaned_data['doctor']
+            user.save()
+        elif 'emergency' in form.fields:
+            contact = None
+            if user.contact is None:
+                contact = Contact(full_name="filler", phone="filler")
+                contact.save()
+                user.contact = contact
+                user.save()
+            else:
+                contact = user.contact
+
+            if form.cleaned_data['user'] is None:
+                contact.full_name = form.cleaned_data['full_name']
+                contact.phone = form.cleaned_data['phone']
+            else:
+                contact.user = form.cleaned_data['user']
+                contact.updateFromUser()
+
+            contact.save()
+
+        elif 'basic' in form.fields:
+            for key in form.cleaned_data:
+                if not(form.cleaned_data[key] is None):
+                    if hasattr(user, key):
+                        setattr(user, key, form.cleaned_data[key])
+                    elif hasattr(user.user, key):
+                        setattr(user.user, key, form.cleaned_data[key])
+
+            user.user.save()
+            user.save()

@@ -1,0 +1,29 @@
+<div class = "card_wrapper_big" onclick="stop_event_prop(event)">
+    <div class="card_hf bottomborder {{ item.getType }}">{{ item.title }}</div>
+
+    <div class = "card_body">
+        <table>
+            {% if item.emrtest %}
+                <img src="{% url 'emr:testmedia' item.pk %}" />
+            {% elif item.emrvitals %}
+                <tr><td>Resting BPM:</td><td>{{ item.emrvitals.restingBPM }}</td></tr>
+                <tr><td>Blood Pressure:</td><td>{{ item.emrvitals.bloodPressure }}</td></tr>
+                <tr><td>Height:</td><td>{{ item.emrvitals.height }}</td></tr>
+                <tr><td>Weight:</td><td>{{ item.emrvitals.weight }}</td></tr>
+            {% elif item.emrprescription %}
+                <tr><td>Dosage:</td><td>{{ item.emrprescription.dosage }}</td></tr>
+                <tr><td>Dose/day:</td><td>{{ item.emrprescription.amountPerDay }}</td></tr>
+                <tr><td>Start Date:</td><td>{{ item.emrprescription.startDate }}</td></tr>
+                <tr><td>End Date:</td><td>{{ item.emrprescription.endDate }}</td></tr>
+                <tr><td>Provider:</td><td>{{ item.emrprescription.proivder.get_full_name }}</td></tr>
+            {% endif %}
+            {{ item.content }}
+        </table>
+    </div>
+
+    <div class = "card_hf topborder">
+        <input type = "button" value = "details" />
+        <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eemrItem' item.id %}'"/>
+        <li>Priority: {{ item.priority }}</li>
+    </div>
+</div>

@@ -1,6 +1,6 @@
 from HealthNet.formvalid import *
 from user.models import *
-from django.forms import *
+from django import forms
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -280,9 +280,7 @@ class HealthView(View):
             self.setup(request, user, **kwargs)
             call = getattr(self, user.getType())
             if callable(call):
-                call(request, user)
-
-        return self.respond(request, user)
+                return call(request, user)
 
 
     def post(self, request, **kwargs):

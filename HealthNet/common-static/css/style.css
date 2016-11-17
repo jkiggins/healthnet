@@ -249,6 +249,31 @@ DIV.fieldWrapper
 	word-wrap: break-word;
 }
 
+.card_wrapper_big
+{
+	width: 75%;
+	min-height: 75%;
+	margin: 12.4%;
+	word-wrap: break-word;
+	background-color: #FFF;
+	z-index: 401;
+}
+
+.overlay
+{
+	position: absolute;
+	top:0;
+	left: 0;
+	width: 100%;
+	min-height: 100%;
+	background-color: rgba(0,0,0,.9);
+	z-index: 400;
+}
+
+.hidden{
+	display: none;
+}
+
 .card_hf
 {
 	position: relative;
@@ -299,6 +324,11 @@ DIV.fieldWrapper
 
 	font-size: inherit;
 	border: 0;
+}
+
+.card_hf input[type="button"]:hover
+{
+	background-color: #df6845;
 }
 
 .card_body
@@ -419,7 +449,7 @@ DIV.fieldWrapper
 	height: 1.5em;
 	border: 0;
 	margin: 0;
-	background-color: #333333;
+	background-color: #000;
 	color: #FFF;
 	text-align: left;
 	z-index: 11;
@@ -432,7 +462,7 @@ DIV.fieldWrapper
 	float: right;
 	width: 40px; height: 1.5em;
 	border: 0;	margin: 0;	padding: 0;
-	background-color: #333333;
+	background-color: #000;
 }
 
 .emr_toolbox_action
@@ -443,7 +473,7 @@ DIV.fieldWrapper
 	height: 1.5em;
 	border: 0;
 	margin: 0;
-	background-color: #333333;
+	background-color: #000;
 	color: #FFF;
 	text-align: right;
 	z-index: 11;
@@ -507,7 +537,7 @@ DIV.fieldWrapper
 	position: relative;
 	width: 100%;
 	height: auto;
-	background-color: #333333;
+	background-color: #000;
 	z-index: 11;
 }
 

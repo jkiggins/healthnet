@@ -8,10 +8,10 @@ def populateDependantFieldsPD(form, pqset, dqset, hospital):
             form.fields['patient'].queryset = pqset
             form.fields['doctor'].queryset = dqset
         elif not (form.cleaned_data['patient'] is None):
-            #TODO: add code to set defualt value of dropdown to the doctor
+            #TODO: add code to set defualt value of dropdown to the docto
             form.fields['doctor'].queryset = Doctor.objects.filter(pk=form.cleaned_data['patient'].doctor.pk)
         elif not(form.cleaned_data['doctor'] is None):
-            patients = form.cleaned_data['doctor'].patient_set.filter(hospital=hospital, accepted=True)
+            patients = form.cleaned_data['doctor'].patient_set.filter(hospital=hospital)
             form.fields['patient'].queryset = patients
 
 

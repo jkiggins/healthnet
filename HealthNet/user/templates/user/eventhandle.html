@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="content_box half left">
-    <form enctype="multipart/form-data" action="{% url 'user:cEvent' %}" method="POST">
+    <form id = "create_event_form" enctype="multipart/form-data" action="{% url 'user:cEvent' %}" method="POST">
         {% csrf_token %}
         {{ form.non_field_errors }}
         {% for field in form %}

@@ -1,6 +1,6 @@
 import HealthNet.userauth as userauth
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -11,7 +11,7 @@ from HealthNet.viewhelper import *
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
 from .forms import *
-from syslogging.models import Syslog
+from syslogging.models import *
 
 
 class Registry(View):
@@ -483,104 +483,110 @@ def viewEvent(request, pk):
         return HttpResponseRedirect(reverse('user:dashboard'))
 
 
-class CreateEvent(View):
-
-    def process_patient(self, user, event, form):
-        print(user)
-        add_dict_to_model({'patient': user, 'doctor': user.doctor, 'hospital': user.hospital, 'appointment': True}, event)
-
-    def process_nurse(self, user, event, form):
-        if not(form.cleaned_data['patient'] is None):
-            add_dict_to_model({'hospital': form.cleaned_data['patient'].hospital, 'appointment': True}, event)
-
-    def process_doctor(self, user, event, form):
-        event.doctor = user
-        event.appointment = not(form.cleaned_data['patient'] is None)
-
-    def get(self, request):
-        user = get_user(request)
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
-
+class CreateEvent(HealthView):
+    depend = False
+    my_events=None
+    def setup(self, request, user, **kwargs):
         if not userauth.userCan_Event(user, None, 'create'):
             return HttpResponseRedirect(reverse('user:dashboard'))
 
-        if not user.getType() in ['nurse', 'hosAdmin']:
-            myEvents = getVisibleEvents(user)
-        otherEvents = None
-        eventForm = getEventFormByUserType(user.getType())
-        if user.getType() == 'patient':
-            otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
-        elif user.getType() in ['nurse', 'hadmin']:
-            eventForm.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
-        elif user.getType() == 'doctor':
-            eventForm.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+        if 'd' in  kwargs:
+            self.POST=None
+            self.depend = True
 
-        if not user.getType() in ['nurse', 'hosAdmin']:
-            return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
+        if user.getType() != "nurse":
+            self.my_events = getVisibleEvents(user)
+
+
+    def patient(self, request, user):
+        event_form = None
+        other_events = getVisibleEvents(user.doctor).exclude(patient=user)
+
+        if self.POST is None:
+            event_form = EventCreationFormPatient()
+
         else:
-            return render(request, 'user/eventhandle.html', {'form': eventForm, 'user': user, 'otherEvents': otherEvents, 'canAccessDay': True})
+            event_form = EventCreationFormPatient(request.POST)
+            if event_form.is_valid():
+                event = event_form.getModel()
+                add_dict_to_model({'patient': user, 'doctor': user.doctor, 'hospital': user.hospital, 'appointment': True},
+                              event)
 
-    def post(self, request):
-        user = get_user(request)
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
+                if addEventConflictMessages(event_form, event):
+                    event.save()
+                    Syslog.createEvent(event, user)
+                    return HttpResponseRedirect(reverse('user:dashboard'))
 
-        myEvents = getVisibleEvents(user)
+        return render(request, 'user/eventhandle.html',
+                      {'form': event_form, 'user': user, 'otherEvents': other_events, 'events': self.my_events,
+                       'canAccessDay': True})
 
-        otherEvents = None
 
-        event_form = getEventFormByUserType(user.getType(), data=request.POST)
+    def doctor(self, request, user):
+        event_form = None
 
-        # Check For Timing Conflicts
-        if event_form.is_valid():
-            event = event_form.getModel()
-
-            call = getattr(self, 'process_'+user.getType())
-            call(user, event, event_form)
-
-            if addEventConflictMessages(event_form, event):
-                event.save()
-                Syslog.createEvent(event,user)
-                return HttpResponseRedirect(reverse('user:dashboard'))
-
-        if user.getType() == 'patient':
-            otherEvents = getVisibleEvents(user.doctor).exclude(patient = user)
-
-        if user.getType() == 'doctor' and getVisibleEvents(event_form.cleaned_data['patient']) is not None:
-            otherEvents = getVisibleEvents(event_form.cleaned_data['patient']).exclude(doctor = user)
+        if self.POST is None:
+            event_form = EventCreationFormDoctor()
             event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+        else:
+            event_form = EventCreationFormDoctor(request.POST)
 
-        elevate_if_trusted(event_form, user)
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
+            if self.depend:
+                #AJAX response
+                event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+                event_form.full_clean()
+                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
+                return render(request, 'user/render_form.html', {'form': event_form})
+
+            elif event_form.is_valid():
+                event = event_form.getModel()
+
+                event.doctor = user
+                event.appointment = not (event_form.cleaned_data['patient'] is None)
+
+                if addEventConflictMessages(event_form, event):
+                    event.save()
+                    Syslog.createEvent(event, user)
+                    return HttpResponseRedirect(reverse('user:dashboard'))
+
+
+        return render(request, 'user/eventhandle.html',
+                      {'form': event_form, 'user': user, 'events': self.my_events, 'canAccessDay': True})
+
+
+    def nurse(self, request, user):
+        event_form = None
+        if self.POST is None:
+            event_form = EventCreationFormNurse()
+            event_form.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+        else:
+            event_form = EventCreationFormNurse(request.POST)
+
+            if self.depend:
+                # Handle ajax post
+                event_form.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+                event_form.full_clean()
+                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(), user.hospital.doctor_set.all(), user.hospital)
+                return render(request, 'user/render_form.html', {'form': event_form})
+
+            elif event_form.is_valid():
+                event = event_form.getModel()
+
+                if not (event_form.cleaned_data['patient'] is None):
+                    add_dict_to_model({'hospital': event_form.cleaned_data['patient'].hospital, 'appointment': True}, event)
+
+                if addEventConflictMessages(event_form, event):
+                    event.save()
+                    Syslog.createEvent(event, user)
+                    return HttpResponseRedirect(reverse('user:dashboard'))
+
+
+        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'canAccessDay': True})
+
 
     @staticmethod
     def post_dependant_fields(request):
-        if request.method == 'POST':
-            user = get_user(request)
-            myEvents = getVisibleEvents(user)
-            if user is None:
-                return HttpResponseRedirect(reverse('login'))
-
-            event_form = getEventFormByUserType(user.getType(), data=request.POST)
-            otherEvents = Event.objects.none()
-
-            event_form.full_clean()
-
-            if user.getType() == 'doctor':
-                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
-            elif user.getType() == 'nurse':
-                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(),
-                                          user.hospital.doctor_set.all(), user.hospital)
-
-            elevate_if_trusted(event_form, user)
-
-            if event_form.cleaned_data["patient"] is not None:
-                otherEvents = getVisibleEvents(event_form.cleaned_data["patient"]).exclude(doctor = user)
-
-            return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'events': myEvents, 'otherEvents': otherEvents, 'canAccessDay': True})
-        else:
-            return HttpResponseRedirect(reverse('user:cEvent'))
+        return HttpResponse("PASS")
 
 
 def dashboardView(request):

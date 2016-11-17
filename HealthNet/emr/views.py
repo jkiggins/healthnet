@@ -11,6 +11,7 @@ from syslogging.models import *
 from user.models import *
 from django.core.urlresolvers import reverse
 from .forms import *
+import json
 
 
 def viewSelfEmr(request):
@@ -21,6 +22,12 @@ def viewSelfEmr(request):
 
 def feedBackView(request, *args):
     return HttpResponse("content")
+
+
+def emrItemAjax(request, pk):
+    pkdict = json.loads(request.body.decode("utf-8"))
+    item = get_object_or_404(EMRItem, pk=pkdict['emrpk'])
+    return render(request, 'emr/view_emr_item.html', {'item': item})
 
 
 class viewEMR(viewhelper.HealthView):
@@ -45,15 +52,19 @@ class viewEMR(viewhelper.HealthView):
 
     def patient(self, request, user):
         self.emr = viewhelper.getVisibleEMR(self.emr_patient)
+        return self.respond(request, user)
 
     def doctor(self, request, user):
         self.emr = self.emr_patient.emritem_set.all()
+        return self.respond(request, user)
 
     def nurse(self, request, user):
         self.doctor(request, user)
+        return self.respond(request, user)
 
     def hosAdmin(self, request, user):
         self.doctor(request, user)
+        return self.respond(request, user)
 
     def respond(self, request, user):
         if self.POST is None:
@@ -142,7 +153,7 @@ class EMRItemCreate(View):
         if not canCreateEditEmr(self.type, patient, cuser):
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
 
-        form = getFormFromReqType(self.type, patient, cuser)
+        form = EditEmrItem.getFormFromReqType(self.type, patient, cuser)
 
         return render(request, 'emr/emritem_edit.html', {'user': cuser, 'form': form})
 
@@ -153,7 +164,7 @@ class EMRItemCreate(View):
             return HttpResponseRedirect(reverse('login'))
 
         patient = get_object_or_404(Patient, pk=pk)
-        form = getFormFromReqType(self.type, patient, cuser, post=request.POST)
+        form = EditEmrItem.getFormFromReqType(self.type, patient, cuser, post=request.POST)
 
 
         if form.is_valid():

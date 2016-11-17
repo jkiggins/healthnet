@@ -1,3 +1,7 @@
+<div id = "vemr_overlay" onclick="hide_click(this)" class="hidden">
+
+</div>
+
 {% if EMRProfile %}
 <div class="card_wrapper">
     <div class="card_hf bottomborder profile">{{ tuser.user.get_full_name }}'s Profile</div>
@@ -45,7 +49,7 @@
         </div>
 
         <div class = "card_hf topborder">
-            <input type = "button" value = "details" />
+            <input type = "button" value = "details" data-pk={{ item.pk }} onclick="ajax_emr_item(this)" />
             <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eemrItem' item.id %}'"/>
             <li>Priority: {{ item.priority }}</li>
         </div>
