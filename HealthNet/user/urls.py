@@ -14,5 +14,5 @@ urlpatterns = [
     url(r'^editProfile/d$', views.EditProfile.dependand_post, name = 'eProfiled'),
     url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
     url(r'^createEvent/d$', views.CreateEvent.post_dependant_fields, name='veEventd'),
-    url(r'^dashboard/', views.dashboardView, name='dashboard'),
-]
+    url(r'^dashboard/', views.dashboardView, name='dashboard')
+    ]
