@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.generic import View
+from user.forms import *
 
 def augmentEventCreationFormForUpdate(form, augment=None):
     form.fields['delete'] = forms.BooleanField(label="Delete?", initial=False, widget=forms.CheckboxInput(), required=False)
@@ -115,22 +116,22 @@ def addEventConflictMessages(event_form, event):
 class EditProfileHelper:
     @staticmethod
     def getFormByPostData(post):
-        if dict_has_keys(['medical'], post):
+        if dict_has_keys(['doctor'], post):
             return EditProfileForm_medical(post)
-        elif dict_has_keys(['basic'], post):
+        elif dict_has_keys(['first_name'], post):
             return EditProfileForm_basic(post)
-        elif dict_has_keys(['emergency'], post):
+        elif dict_has_keys(['user'], post):
             return EditProfileForm_emergency(post)
 
     @staticmethod
     def getContextWithPopulatedForm(post):
         ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
 
-        if dict_has_keys(['medical'], post):
+        if dict_has_keys(['doctor'], post):
             ret['form_medical'] = EditProfileForm_medical(post)
-        elif dict_has_keys(['basic'], post):
+        elif dict_has_keys(['first_name'], post):
             ret['form_basic'] = EditProfileForm_basic(post)
-        elif dict_has_keys(['emergency'], post):
+        elif dict_has_keys(['user'], post):
             ret['form_emergency'] = EditProfileForm_emergency(post)
 
         return ret
@@ -139,41 +140,40 @@ class EditProfileHelper:
     @staticmethod
     def getContextFromForm(form):
         ctx = {}
-        if 'medical' in form.fields:
+        if 'doctor' in form.fields:
             ctx['form_medical']=form
-        elif 'emergency' in form.fields:
+        elif 'user' in form.fields:
             ctx['form_emergency']=form
-        elif 'basic' in form.fields:
+        elif 'first_name' in form.fields:
             ctx['form_basic']=form
 
         return ctx
 
     @staticmethod
     def updateUserProfile(form, user):
-        if 'medical' in form.fields:
+        if 'doctor' in form.fields:
             user.hospital = form.cleaned_data['hospital']
             user.doctor = form.cleaned_data['doctor']
             user.save()
-        elif 'emergency' in form.fields:
+        elif 'user' in form.fields:
             contact = None
             if user.contact is None:
                 contact = Contact(full_name="filler", phone="filler")
                 contact.save()
-                user.contact = contact
-                user.save()
             else:
                 contact = user.contact
 
             if form.cleaned_data['user'] is None:
                 contact.full_name = form.cleaned_data['full_name']
-                contact.phone = form.cleaned_data['phone']
+                contact.phone = form.cleaned_data['emphone']
             else:
                 contact.user = form.cleaned_data['user']
                 contact.updateFromUser()
 
             contact.save()
-
-        elif 'basic' in form.fields:
+            user.contact = contact
+            user.save()
+        elif 'first_name' in form.fields:
             for key in form.cleaned_data:
                 if not(form.cleaned_data[key] is None):
                     if hasattr(user, key):

@@ -11,6 +11,7 @@ from HealthNet.viewhelper import *
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
 from .forms import *
+from syslogging.models import Syslog
 
 
 class Registry(View):
@@ -311,22 +312,57 @@ class EditProfile(View):
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        form = EditProfileHelper.getFormByPostData(request.POST)
+        basic = EditProfileForm_basic(request.POST)
+        medical = EditProfileForm_medical(request.POST)
+        emergency = EditProfileForm_emergency(request.POST)
 
-        if form.is_valid():
+        # turns true if one of the forms fail, makes it so other forms save if they pass and one form fails
+        failed = False
+
+        if basic.is_valid():
             if 'pk' in kwargs:
                 tuser = get_object_or_404(User, pk=kwargs['pk'])
                 tuser = getHealthUser(tuser)
-                EditProfileHelper.updateUserProfile(form, tuser)
+                EditProfileHelper.updateUserProfile(basic, tuser)
                 Syslog.editProfile(user)
                 return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
             else:
-                EditProfileHelper.updateUserProfile(form, user)
+                EditProfileHelper.updateUserProfile(basic, user)
                 Syslog.editProfile(user)
                 return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
-            ctx = EditProfileHelper.getContextFromForm(form)
-            return render(request, 'user/editprofile.html', ctx)
+            failed = True
+
+        if medical.is_valid():
+            if 'pk' in kwargs:
+                tuser = get_object_or_404(User, pk=kwargs['pk'])
+                tuser = getHealthUser(tuser)
+                EditProfileHelper.updateUserProfile(medical, tuser)
+                Syslog.editProfile(user)
+                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
+            else:
+                EditProfileHelper.updateUserProfile(medical, user)
+                Syslog.editProfile(user)
+                return HttpResponseRedirect(reverse('user:vProfilec'))
+        else:
+            failed = True
+
+        if emergency.is_valid():
+            if 'pk' in kwargs:
+                tuser = get_object_or_404(User, pk=kwargs['pk'])
+                tuser = getHealthUser(tuser)
+                EditProfileHelper.updateUserProfile(emergency, tuser)
+                Syslog.editProfile(user)
+                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
+            else:
+                EditProfileHelper.updateUserProfile(emergency, user)
+                Syslog.editProfile(user)
+                return HttpResponseRedirect(reverse('user:vProfilec'))
+        else:
+            failed = True
+
+        if failed:
+            return render(request, 'user/editprofile.html', {'form_basic':basic, 'form_medical':medical, 'form_emergency':emergency})
 
 
     def get(self, request, **kwargs):
@@ -359,6 +395,7 @@ class EditProfile(View):
 
         setFormDefaultsFromModel(tuser, form_basic)
         setFormDefaultsFromModel(tuser.user, form_basic)
+        setFormDefaultsFromModel(tuser.contact, form_emergency)
 
         return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form_basic': form_basic, 'form_medical': form_medical, 'form_emergency': form_emergency})
 
