@@ -144,23 +144,23 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
 class ProfileCreateForm(forms.ModelForm):
 
-    emrpatient = forms.ModelChoiceField(queryset=Patient.objects.all(), required=False, disabled=True, label="Patient")
-
     def save(self, **kwargs):
         model = None
-        if hasattr(kwargs['patient'], 'emritem'):
-            model = kwargs['patient'].emritem
-
-        if model is None:
-            m = super(ProfileCreateForm, self).save(commit=False)
-            m.patient = kwargs['patient']
-            m.save()
-        else:
+        if 'model' in kwargs:
+            model = kwargs['model']
             for key in self.cleaned_data:
                 if hasattr(model, key):
                     setattr(model, key, self.cleaned_data[key])
 
-            model.save()
+        else:
+            model = super(ProfileCreateForm, self).save(commit=False)
+
+        if 'commit' in kwargs:
+            if kwargs['commit']:
+                model.save()
+
+        return model
+
 
     def is_valid(self):
         valid = super(ProfileCreateForm, self).is_valid()

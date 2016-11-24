@@ -44,8 +44,8 @@
                     <tr><td>End Date:</td><td>{{ item.emrprescription.endDate }}</td></tr>
                     <tr><td>Provider:</td><td>{{ item.emrprescription.proivder.get_full_name }}</td></tr>
                 {% endif %}
-                {{ item.content }}
             </table>
+            <p>{{ item.content }}</p>
         </div>
 
         <div class = "card_hf topborder">

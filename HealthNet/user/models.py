@@ -54,6 +54,7 @@ class Patient(models.Model):
                 if hasattr(self.emrprofile.admit_status, 'hospital'):
                     return self.emrprofile.admit_status.hospital
 
+
     def profileFinished(self):
         auth=True
         auth &= not((self.hospital is None) or (self.doctor is None))

@@ -345,10 +345,22 @@ DIV.fieldWrapper
 	width: 100%;
 }
 
-.card_body tr td {
-
-	border-bottom: 2px solid #2D6597;
+.card_body tr:nth-child(odd)
+{
+	background-color: #bfbfbf;
 }
+.card_body tr:nth-child(even)
+{
+	background-color: grey;
+}
+
+.card_body table
+{
+	border: none;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
 
 .card_body img{
 	max-width: 100%;
@@ -420,13 +432,20 @@ DIV.fieldWrapper
 }
 
 /******************EMR BOTTOM BAR******************/
-.emr_toolbox
+.emr_action_wrap
 {
 	float: left;
 	width: 96%;
 	margin: 2%;
-	box-shadow: 3px 3px 20px #000;
 	z-index: 101;
+}
+
+.emr_toolbox
+{
+	float: left;
+	height: 100%;
+	width: 85%;
+	box-shadow: 3px 3px 20px #000;
 }
 
 .emr_toolbox_serchbar
@@ -487,10 +506,17 @@ DIV.fieldWrapper
 .emr_toolbox_wrap
 {
 	float: left;
-	width: 15%;
+	width: 22.5%;
 	margin: 0;
 	box-sizing: border-box;
 	height: 3em;
+}
+
+.toolbox_action
+{
+	margin-left: 1%;
+	width: 14%;
+	box-shadow: 3px 3px 20px #000;
 }
 
 .emr_toolbox_submit

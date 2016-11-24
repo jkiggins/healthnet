@@ -54,6 +54,9 @@ def get_user(request):
         return getHealthUser(request.user)
     return None
 
+def unauth(request):
+    return HttpResponseRedirect(reverse('user:dashboard'))
+
 
 def add_dict_to_model(dict, model):
     for key in dict:
@@ -267,7 +270,7 @@ class HealthView(View):
         pass
 
     def unauthorized(self, request, **kwargs):
-        return HttpResponseRedirect(reverse('login'))
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
 
     def get(self, request, **kwargs):

@@ -24,6 +24,39 @@ def feedBackView(request, *args):
     return HttpResponse("content")
 
 
+def editEmrProfile(request, pk):
+    user = viewhelper.get_user(request)
+    if user is None:
+        viewhelper.unauth(request)
+
+    patient = get_object_or_404(Patient, pk=pk)
+
+    if not userauth.userCan_EMR(user, patient, 'vitals'):
+        return viewhelper.unauth(request)
+
+    form = None
+
+    if request.method == "GET":
+        form = ProfileCreateForm()
+        if hasattr(patient, 'emrprofile'):
+            form.defaults(patient.emrprofile)
+    elif request.method == "POST":
+        form = ProfileCreateForm(request.POST)
+
+        if form.is_valid():
+            m = None
+            if hasattr(patient, 'emrprofile'):
+                m = form.save(commit=False, model=patient.emrprofile)
+            else:
+                m = form.save(commit=False)
+
+            m.patient = patient
+            m.save()
+            return HttpResponseRedirect(reverse('emr:vemr', args=(pk,)))
+
+    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
+
+
 def emrItemAjax(request, pk):
     pkdict = json.loads(request.body.decode("utf-8"))
     item = get_object_or_404(EMRItem, pk=pkdict['emrpk'])
@@ -51,11 +84,11 @@ class viewEMR(viewhelper.HealthView):
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
     def patient(self, request, user):
-        self.emr = viewhelper.getVisibleEMR(self.emr_patient)
+        self.emr = viewhelper.getVisibleEMR(self.emr_patient).order_by('-date_created')
         return self.respond(request, user)
 
     def doctor(self, request, user):
-        self.emr = self.emr_patient.emritem_set.all()
+        self.emr = self.emr_patient.emritem_set.all().order_by('-date_created')
         return self.respond(request, user)
 
     def nurse(self, request, user):
@@ -124,7 +157,7 @@ class viewEMR(viewhelper.HealthView):
             ctx['hospital'] = self.emr_patient.admittedHospital()
 
         if hasattr(self.emr_patient, 'emrprofile'):
-            ctx['emrProfile'] = self.emr_patient.emrprofile
+            ctx['EMRProfile'] = self.emr_patient.emrprofile
 
         Syslog.viewEMR(self.emr_patient, user)
 
@@ -199,14 +232,6 @@ class EditEmrItem(viewhelper.HealthView):
                 form = prescriptionCreateForm(post, initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
             else:
                 form = prescriptionCreateForm(initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
-        elif mtype == 'profile':
-            if post != None:
-                form = ProfileCreateForm(post, initial={'emrpatient': patient.pk})
-            else:
-                form = ProfileCreateForm(initial={'emrpatient': patient.pk})
-
-            if hasattr(patient, 'emrprofile'):
-                form.defaults(patient.emrprofile)
 
         return form
 
