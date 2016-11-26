@@ -141,5 +141,13 @@ class Event(models.Model):
         return "event"
 
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, blank=True, null=True)
+    title = models.CharField(max_length=50, default="")
+    content = models.CharField(max_length=200, default="")
+    link = models.CharField(max_length=10, default="")
+    args = models.CharField(max_length=10, default="")
+
+
 
 

@@ -50,6 +50,19 @@ function hide_click(e) {
 
 }
 
+function ajax_dismiss_note(e){
+	var oReq = new XMLHttpRequest();
+    oReq.onerror = reqError;
+    oReq.open('POST', e.dataset.dis_url, true);
+	var csrftoken = Cookies.get('csrftoken');
+	oReq.setRequestHeader("X-CSRFToken", csrftoken);
+
+    oReq.send()
+
+	e.deleteNode()
+}
+
+
 function stop_event_prop(e)
 {
 	e.stopPropagation();

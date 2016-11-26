@@ -40,13 +40,19 @@ def userCan_Event(user, event, *actions):
                 auth |= (user.hospital in event.doctor.hospitals.all())
 
     if 'edit' in actions:
-        auth |= user == event.doctor
-        auth |= user == event.patient
+        auth_l = False
+        auth_l |= user == event.doctor
+        auth_l |= user == event.patient
 
         if utype == 'nurse':
             auth |= (user in event.doctor.nurses.all())
         elif utype == 'hosAdmin':
             auth |= (user.hospital in event.doctor.hospitals.all())
+
+        if utype != 'hosadmin':
+            auth_l &= (timezone.now() - event.startTime) < datetime.timedelta(minutes=15)
+
+        auth &= auth_l
 
     if 'create' in actions:
         if utype == 'patient':

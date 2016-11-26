@@ -11,12 +11,49 @@
         {% endif %}
 	    </div>
 	
-	    <div class="center">
-	    	<a href = {% url 'user:cEvent' %} class="button stretch">Create Event</a>
-	    </div>
-	
     	{% comment %} this displays fullcalendar.io {% endcomment %}
-	    <div id='calendar' class='mainCalendar'></div>
+        <script>
+            var customButtons = {
+                    appointment: {
+                        text: 'Create Appointment',
+                        click: function() {
+                            window.location = "{% url 'user:cEvent' %}";
+                        }
+                    },
+                    show:
+                    {
+                        text: 'Show',
+                        click: function (e) {
+                            var texts = "ShowHide";
+                            var inner = e.toElement.innerHTML;
+
+                            var cwrap = document.getElementsByClassName("calendarWrap")[0];
+                            if(inner == "Show"){
+                                cwrap.setAttribute("style", "");
+                            }
+                            else{
+                                cwrap.setAttribute("style", "height: 300px;");
+                            }
+
+                            e.toElement.innerHTML = texts.replace(inner, "")
+                        }
+                    },
+                    hide:
+                    {
+                        text: 'Hide',
+                        click: function (e) {
+                            alert(typeof e)
+                        }
+                    }};
+            var header = {
+				left: 'prev,next today appointment show',
+                center: 'title',
+                right: 'agendaDay,agendaWeek,month'
+            };
+        </script>
+        <div class="calendarWrap"  style="height: 300px;">
+	        <div id='calendar' class='mainCalendar'></div>
+        </div>
     {% endif %}
 
 {% endblock %}

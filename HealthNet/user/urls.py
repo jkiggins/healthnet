@@ -14,5 +14,7 @@ urlpatterns = [
     url(r'^editProfile/d$', views.EditProfile.dependand_post, name = 'eProfiled'),
     url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
     url(r'^createEvent/d$', views.CreateEvent.as_view(depend=True), name='veEventd'),
-    url(r'^dashboard/', views.dashboardView, name='dashboard')
+    url(r'^dashboard/', views.dashboardView, name='dashboard'),
+    url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
+    url(r'^(?P<pk>[0-9]+)/note$', views.viewNote, name='note')
     ]

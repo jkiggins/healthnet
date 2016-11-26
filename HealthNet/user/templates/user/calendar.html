@@ -1,14 +1,25 @@
 <script>
 	$(document).ready(function() {
-	
-	// once page is loaded, load calendar
-	
-		$('#calendar').fullCalendar({
-			header: {
+	    this.header = {
 				left: 'prev,next today',
                 center: 'title',
                 right: 'agendaDay,agendaWeek,month'
-            },
+            };
+	    if (typeof header !== "undefined") {
+	        this.header = header;
+        }
+
+        this.customButtons=null;
+        if(typeof customButtons !== "undefined")
+        {
+            this.customButtons = customButtons;
+        }
+	
+	// once page is loaded, load calendar
+
+		$('#calendar').fullCalendar({
+        customButtons: this.customButtons,
+			header: this.header,
 
             // populates the calendar with events
             {% if events != None %}

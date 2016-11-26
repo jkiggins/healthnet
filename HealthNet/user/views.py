@@ -7,6 +7,9 @@ from django.http import HttpResponseRedirect
 from django.views.generic import View
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import NoReverseMatch
+
 
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
@@ -616,3 +619,37 @@ def dashboardView(request):
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
 
     return render(request, 'user/dashboard.html', context)
+
+
+def dismissNote(request, pk):
+    user = get_user(request)
+    if user is None:
+        return HttpResponse("Access Denied")
+
+    obj = get_object_or_404(Notification, pk=pk)
+    obj.delete()
+
+    return HttpResponse("EMPTY")
+
+
+def viewNote(request, pk):
+    user = get_user(request)
+    if user is None:
+        return HttpResponse("Access Denied")
+
+    note = get_object_or_404(Notification, pk=pk)
+
+    redir = None
+
+    try:
+        redir = reverse(note.link, args=tuple(note.args))
+    except NoReverseMatch:
+        if 'HTTP_REFERER' in request.META:
+            redir = request.META['HTTP_REFERER']
+        else:
+            redir = reverse('user:dashboard')
+
+    return HttpResponseRedirect(redir)
+
+
+

@@ -13,6 +13,10 @@ body {
 	font-size: inherit;
 }
 
+*:focus{
+	outline: 0;
+}
+
 li {
 	list-style-type: none;
 	text-decoration: none;
@@ -59,6 +63,7 @@ li {
 	left: 0;
 	margin: 0px;
 	width: 100%;
+	height: 2.5em;
 	list-style-type: none;
 	position: fixed;
 	background-color: black;
@@ -127,8 +132,8 @@ li {
 	margin: 25px 2.5% 20px 2.5%;
 	display: inline-block;
 	line-height: 25px;
-	box-shadow: 3px 3px 20px #000;
 }
+
 
 .button {
 	text-align: center;
@@ -150,6 +155,14 @@ li {
 }
 
 .mainCalendar {
+	width: 100%;
+}
+
+.calendarWrap
+{
+	position: relative;
+	overflow: hidden;
+
 	padding: 25px 2.5% 15px 2.5%;
 	margin: auto;
 	margin-top: 20px;
@@ -550,7 +563,7 @@ DIV.fieldWrapper
 	text-align: center;
 }
 
-.emr_toolbox_wrap .drop_down
+.drop_down
 {
 	position: relative;
 	width: 0;
@@ -566,6 +579,92 @@ DIV.fieldWrapper
 	background-color: #000;
 	z-index: 11;
 }
+
+.drop_down_wrap
+{
+	float: right;
+    text-align: center;
+	font-size: 24pt;
+    padding: 7px 3% 7px 3%;
+    text-decoration: none;
+	transition: background-color 0.5s;
+	color: #FFF;
+}
+
+.drop_down_wrap:focus .drop_down
+{
+	position: relative;
+	height: auto;
+	width: inherit;
+	background-color: #000;
+	z-index: 11;
+	font-size: 12px;
+	margin: 0;
+}
+
+.note_heading
+{
+	position: relative;
+	width: 100%;
+	color: white;
+	margin: 0;
+	border: 0;
+	border-bottom: 1px solid black;
+
+	text-align: center;
+	background-color: transparent;
+}
+
+.notice a,label
+{
+	display: block;
+	float: left;
+	margin: 2px;
+	padding: 0;
+	border: 0;
+}
+
+.notice a:link
+{
+	color: #2D6597;
+}
+
+.notice a:visited
+{
+	color: #2D6597;
+}
+
+.notice label
+{
+	text-align: left;
+	width: 100%;
+}
+
+.note_item:hover
+{
+	background-color: #2D6597;
+}
+
+#note_wrap
+{
+	width: 6em;
+}
+
+#note_wrap:focus .drop_down
+{
+	margin-top: 10px;
+	width: 20em;
+}
+
+.notice
+{
+	border-top: white solid 1px;
+	height: 3em;
+	padding: 5px;
+	width: 100%;
+	font-size: 16px;
+}
+
 
 
 

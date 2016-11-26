@@ -10,6 +10,7 @@
 	<script src="{% static 'moment/min/moment.min.js' %}"></script>
 	<script src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
     <script type="text/javascript" src = "{% static 'javascript/form_filters.js' %}"></script>
+    {% csrf_token %}
 
     {% block head %}
     {% endblock %}
@@ -35,10 +36,22 @@
 
     {% elif user.getType == "hosAdmin" %}
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
-
     {% endif %}
 	
     <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
+
+    <div tabindex=0 id = "note_wrap" class="drop_down_wrap">
+        <input onfocus="this.parentElement.focus()" type = "button" class="note_heading" value="Notifications"/>
+        <div class="drop_down">
+            {% for note in user.user.notification_set.all %}
+                <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}">
+                    <label>{{ note.title }}</label>
+                    <a href="" onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
+                    <a href="{% url 'user:note' note.pk %}">View</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 </ul>
 
 	<h1 id="baseBanner">HealthNet</h1>

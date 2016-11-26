@@ -20,6 +20,7 @@ def viewSelfEmr(request):
         return HttpResponseRedirect(reverse('login'))
     return HttpResponseRedirect(reverse('emr:vemr', args=(cuser.pk,)))
 
+
 def feedBackView(request, *args):
     return HttpResponse("content")
 
@@ -383,6 +384,8 @@ def getBlankImage():
     response = HttpResponse(content_type="image/jpeg")
     red.save(response, "JPEG")
     return response
+
+
 
 
 
