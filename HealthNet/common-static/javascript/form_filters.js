@@ -33,6 +33,7 @@ function ajax_emr_item(e) {
 	oReq.setRequestHeader("X-CSRFToken", csrftoken);
 
     oReq.send(JSON.stringify({'emrpk': e.dataset.pk}));
+	return false;
 }
 
 function emr_reqListener() {
@@ -41,7 +42,6 @@ function emr_reqListener() {
 		var overlay = document.getElementById('vemr_overlay')
 		overlay.innerHTML = html;
 		overlay.setAttribute("class", "overlay")
-
 	}
 }
 

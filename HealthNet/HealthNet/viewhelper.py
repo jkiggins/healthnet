@@ -294,3 +294,14 @@ class HealthView(View):
 def getVisibleEMR(patient):
     """Returns a queryset of the EMR items that are released"""
     return patient.emritem_set.all().exclude(emrtest__released=False)
+
+
+########## REDIRECT HELPER METHODS #################
+def toEmr(request, pk):
+    return HttpResponseRedirect(reverse('emr:vemr', args=(pk,)))
+
+def toLastPage(request):
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+

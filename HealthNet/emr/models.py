@@ -6,19 +6,29 @@ from hospital.models import *
 
 
 class EMRItem(models.Model):
-    """This is generic item which can be stored in the EMR, other models will extend this"""
+    """"This is generic item which can be stored in the EMR, other models will extend this"""
+
+    PRIORITY_CHOICES = ((0, 'LOW'), (1, "MEDIUM"), (2, "HIGH"))
+
     title = models.CharField(default="", max_length=50)
-    patient = models.ForeignKey(Patient, blank=True, null=True)
+    patient = models.ForeignKey(Patient, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True)
     content = models.CharField(max_length=200)
-    priority = models.IntegerField(default=0)
+    priority = models.PositiveSmallIntegerField(choices=PRIORITY_CHOICES)
 
 
     def getType(self):
-        for subtype in ['emrvitals', 'emrprofile', 'emrtest', 'emrprescription']:
+        for subtype in ['emrvitals', 'emrprofile', 'emrtest', 'emrprescription', 'emradmitstatus']:
             if hasattr(self, subtype):
                 return getattr(self, subtype).getType()
-        return 'generic_item'
+        return 'note'
+
+    def getPriorityStr(self):
+        index = int(self.priority)
+        if index <= 2:
+            return self.PRIORITY_CHOICES[index][1]
+        else:
+            return self.PRIORITY_CHOICES[-1][1]
 
 
 class EMRVitals(EMRItem):
@@ -35,6 +45,11 @@ class EMRVitals(EMRItem):
 class EMRAdmitStatus(EMRItem):
     hospital = models.ForeignKey(Hospital, null=True, blank=True)
     admit = models.BooleanField(default=True)
+
+    def getType(self):
+        if self.admit:
+            return 'admit'
+        return 'discharge'
 
 
 class EMRProfile(models.Model):
@@ -81,7 +96,7 @@ def isVital(item):
     return hasattr(item, 'emrvitals')
 
 def isAdmit(item):
-    return hasattr(item, 'emrtest')
+    return hasattr(item, 'emradmitstatus')
 
 def isPrescription(item):
     return hasattr(item, 'emrprescription')
@@ -95,7 +110,9 @@ def emrItemType(item):
     elif isVital(item):
         return 'vitals'
     elif isPrescription(item):
-        return 'precription'
+        return 'prescription'
+    elif isAdmit(item):
+        return 'admitdischarge'
 
     return 'note'
 

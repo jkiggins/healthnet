@@ -148,7 +148,7 @@
 
 .overlay
 {
-	position: absolute;
+	position: fixed;
 	top:0;
 	left: 0;
 	width: 100%;
@@ -169,6 +169,11 @@
     padding-bottom: .5em;
 }
 
+.bottom_bg
+{
+	background-color: #ccc;
+}
+
 .text_center
 {
     text-align: center;
@@ -186,7 +191,13 @@
 
 .card_hf a, a:visited{
     color: #2D6597;
+	text-decoration: underline;
     padding-right: 5px;
+}
+
+.card_hf a:hover
+{
+	cursor: pointer;
 }
 
 .topborder
@@ -196,7 +207,7 @@
 
 .bottomborder
 {
-	border-bottom: 2px solid black;
+	border-bottom: 2px solid #E96F38;
 }
 
 .generic_item
@@ -206,7 +217,7 @@
 
 .test
 {
-	background-color: #4fdfdf;
+	background: url('img/test.png');
 }
 
 .vitals
@@ -214,9 +225,31 @@
 	background-color: #df6845;
 }
 
+.priority_LOW
+{
+	color: grey;
+}
+
+.priority_MEDIUM
+{
+	color: black;
+}
+
+.priority_HIGH
+{
+	color: #E96F38;
+}
+
 .profile
 {
 	background-color: #df6845;
+}
+
+.emr_type_label
+{
+	position: absolute;
+	top: 0; right: .5em;
+	height: 2em;
 }
 
 .card_hf input[type="button"]
@@ -250,22 +283,19 @@
 	padding: 0;
 	margin: 0;
 	width: 100%;
+	border: none;
+	border-collapse: collapse;
+	border-spacing: 0;
 }
 
 .card_body tr:nth-child(odd)
 {
-	background-color: #bfbfbf;
-}
-.card_body tr:nth-child(even)
-{
-	background-color: grey;
+	background-color: #e6e6e6;
 }
 
-.card_body table
+.card_body td
 {
-	border: none;
-	border-collapse: collapse;
-	border-spacing: 0;
+	padding: 6px;
 }
 
 
@@ -277,5 +307,5 @@
 .card_hf_info
 {
     float:right;
-    color: grey;
+    color: black;
 }

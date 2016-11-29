@@ -63,6 +63,36 @@ def emrItemAjax(request, pk):
     item = get_object_or_404(EMRItem, pk=pkdict['emrpk'])
     return render(request, 'emr/view_emr_item.html', {'item': item})
 
+def getFormFromReqType(mtype, patient, provider, post=None, files=None):
+    form = None
+    if mtype == 'test':
+        if post != None:
+            form = TestCreateForm(post, files)
+        else:
+            form = TestCreateForm(initial={'patient': patient.pk})
+    elif mtype == 'vitals':
+        if post != None:
+            form = VitalsCreateForm(post, initial={'patient': patient.pk})
+        else:
+            form = VitalsCreateForm(initial={'patient': patient.pk})
+    elif mtype == 'note':
+        if post != None:
+            form = EMRItemCreateForm(post, initial={'patient': patient.pk})
+        else:
+            form = EMRItemCreateForm(initial={'patient': patient.pk})
+    elif mtype == 'prescription':
+        if post != None:
+            form = prescriptionCreateForm(post, initial={'patient': patient.pk, 'proivder': provider.user.pk})
+        else:
+            form = prescriptionCreateForm(initial={'patient': patient.pk, 'proivder': provider.user.pk})
+    elif mtype == "admitdischarge":
+        if post != None:
+            form = AdmitDishchargeForm(post)
+        else:
+            form = AdmitDishchargeForm()
+
+    return form
+
 
 class viewEMR(viewhelper.HealthView):
 
@@ -173,91 +203,85 @@ def canCreateEditEmr(mtype, patient, provider):
     return auth
 
 
-class EMRItemCreate(View):
-    type = None
-    pk_url_kwarg = 'pk'
+def EMRItemCreate(request, pk, type):
 
-    def get(self, request, pk=None):
-        cuser = viewhelper.get_user(request)
-        if cuser is None:
-            return HttpResponseRedirect(reverse('login'))
+    cuser = viewhelper.get_user(request)
+    if cuser is None:
+        return HttpResponseRedirect(reverse('login'))
 
-        patient = get_object_or_404(Patient, pk=pk)
+    patient = get_object_or_404(Patient, pk=pk)
 
-        if not canCreateEditEmr(self.type, patient, cuser):
-            return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
-
-        form = EditEmrItem.getFormFromReqType(self.type, patient, cuser)
-
-        return render(request, 'emr/emritem_edit.html', {'user': cuser, 'form': form})
+    if not canCreateEditEmr(type, patient, cuser):
+        return viewhelper.toEmr(request, patient.pk)
 
 
-    def post(self, request, pk=None):
-        cuser = viewhelper.get_user(request)
-        if cuser is None:
-            return HttpResponseRedirect(reverse('login'))
-
-        patient = get_object_or_404(Patient, pk=pk)
-        form = EditEmrItem.getFormFromReqType(self.type, patient, cuser, post=request.POST)
-
+    if request.method == "POST":
+        form = getFormFromReqType(type, patient, cuser, post=request.POST)
 
         if form.is_valid():
             form.save(commit=True, patient=patient, provider=cuser)
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
-        else:
-            return render(request, 'emr/emritem_edit.html', {'user': cuser, 'form': form})
+
+    else:
+        form = getFormFromReqType(type, patient, cuser)
+
+    return render(request, 'emr/emritem_edit.html', {'user': cuser, 'form': form})
 
 
-class EditEmrItem(viewhelper.HealthView):
+def editAdmitDischarge(request, emritem):
+    user = viewhelper.get_user(request)
+    if user is None:
+        viewhelper.unauth(request)
 
-    @staticmethod
-    def getFormFromReqType(mtype, patient, provider, post=None, files=None):
-        form = None
-        if mtype == 'test':
-            if post != None:
-                form = TestCreateForm(post, files)
-            else:
-                form = TestCreateForm(initial={'emrpatient': patient.pk})
-        elif mtype == 'vitals':
-            if post != None:
-                form = VitalsCreateForm(post, initial={'emrpatient': patient.pk})
-            else:
-                form = VitalsCreateForm(initial={'emrpatient': patient.pk})
-        elif mtype == 'item':
-            if post != None:
-                form = EMRItemCreateForm(post, initial={'emrpatient': patient.pk})
-            else:
-                form = EMRItemCreateForm(initial={'emrpatient': patient.pk})
-        elif mtype == 'prescription':
-            if post != None:
-                form = prescriptionCreateForm(post, initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
-            else:
-                form = prescriptionCreateForm(initial={'emrpatient': patient.pk, 'proivder': provider.user.pk})
+    if not userauth.userCan_EMRItem(user, emritem, 'edit'):
+        viewhelper.unauth(request)
 
-        return form
+    #TODO: allow hospital admin to edit all admission fields
 
-    emritem = None
+    form = None
+    if request.method == "POST":
+        form = AdmitDishchargeForm(request.POST)
+        if form.is_valid():
+            m = form.save(commit=True, update=emritem)
+            return viewhelper.toEmr(request, emritem.patient.pk)
+    else:
+        form = AdmitDishchargeForm()
+        form.defaults(emritem)
 
-    def setup(self, request, user, **kwargs):
-        self.emritem = get_object_or_404(EMRItem, pk=kwargs['pk'])
+    form.lockField('title', emritem.title)
+    form.lockField('hospital', emritem.emradmitstatus.hospital)
+    form.lockField('patient', emritem.patient)
 
-    def respond(self, request, user):
-        if not userauth.userCan_EMRItem(user, self.emritem, 'edit'):
-            return self.unauthorized(request)
+    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
 
-        form = None
 
-        if self.POST is None:
-            form = self.getFormFromReqType(emrItemType(self.emritem), self.emritem.patient, user)
-            form.defaults(self.emritem)
-        else:
-            form = self.getFormFromReqType(emrItemType(self.emritem), self.emritem.patient, user, post=request.POST,
-                                      files=request.FILES)
-            if form.is_valid():
-                form.save(update=self.emritem)
-                return HttpResponseRedirect(reverse('emr:vemr', args=(self.emritem.patient.pk,)))
+def editEmrItem(request, pk):
+    user = viewhelper.get_user(request)
+    if user is None:
+        return viewhelper.unauth(request)
 
-        return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
+    emritem = get_object_or_404(EMRItem, pk=pk)
+
+    if not userauth.userCan_EMRItem(user, emritem, 'edit'):
+        return viewhelper.unauth(request)
+
+    if hasattr(emritem, 'emradmitstatus'):
+        return editAdmitDischarge(request, emritem)
+
+    form = None
+
+    if request.method == "GET":
+        print(emrItemType(emritem))
+        form = getFormFromReqType(emrItemType(emritem), emritem.patient, user)
+        form.defaults(emritem)
+    else:
+        form = getFormFromReqType(emrItemType(emritem), emritem.patient, user, post=request.POST,
+                                       files=request.FILES)
+        if form.is_valid():
+            form.save(update=emritem, commit=True)
+            return HttpResponseRedirect(reverse('emr:vemr', args=(emritem.patient.pk,)))
+
+    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
 
 
 class AdmitDishchargeView(DetailView):

@@ -1,10 +1,11 @@
+{% load staticfiles %}
 <div id = "vemr_overlay" onclick="hide_click(this)" class="hidden">
 
 </div>
 
 {% if EMRProfile %}
 <div class="card_wrapper">
-    <div class="card_hf bottomborder profile">{{ tuser.user.get_full_name }}'s Profile</div>
+    <div class="card_hf bottomborder text_center">{{ tuser.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
     <div class="card_body">
         <table>
            <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
@@ -19,21 +20,22 @@
             {% endif %}
         </table>
     </div>
-    <div class="card_hf topborder"><input type = "button" value = "details"/>
-            <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eprofile' tuser.id %}'"/></div>
+   <div class = "card_hf text_right bottom_bg">
+        <a href="{% url 'emr:eprofile' tuser.pk %}">edit</a>
+   </div>
 </div>
 {% endif %}
 
 {% for item in EMRItems %}
     <div class = "card_wrapper">
-        <div class="card_hf text_center {{ item.getType }}">{{ item.title }}</div>
+        <div class="card_hf bottomborder text_center">{{ item.title }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
         <div class = "card_body">
             {{ item.content }}
         </div>
-        <div class = "card_hf text_right topborder">
-            <a href="" class = "right_shadow" data-pk={{ item.pk }} onclick="ajax_emr_item(this)">Details</a>
-            <a href = "" class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
-            <div class="card_hf_info">&nbsp;Priority: {{ item.priority }}</div>
+        <div class = "card_hf text_right bottom_bg">
+            <a class = "right_shadow" data-pk={{ item.pk }} onclick="ajax_emr_item(this)">Details</a>
+            <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
+            <div class="card_hf_info">&nbsp;<span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span></div>
         </div>
     </div>
 {% endfor %}

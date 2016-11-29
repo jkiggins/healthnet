@@ -32,20 +32,21 @@ class FilterSortForm(forms.Form):
 
 class EMRItemCreateForm(forms.ModelForm):
 
-    emrpatient = forms.ModelChoiceField(disabled=True, queryset=Patient.objects.all(), required=False, label="Patient")
+    priority = forms.ChoiceField(choices=EMRItem.PRIORITY_CHOICES, initial=1)
+        
 
     def save(self, **kwargs):
         m = super(EMRItemCreateForm, self).save(commit=False)
 
         if 'update' in kwargs:
-            self.saveToModel(kwargs['update'])
+            m = self.saveToModel(kwargs['update'])
         else:
             m.date_created = timezone.now()
             m.patient = kwargs['patient']
 
 
-            if ('commit' in kwargs) and kwargs['commit']:
-                m.save()
+        if ('commit' in kwargs) and kwargs['commit']:
+            m.save()
 
         return m
 
@@ -59,9 +60,10 @@ class EMRItemCreateForm(forms.ModelForm):
 
     def saveToModel(self, model):
         for key in self.cleaned_data:
-            if hasattr(model, key):
-                setattr(model, key, self.cleaned_data[key])
-        model.save()
+            if not self.fields[key].disabled:
+                if hasattr(model, key):
+                    setattr(model, key, self.cleaned_data[key])
+        return model
 
 
     class Meta:
@@ -102,6 +104,19 @@ class VitalsCreateForm(EMRItemCreateForm):
         if hasattr(model, 'emrvitals'):
             self.populateFromModel(model.emrvitals)
 
+    def save(self, **kwargs):
+        commit = kwargs['commit']
+        kwargs['commit'] = False
+        m = super(VitalsCreateForm, self).save(**kwargs)
+
+        if 'update' in kwargs:
+            self.saveToModel(m.emrvitals)
+
+        if commit:
+            m.save()
+
+        return m
+
     class Meta:
         model = EMRVitals
         fields = ['title', 'content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
@@ -109,14 +124,13 @@ class VitalsCreateForm(EMRItemCreateForm):
 
 class prescriptionCreateForm(EMRItemCreateForm):
 
-    proivder = forms.ModelChoiceField(disabled=True, queryset=User.objects.all().filter(patient=None).filter(nurse=None))
-
     def save(self, **kwargs):
         commit = kwargs['commit']
         kwargs['commit'] = False
         m = super(prescriptionCreateForm, self).save(**kwargs)
-        m.deactivated = False
-        m.provider = kwargs['provider']
+
+        if 'update' in kwargs:
+            self.saveToModel(m.emrprescription)
 
         if commit:
             m.save()
@@ -139,7 +153,7 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRPrescription
-        fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate', 'proivder']
+        fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate']
 
 
 class ProfileCreateForm(forms.ModelForm):
@@ -190,27 +204,22 @@ class AdmitDishchargeForm(EMRItemCreateForm):
         kwargs['commit'] = False
         m = super(AdmitDishchargeForm, self).save(**kwargs)
 
+        if 'update' in kwargs:
+            self.saveToModel(m.emradmitstatus)
+
         if commit:
+            m.emradmitstatus.save()
             m.save()
         return m
 
 
     def lockField(self, field, value):
         if field in self.fields:
-            self.fields[field].initial = value
-            self.fields[field].disabled = True
-
-
-    # def addTags(self, tags):
-    #     for tag in tags:
-    #         if hasattr(self, tag):
-    #             mtag = getattr(self, tag)
-    #             if callable(mtag):
-    #                 mtag(tags[tag])
-    #             else:
-    #                 setattr(self, tag, tags[tag])
-
-
+            if value is None:
+                del self.fields[field]
+            else:
+                self.fields[field].initial = value
+                self.fields[field].disabled = True
 
     def defaults(self, model):
         super(AdmitDishchargeForm, self).defaults(model)

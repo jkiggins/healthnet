@@ -171,7 +171,7 @@ def userCan_EMR(cuser, patient, *actions):
 def userCan_EMRItem(cuser, item, *actions):
     auth = True
 
-    if 'view' in item:
+    if 'view' in actions:
         auth_l = False
 
         if cuser.getType() == 'doctor':
@@ -185,7 +185,7 @@ def userCan_EMRItem(cuser, item, *actions):
             auth_l |= item.patient.hospital == cuser.hospital
         auth &= auth_l
 
-    if 'edit' in item:
+    if 'edit' in actions:
         auth_l = False
         if cuser.getType() == 'patient':
             return False
@@ -193,5 +193,7 @@ def userCan_EMRItem(cuser, item, *actions):
             auth_l = True
         auth_l &= userCan_EMRItem(cuser, item, 'view')
         auth &= auth_l
+
+    return auth
 
 
