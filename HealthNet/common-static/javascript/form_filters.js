@@ -45,6 +45,19 @@ function emr_reqListener() {
 	}
 }
 
+function emr_action_ajax(e, action) {
+	var oReq = new XMLHttpRequest();
+    oReq.onload = emr_reqListener;
+    oReq.onerror = reqError;
+    oReq.open('POST', 'a', true);
+	var csrftoken = Cookies.get('csrftoken');
+	oReq.setRequestHeader("X-CSRFToken", csrftoken);
+
+
+    oReq.send(JSON.stringify({'emrpk': e.dataset.pk,'action': action}));
+	return false;
+}
+
 function hide_click(e) {
 	e.setAttribute("class", "hidden")
 

@@ -1,29 +1,63 @@
+{% load staticfiles %}
 <div class = "card_wrapper_big" onclick="stop_event_prop(event)">
-    <div class="card_hf bottomborder {{ item.getType }}">{{ item.title }}</div>
+    <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
 
     <div class = "card_body">
         <table>
+            <tr><td>Patient: </td><td>{{ item.patient.user.get_full_name }}</td></tr>
+
             {% if item.emrtest %}
-                <img src="{% url 'emr:testmedia' item.pk %}" />
+                <tr><td>Date Ordered: </td><td>{{ item.date_created }}</td></tr>
+                {% if item.emrtest.images and item.emrtest.released %}
+                    <img src="{% url 'emr:testmedia' item.pk %}" />
+                    <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+                {% endif %}
             {% elif item.emrvitals %}
+                <tr><td>Date Taken: </td><td>{{ item.date_created }}</td></tr>
                 <tr><td>Resting BPM:</td><td>{{ item.emrvitals.restingBPM }}</td></tr>
                 <tr><td>Blood Pressure:</td><td>{{ item.emrvitals.bloodPressure }}</td></tr>
                 <tr><td>Height:</td><td>{{ item.emrvitals.height }}</td></tr>
                 <tr><td>Weight:</td><td>{{ item.emrvitals.weight }}</td></tr>
+                <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
             {% elif item.emrprescription %}
+                <tr><td>Date Prescribed: </td><td>{{ item.date_created }}</td></tr>
                 <tr><td>Dosage:</td><td>{{ item.emrprescription.dosage }}</td></tr>
                 <tr><td>Dose/day:</td><td>{{ item.emrprescription.amountPerDay }}</td></tr>
                 <tr><td>Start Date:</td><td>{{ item.emrprescription.startDate }}</td></tr>
                 <tr><td>End Date:</td><td>{{ item.emrprescription.endDate }}</td></tr>
                 <tr><td>Provider:</td><td>{{ item.emrprescription.proivder.get_full_name }}</td></tr>
+                <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+            {% elif item.emradmitstatus %}
+                <tr><td>Date
+                    {% if item.emradmitstatus.admit %}
+                        Admitted
+                    {% else %}
+                        Discharged
+                    {% endif %}
+                    :
+                </td>
+                <td>{{ item.date_created }}</td>
+                </tr>
+                <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
             {% endif %}
-            {{ item.content }}
         </table>
     </div>
 
-    <div class = "card_hf topborder">
-        <input type = "button" value = "details" />
-        <input type = "button" value = "edit" onclick="window.location='{% url 'emr:eemrItem' item.id %}'"/>
-        <li>Priority: {{ item.priority }}</li>
+    <div class = "card_hf text_right bottom_bg">
+        <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
+
+        {% if item.emrtest and permissions.canEdit %}
+            <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'releasehide')">
+                {% if item.emrtest.released %}
+                    hide
+                {% else %}
+                    release
+                {% endif %}
+            </a>
+        {% elif item.emrprescription and permissions.canPrescribe %}
+            <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'stop')">Stop</a>
+        {% endif %}
+
+        <div class="card_hf_info">&nbsp;<span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span></div>
     </div>
 </div>

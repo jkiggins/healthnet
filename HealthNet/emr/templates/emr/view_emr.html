@@ -28,9 +28,15 @@
 
 {% for item in EMRItems %}
     <div class = "card_wrapper">
-        <div class="card_hf bottomborder text_center">{{ item.title }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
+        <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
         <div class = "card_body">
-            {{ item.content }}
+            {% if item.emrtest and user.getType == 'patient'%}
+                {% if item.emr.released %}
+                    {{ item.content }}
+                {% endif %}
+            {% else %}
+                {{ item.content }}
+            {% endif %}
         </div>
         <div class = "card_hf text_right bottom_bg">
             <a class = "right_shadow" data-pk={{ item.pk }} onclick="ajax_emr_item(this)">Details</a>

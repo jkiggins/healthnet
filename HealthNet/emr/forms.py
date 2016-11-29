@@ -33,6 +33,7 @@ class FilterSortForm(forms.Form):
 class EMRItemCreateForm(forms.ModelForm):
 
     priority = forms.ChoiceField(choices=EMRItem.PRIORITY_CHOICES, initial=1)
+    content = forms.CharField(widget=forms.Textarea(), label="Comments")
         
 
     def save(self, **kwargs):
@@ -68,7 +69,7 @@ class EMRItemCreateForm(forms.ModelForm):
 
     class Meta:
         model = EMRItem
-        fields = ['title', 'content', 'priority']
+        fields = ['content', 'priority']
 
 
 class TestCreateForm(EMRItemCreateForm):
@@ -94,7 +95,7 @@ class TestCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRTest
-        fields = ['title', 'content', 'priority', 'images', 'released']
+        fields = ['content', 'priority', 'images', 'released']
 
 
 class VitalsCreateForm(EMRItemCreateForm):
@@ -119,7 +120,7 @@ class VitalsCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRVitals
-        fields = ['title', 'content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
+        fields = ['content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
 
 
 class prescriptionCreateForm(EMRItemCreateForm):
@@ -153,7 +154,7 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRPrescription
-        fields = ['title', 'content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate']
+        fields = ['content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate']
 
 
 class ProfileCreateForm(forms.ModelForm):

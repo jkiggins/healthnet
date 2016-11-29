@@ -10,11 +10,16 @@ class EMRItem(models.Model):
 
     PRIORITY_CHOICES = ((0, 'LOW'), (1, "MEDIUM"), (2, "HIGH"))
 
-    title = models.CharField(default="", max_length=50)
     patient = models.ForeignKey(Patient, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True)
     content = models.CharField(max_length=200)
     priority = models.PositiveSmallIntegerField(choices=PRIORITY_CHOICES)
+
+    def getTitle(self):
+        for subtype in ['emrvitals', 'emrprofile', 'emrtest', 'emrprescription', 'emradmitstatus']:
+            if hasattr(self, subtype):
+                return getattr(self, subtype).getTitle()
+        return 'Note'
 
 
     def getType(self):
@@ -41,6 +46,9 @@ class EMRVitals(EMRItem):
     def getType(self):
         return 'vitals'
 
+    def getTitle(self):
+        return "Vitals"
+
 
 class EMRAdmitStatus(EMRItem):
     hospital = models.ForeignKey(Hospital, null=True, blank=True)
@@ -50,6 +58,12 @@ class EMRAdmitStatus(EMRItem):
         if self.admit:
             return 'admit'
         return 'discharge'
+
+    def getTitle(self):
+        if self.admit:
+            return "Admission"
+        else:
+            return "Discharge"
 
 
 class EMRProfile(models.Model):
@@ -87,6 +101,12 @@ class EMRTest(EMRItem):
 
     def getType(self):
         return 'test'
+
+    def getTitle(self):
+        if bool(self.released):
+            return "Test"
+        else:
+            return "Test (Pending)"
 
 
 def isTest(item):
@@ -133,3 +153,6 @@ class EMRPrescription(EMRItem):
 
     def getType(self):
         return 'prescription'
+
+    def getTitle(self):
+        return "Prescription"
