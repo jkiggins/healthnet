@@ -1,5 +1,5 @@
 {% load staticfiles %}
-<div class = "card_wrapper_big" onclick="stop_event_prop(event)">
+<div class = "card_wrapper_big" onclick="stop_event_prop(event)" onload="doTooltip()">
     <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
 
     <div class = "card_body">
@@ -8,8 +8,10 @@
 
             {% if item.emrtest %}
                 <tr><td>Date Ordered: </td><td>{{ item.date_created }}</td></tr>
-                {% if item.emrtest.images and item.emrtest.released %}
-                    <img src="{% url 'emr:testmedia' item.pk %}" />
+                {% if item.emrtest.released or permissions.canEdit %}
+                    {% if item.emrtest.images.name != '' %}
+                        <div class="emr_test_image_wrap"><img title="Hover over the edge to resize" class = "emr_test_image" src="{% url 'emr:testmedia' item.pk %}" /></div>
+                    {% endif %}
                     <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
                 {% endif %}
             {% elif item.emrvitals %}

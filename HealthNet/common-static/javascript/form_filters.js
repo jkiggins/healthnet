@@ -39,9 +39,12 @@ function ajax_emr_item(e) {
 function emr_reqListener() {
     var html = this.responseText;
 	if (html.toUpperCase() != "PASS") {
-		var overlay = document.getElementById('vemr_overlay')
+		var overlay = document.getElementById('vemr_overlay');
 		overlay.innerHTML = html;
-		overlay.setAttribute("class", "overlay")
+		overlay.setAttribute("class", "overlay");
+		document.body.setAttribute("class", "noscroll");
+
+		$(function(){$(".emr_test_image_wrap").resizable({aspectRatio: true});});
 	}
 }
 
@@ -58,8 +61,9 @@ function emr_action_ajax(e, action) {
 	return false;
 }
 
-function hide_click(e) {
-	e.setAttribute("class", "hidden")
+function overlay_off(e) {
+	e.setAttribute("class", "hidden");
+	document.body.setAttribute("class", "");
 
 }
 
@@ -164,6 +168,14 @@ function postJson(url, json) {
 		console.log(form.innerHTML);
 		form.submit();
 	}
+}
+
+function doTooltip() {
+
+	$( function() {
+    $( document ).tooltip();
+  } );
+
 }
 
 /*!

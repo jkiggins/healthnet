@@ -84,6 +84,8 @@ class TestCreateForm(EMRItemCreateForm):
     def save(self, **kwargs):
         m = super(TestCreateForm, self).save(**kwargs)
 
+        print(self.cleaned_data['images'])
+
         if 'update' in kwargs:
             self.saveToModel(kwargs['update'].emrtest)
 

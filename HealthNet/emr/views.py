@@ -226,7 +226,7 @@ def EMRItemCreate(request, pk, type):
 
 
     if request.method == "POST":
-        form = getFormFromReqType(type, patient, cuser, post=request.POST)
+        form = getFormFromReqType(type, patient, cuser, post=request.POST, files=request.FILES)
 
         if form.is_valid():
             m = form.save(commit=False, patient=patient)
