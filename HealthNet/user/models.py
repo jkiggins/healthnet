@@ -90,7 +90,7 @@ class Doctor(models.Model):
     accepted = models.BooleanField(default=False)
 
     def acceptedPatients(self):
-        return self.patient_set.all()#.filter(accepted=True)
+        return self.patient_set.all().filter(accepted=True)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -108,7 +108,6 @@ class Event(models.Model):
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField()
     description = models.CharField(max_length=200, default="")
-    title = models.CharField(max_length=25, default="")
     appointment = models.BooleanField(default=False)
 
     visible = models.BooleanField(default=True)
@@ -146,7 +145,11 @@ class Notification(models.Model):
     title = models.CharField(max_length=50, default="")
     content = models.CharField(max_length=200, default="")
     link = models.CharField(max_length=10, default="")
-    args = models.CharField(max_length=10, default="")
+
+    @staticmethod
+    def push(user, title, content, link):
+        return Notification.objects.create(user=user, title=title, content=content, link=link)
+
 
 
 

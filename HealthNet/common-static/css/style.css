@@ -159,28 +159,46 @@ li {
 	font-size: 24pt;
 }
 
-.mainCalendar {
-	width: 100%;
-}
 
-.calendarWrap
-{
+/* CALENDAR STUFF */
+.calendar {
 	position: relative;
-	overflow: hidden;
+	overflow-y: hidden;
 
-	padding: 25px 2.5% 15px 2.5%;
 	margin: auto;
 	margin-top: 20px;
 	margin-bottom: 20px;
 	text-align: center;
 	width: 90%;
+	height: 600px;
 }
 
-.calendar {
+.fc-event
+{
+	cursor: pointer;
+}
+
+.fc-slats tr:hover
+{
+	background-color: lightblue;
+	border-color: cyan;
+}
+
+.fc-day
+{
+	z-index: 6516;
+}
+
+.fc-day:hover
+{
+	background-color: lightblue;
+}
+
+/*.calendar {
 	padding: 25px 2.5% 15px 2.5%;
 	margin-bottom: 20px;
 	text-align: center;
-}
+}*/
 
 .button:hover {
 	background-color: #2D6597;

@@ -16,6 +16,8 @@ from HealthNet.viewhelper import *
 from .forms import *
 from syslogging.models import *
 
+import json
+
 
 class Registry(View):
 
@@ -486,29 +488,31 @@ def viewEvent(request, pk):
         return HttpResponseRedirect(reverse('user:dashboard'))
 
 
-class CreateEvent(HealthView):
-    depend = False
-    my_events=None
-    def setup(self, request, user, **kwargs):
-        if not userauth.userCan_Event(user, None, 'create'):
-            return HttpResponseRedirect(reverse('user:dashboard'))
+def createEvent(request, depend=False):
+    user = get_user(request)
+    if user is None:
+        return unauth(request)
+    elif not userauth.userCan_Event(user, None, 'create'):
+        return unauth(request)
 
-        if 'd' in  kwargs:
-            self.POST=None
-            self.depend = True
+    process_event = False
+    d = timezone.now().replace(hour=6, minute=0) + datetime.timedelta(days=1)
 
-        if user.getType() != "nurse":
-            self.my_events = getVisibleEvents(user)
-
-
-    def patient(self, request, user):
-        event_form = None
-        other_events = getVisibleEvents(user.doctor).exclude(patient=user)
-
-        if self.POST is None:
-            event_form = EventCreationFormPatient()
-
+    if request.method == "POST":
+        if 'json' in request.POST:
+            jdict = json.loads(request.POST['json'])
+            d = datetime.datetime.strptime(jdict['moment'], "%Y-%m-%dT%H:%M:%S");
         else:
+            process_event = True
+
+
+    event_form = None
+
+    if isPatient(user):
+
+        my_events = getVisibleEvents(user)
+
+        if process_event:
             event_form = EventCreationFormPatient(request.POST)
             if event_form.is_valid():
                 event = event_form.getModel()
@@ -519,26 +523,22 @@ class CreateEvent(HealthView):
                     event.save()
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
-
-        return render(request, 'user/eventhandle.html',
-                      {'form': event_form, 'user': user, 'otherEvents': other_events, 'events': self.my_events,
-                       'canAccessDay': True})
-
-
-    def doctor(self, request, user):
-        event_form = None
-
-        if self.POST is None:
-            event_form = EventCreationFormDoctor()
-            event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
         else:
+            event_form = EventCreationFormPatient()
+
+        my_events = getVisibleEvents(user)
+        other_events = user.doctor.event_set.all()
+
+
+    elif isDoctor(user):
+        if process_event:
             event_form = EventCreationFormDoctor(request.POST)
 
-            if self.depend:
+            if depend:
                 #AJAX response
-                event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+                event_form.set_hospital_patient_queryset(user.hospitals.all(), user.acceptedPatients())
                 event_form.full_clean()
-                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
+                populateDependantFieldsPH(event_form, user.hospitals.all(), user.acceptedPatients())
                 return render(request, 'user/render_form.html', {'form': event_form})
 
             elif event_form.is_valid():
@@ -551,25 +551,24 @@ class CreateEvent(HealthView):
                     event.save()
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
-
-
-        return render(request, 'user/eventhandle.html',
-                      {'form': event_form, 'user': user, 'events': self.my_events, 'canAccessDay': True})
-
-
-    def nurse(self, request, user):
-        event_form = None
-        if self.POST is None:
-            event_form = EventCreationFormNurse()
-            event_form.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
         else:
+            event_form = EventCreationFormDoctor()
+            event_form.set_hospital_patient_queryset(user.hospitals.all(), user.acceptedPatients())
+
+        my_events = getVisibleEvents(user)
+
+        #return render(request, 'user/eventhandle.html',
+         #             {'form': event_form, 'user': user, 'events': my_events, 'canAccessDay': True})
+
+    elif isNurse(user):
+        if process_event:
             event_form = EventCreationFormNurse(request.POST)
 
-            if self.depend:
+            if depend:
                 # Handle ajax post
-                event_form.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+                event_form.set_patient_doctor_queryset(user.hospital.acceptedPatients(), user.hospital.doctor_set.all())
                 event_form.full_clean()
-                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(), user.hospital.doctor_set.all(), user.hospital)
+                populateDependantFieldsPD(event_form, user.hospital.acceptedPatients(), user.hospital.doctor_set.all(), user.hospital)
                 return render(request, 'user/render_form.html', {'form': event_form})
 
             elif event_form.is_valid():
@@ -582,14 +581,19 @@ class CreateEvent(HealthView):
                     event.save()
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
+        else:
+            event_form = EventCreationFormNurse()
+            event_form.set_patient_doctor_queryset(user.hospital.acceptedPatients(), user.hospital.doctor_set.all())
 
+            #return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'canAccessDay': True})
 
-        return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'canAccessDay': True})
+    # TODO: hosAdmin
 
+    event_form.setStart(d)
 
-    @staticmethod
-    def post_dependant_fields(request):
-        return HttpResponse("PASS")
+    return render(request, 'user/eventhandle.html',
+                  {'form': event_form, 'user': user, 'otherEvents': other_events, 'events': my_events,
+                   'canAccessDay': True})
 
 
 def dashboardView(request):
@@ -602,12 +606,13 @@ def dashboardView(request):
 
     context = {'user': user}
 
-    if(user.getType() != "nurse" and user.getType() != "hosAdmin"):
-        events = getVisibleEvents(user).order_by('startTime')
-        context['events'] = events
+    if isPatient(user):
+        context['events'] = getVisibleEvents(user).order_by('startTime')
+        context['other_events'] = user.doctor.event_set.all().order_by('startTime')
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
         context['hosptials'] = user.hospitals.all()
+        context['events'] = getVisibleEvents(user).order_by('startTime')
     elif(user.getType() == "nurse"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()

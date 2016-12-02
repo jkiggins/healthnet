@@ -1,9 +1,11 @@
 <script>
+    buisness_hours = {start: 6, end: 17};
+
 	$(document).ready(function() {
 	    this.header = {
-				left: 'prev,next today',
-                center: 'title',
-                right: 'agendaDay,agendaWeek,month'
+				left: "prev today appointment",
+                center: "title",
+                right: "agendaDay,agendaWeek,month next"
             };
 	    if (typeof header !== "undefined") {
 	        this.header = header;
@@ -17,9 +19,35 @@
 	
 	// once page is loaded, load calendar
 
-		$('#calendar').fullCalendar({
-        customButtons: this.customButtons,
-			header: this.header,
+		$("#calendar").fullCalendar({
+		    height: 600,
+            contentHeight: 600,
+            customButtons: this.customButtons,
+            header: this.header,
+
+            businessHours: {
+                // days of week. an array of zero-based day of week integers (0=Sunday)
+                dow: [ 1, 2, 3, 4, 5 ], // Monday - Friday
+
+                start: buisness_hours.start.toString() + ":00", // a start time (6am)
+                end: buisness_hours.end.toString() + ":00" // an end time (5pm)
+            },
+
+            dayClick:function(date, jsEvent, view){
+
+                if (view.name === "month") {
+                    $("#calendar").fullCalendar("gotoDate", date);
+                    $("#calendar").fullCalendar("changeView", "agendaDay");
+                }
+                else
+                {
+                    if(typeof dayClickLocal !== "undefined")
+                    {
+                        dayClickLocal(date, jsEvent, view);
+                    }
+                }
+
+            },
 
             // populates the calendar with events
             {% if events != None %}
@@ -27,9 +55,9 @@
                     {% for event in events %}
                         {
                             id : {{ event.id }},
-                            title : "{{ event.title }}",
-                            start : $.fullCalendar.moment("{{ event.startTime|date:'c' }}"),
-                            end : $.fullCalendar.moment("{{ event.endTime|date:'c' }}"),
+                            title : "{{ event.doctor.user.get_full_name }}",
+                            start : $.fullCalendar.moment("{{ event.startTime|date:"c" }}"),
+                            end : $.fullCalendar.moment("{{ event.endTime|date:"c" }}"),
                             allDay : false,
 
                         },
@@ -40,11 +68,11 @@
                         {% for otherEvent in otherEvents %}
                             {
                                 id : {{ otherEvent.id }},
-                                title : "{{ otherEvent.title }}",
-                                start : $.fullCalendar.moment("{{ otherEvent.startTime|date:'c' }}"),
-                                end : $.fullCalendar.moment("{{ otherEvent.endTime|date:'c' }}"),
+                                title : "{{ otherEvent.doctor.user.get_full_name }}",
+                                start : $.fullCalendar.moment("{{ otherEvent.startTime|date:"c" }}"),
+                                end : $.fullCalendar.moment("{{ otherEvent.endTime|date:"c" }}"),
                                 allDay : false,
-                                backgroundColor: 'grey',
+                                backgroundColor: "grey",
                             },
                         {% endfor %}
                     {% endif %}
@@ -53,19 +81,21 @@
             {% endif %}
             // takes the user to the view event page for a specific event
             eventClick: function(event, jsEvent, view) {
-                var url = "{% url 'user:vEvent' 999 %}".replace (999, event.id);
+                var url = "{% url "user:vEvent" 999 %}".replace (999, event.id);
 
                 window.location = url;
 			},
 			
 			// will enter only if the user is on the event creation page
 			// allows for easy selection of an event
+            {% comment %}
 			{% if canAccessDay != None %}
 				dayClick: function(date, jsEvent, view) {
-					document.getElementById("dateTimeId_0").value=date.format('YYYY-MM-DD');
-					document.getElementById("dateTimeId_1").value=date.format('HH:mm:ss')
+					document.getElementById("dateTimeId_0").value=date.format("YYYY-MM-DD");
+					document.getElementById("dateTimeId_1").value=date.format("HH:mm:ss")
 				}
 			{% endif %}
+			{% endcomment %}
 		})
 	});
 </script>

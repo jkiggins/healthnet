@@ -114,6 +114,13 @@ function submit_form(e) {
     e.form.submit();
 }
 
+function submit_on_enter(e) {
+	if (e.keyCode == keys.ENTER)
+	{
+		e.submit()
+	}
+}
+
 function set_kvp(key, value) {
     url_arr = window.location.pathname.split('/');
 
@@ -148,6 +155,16 @@ function rebuild_url_from_array(arr) {
 
 }
 
+function postJson(url, json) {
+	var form = document.getElementById("hiddenformpost");
+
+	if (form !== null) {
+		form.children[1].setAttribute("value", JSON.stringify(json));
+		form.setAttribute("action", url);
+		console.log(form.innerHTML);
+		form.submit();
+	}
+}
 
 /*!
  * JavaScript Cookie v2.1.3

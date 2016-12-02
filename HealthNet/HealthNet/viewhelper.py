@@ -295,6 +295,36 @@ def getVisibleEMR(patient):
     """Returns a queryset of the EMR items that are released"""
     return patient.emritem_set.all().exclude(emrtest__released=False)
 
+############ NOTIFICATION HELPERS ###############
+def eventNotify(event):
+    nbody = 'Starts at: {0} and lasts for: {1} minutes'.format(event.startTime, (event.endTime - event.startTime).minutes)
+    if not (event.patient is None):
+        Notification.push(event.patient, "New Appointment", nbody, 'vevent,{0}'.format(event.pk))
+        Notification.push(event.doctor, "New Appointment", nbody, 'vevent,{0}'.format(event.pk))
+    else:
+        Notification.push(event.patient, "New Event", nbody, 'vevent,{0}'.format(event.pk))
+
+def emrNotify(item):
+    if isNote(item):
+        Notification.push(item.patient, "New EMR Note", "", 'vemr,{0}'.format(item.patient.pk))
+    elif isTest(item):
+        Notification.push(item.patient, "New {0}".format(item.getTitle()), "", 'vemr,{0}'.format(item.patient.pk))
+    elif isTest(item):
+        Notification.push(item.patient, "New {0}".format(item.getTitle()), "", 'vemr,{0}'.format(item.patient.pk))
+
+
+############# RESOLVE USER TYPE #################
+def isPatient(user):
+    return user.getType() == "patient"
+
+def isDoctor(user):
+    return user.getType() == "patient"
+
+def isHosadmin(user):
+    return user.getType() == "hosAdmin"
+
+def isNurse(user):
+    return user.getType() == "nurse"
 
 ########## REDIRECT HELPER METHODS #################
 def toEmr(request, pk):

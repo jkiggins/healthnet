@@ -5,55 +5,38 @@
     {% if user.getType == "hosAdmin" %}
         {% include 'user/SearchModule.html' %}
     {% else %}
-        <div class="calendar">
-        {% if user.getType != "nurse" %}
-            {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
-        {% endif %}
-	    </div>
-	
-    	{% comment %} this displays fullcalendar.io {% endcomment %}
+
+        {% comment %} this displays fullcalendar.io {% endcomment %}
         <script>
+
+            function dayClickLocal(date, jsEvent, view) {
+                console.log("called: ");
+                if ((buisness_hours.start < date.hour()) && (date.hour() < buisness_hours.end)) {
+                    console.log("indside business hours");
+                    postJson("{% url "user:cEvent" %}", {"moment": date.format()});
+                }
+            }
             var customButtons = {
                     appointment: {
                         text: 'Create Appointment',
                         click: function() {
                             window.location = "{% url 'user:cEvent' %}";
                         }
-                    },
-                    show:
-                    {
-                        text: 'Show',
-                        click: function (e) {
-                            var texts = "ShowHide";
-                            var inner = e.toElement.innerHTML;
+                    }
+            };
 
-                            var cwrap = document.getElementsByClassName("calendarWrap")[0];
-                            if(inner == "Show"){
-                                cwrap.setAttribute("style", "");
-                            }
-                            else{
-                                cwrap.setAttribute("style", "height: 300px;");
-                            }
-
-                            e.toElement.innerHTML = texts.replace(inner, "")
-                        }
-                    },
-                    hide:
-                    {
-                        text: 'Hide',
-                        click: function (e) {
-                            alert(typeof e)
-                        }
-                    }};
             var header = {
-				left: 'prev,next today appointment show',
+				left: 'prev today appointment',
                 center: 'title',
-                right: 'agendaDay,agendaWeek,month'
+                right: 'agendaDay,agendaWeek,month next'
             };
         </script>
-        <div class="calendarWrap"  style="height: 300px;">
-	        <div id='calendar' class='mainCalendar'></div>
-        </div>
+
+        {% if user.getType != "nurse" %}
+            {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
+        {% endif %}
+
+        <div id='calendar' class='calendar'></div>
     {% endif %}
 
 {% endblock %}

@@ -24,6 +24,11 @@
 	</script>
 {% endif %}
 
+<form id = "hiddenformpost" method = "POST" action="" style="display: None;">
+    {% csrf_token %}
+    <input name="json" type = "text" value=""/>
+</form>
+
 <ul id="navbar">
 	<li><a href="/logout" class="right">Log Out</a></li>
     <li><a href="{% url 'user:vProfilec' %}">Profile</a></li>

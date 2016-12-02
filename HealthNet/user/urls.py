@@ -12,8 +12,8 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/ViewEvent/$', views.viewEvent, name='vEvent'),
     url(r'^editProfile/$', views.EditProfile.as_view(), name = 'eProfile'),
     url(r'^editProfile/d$', views.EditProfile.dependand_post, name = 'eProfiled'),
-    url(r'^createEvent/$', views.CreateEvent.as_view(), name='cEvent'),
-    url(r'^createEvent/d$', views.CreateEvent.as_view(depend=True), name='veEventd'),
+    url(r'^createEvent/$', views.createEvent, name='cEvent'),
+    url(r'^createEvent/d$', views.createEvent, {'depend': True}, name='veEventd'),
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
     url(r'^(?P<pk>[0-9]+)/note$', views.viewNote, name='note')

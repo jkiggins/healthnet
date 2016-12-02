@@ -141,8 +141,10 @@ def viewEMR(request, pk):
 
     emr = patient.emritem_set.all().order_by('-date_created')
 
+    form=None
 
     if request.method == "POST":
+        form = FilterSortForm(request.POST)
         if form.is_valid():
             if ('filters' in form.cleaned_data) and (form.cleaned_data['filters'] != []):
                 build = emr.none()
@@ -164,7 +166,6 @@ def viewEMR(request, pk):
                 build = emr.none()
                 words = form.cleaned_data['keywords'].split(' ')
                 for word in words:
-                    build |= emr.filter(title__contains=word)
                     build |= emr.filter(content__contains=word)
                     build |= emr.filter(emrvitals__bloodPressure__contains=word)
 
@@ -184,10 +185,10 @@ def viewEMR(request, pk):
                 elif 'priority' in form.cleaned_data['sort']:
                     emr = emr.order_by('-priority')
                 elif 'aplph' in form.cleaned_data['sort']:
-                    emr = emr.order_by('title')
-        form = FilterSortForm()
+                    emr = emr.order_by('content')
+
     else:
-        form = FilterSortForm(request.POST)
+        form = FilterSortForm()
 
     ctx = {'EMRItems': emr, 'form': form, 'user': user, 'tuser': patient,
            'permissions': getPermissionsContext(user, patient),
@@ -263,7 +264,6 @@ def editAdmitDischarge(request, emritem):
         form = AdmitDishchargeForm()
         form.defaults(emritem)
 
-    form.lockField('title', emritem.title)
     form.lockField('hospital', emritem.emradmitstatus.hospital)
     form.lockField('patient', emritem.patient)
 
@@ -326,7 +326,6 @@ class AdmitDishchargeView(DetailView):
 
             ctx['formtitle'] = "Admission Form"
             form.lockField('admit', True)
-            form.lockField('title', 'Admission')
 
             if cuser.getType() in ['nurse', 'hosAdmin']:
                 form.lockField('hospital', cuser.hospital)
@@ -339,7 +338,6 @@ class AdmitDishchargeView(DetailView):
 
             ctx['formtitle'] = "Discharge Form"
             form.lockField('admit', False)
-            form.lockField('title', 'Discharge')
 
             form.lockField('hospital', '')
 
@@ -363,7 +361,6 @@ class AdmitDishchargeView(DetailView):
 
         if patient.admittedHospital() is None:
             ctx['formtitle'] = "Admission Form"
-            form.lockField('admit', True)
             mdict['title'] = "Admission"
 
             if cuser.getType() in ['nurse', 'hosAdmin']:

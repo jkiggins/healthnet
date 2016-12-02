@@ -2,29 +2,36 @@
 
 {% block content %}
     <div class = "emr_action_wrap">
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form action="" method="POST" enctype="multipart/form-data" onkeypress="submit_on_enter()">
             {% csrf_token %}
-            <div class = "emr_toolbox">
+            <div class = "emr_toolbox" data-canadmit="{{ permissions.canAdmit }}">
                 {{ form.keywords }}
                 <div class="emr_toolbox_wrap">
                     <input type = "button" class="emr_toolbox_item" value="Filter"/>
                     <div class="drop_down">
-                        <input type="button" class="emr_toolbox_label" value="Prescriptions" />{{ form.filters.0.tag }}
+                        <div class="emr_item_wrap">
+                            <input type="button" class="emr_toolbox_label" value="Prescriptions" />{{ form.filters.0.tag }}
+                        </div>
+
+                    <div class="emr_item_wrap">
                         <input type="button" class="emr_toolbox_label" value="Vitals" />{{ form.filters.1.tag }}
+                    </div>
+                    <div class="emr_item_wrap">
                         <input type="button" class="emr_toolbox_label" value="Test Results" />{{ form.filters.2.tag }}
+                    </div>
 
                         {% if user.getType != 'patient' %}
-                            <input type="button" class="emr_toolbox_label" value="Pending Test Results" />{{ form.filters.3.tag }}
+                            <div class="emr_item_wrap">
+                                <input type="button" class="emr_toolbox_label" value="Pending Test Results" />{{ form.filters.3.tag }}
+                            </div>
                         {% endif %}
 
+                    <div class="emr_item_wrap">
                         <input type="button" class="emr_toolbox_label" value="Admissions" />{{ form.filters.4.tag }}
+                    </div>
+                    <div class="emr_item_wrap">
                         <input type="button" class="emr_toolbox_label" value="Dishcharge" />{{ form.filters.5.tag }}
-
-                        {% if user.getType != 'patient' %}
-                            <input type = "button" class="emr_toolbox_action" value="Show Unreleased" data-filter = "get_unreleased" onclick="set_filter_and_submit(this)"/>
-                        {% endif %}
-
-                        <input type = "button" class="emr_toolbox_action" value="Show New" data-filter = "get_new" onclick="set_filter_and_submit(this)"/>
+                    </div>
                         <input type = "button" class="emr_toolbox_action" value="Reset All Filters" data-filter = "reset" onclick="set_filter_and_submit(this)"/>
                         <input type="hidden" name="filter" id = "form_filter" value="">
                     </div>
@@ -33,9 +40,15 @@
                 <div class="emr_toolbox_wrap">
                     <input type = "button" class="emr_toolbox_item" value="Sort"/>
                     <div class="drop_down">
-                        <input class="emr_toolbox_label" value="Alphabetical" />{{ form.sort.1.tag }}
-                        <input class="emr_toolbox_label" value="Date" />{{ form.sort.0.tag }}
-                        <input class="emr_toolbox_label" value="Priority" />{{ form.sort.2.tag }}
+                        <div class="emr_item_wrap">
+                            <input class="emr_toolbox_label" value="Alphabetical" />{{ form.sort.1.tag }}
+                        </div>
+                        <div class="emr_item_wrap">
+                            <input class="emr_toolbox_label" value="Date" />{{ form.sort.0.tag }}
+                        </div>
+                        <div class="emr_item_wrap">
+                            <input class="emr_toolbox_label" value="Priority" />{{ form.sort.2.tag }}
+                        </div>
                         <input type = "button" class="emr_toolbox_action" value="Reset Radio Buttons" onclick="unselect_radio_set('sort')"/>
                     </div>
                 </div>
@@ -44,29 +57,37 @@
             </div>
         </form>
 
-        <div class="emr_toolbox_wrap toolbox_action">
-            <input type = "button" class="emr_toolbox_item" value="Actions"/>
+        <div class="emr_toolbox_wrap toolbox_action" data-canadmit="{{ permissions.canAdmit }}">
+            <input type = "button" class="emr_toolbox_item" value="Add"/>
             <div class="drop_down">
                 {% if permissions.canVitals or permissions.canEdit %}
-                    <input type = "button" class="emr_toolbox_action" value="New Vitals" data-action = "get_new" onclick="window.location='{% url 'emr:cvitals' tuser.id %}'"/>
-                    <input type = "button" class="emr_toolbox_action" value="EMR Profile" onclick="window.location='{% url 'emr:eprofile' tuser.id %}'"/>
-                {% endif %}
-                {% if permissions.canEdit %}
-                    <input type = "button" class="emr_toolbox_action" value="New Test" onclick="window.location='{% url 'emr:ctest' tuser.id %}'"/>
-                    <input type = "button" class="emr_toolbox_action" value="New EMR Item" onclick="window.location='{% url 'emr:citem' tuser.id %}'"/>
-                {% endif %}
-                {% if permissions.canPrescribe %}
-                    <input type = "button" class="emr_toolbox_action" value="New Prescription" onclick="window.location='{% url 'emr:cpre' tuser.id %}'"/>
-                {% endif %}
-                {% if permissions.canAdmit %}
-                    {% if admit %}
-                        <input type = "button" class="emr_toolbox_action" value="Discharge Patient" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
-                    {% else %}
-                        <input type = "button" class="emr_toolbox_action" value="Admit Patient" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
+                    <input type = "button" class="emr_toolbox_action" value="Vitals" data-action = "get_new" onclick="window.location='{% url 'emr:cvitals' tuser.id %}'"/>
+                    {% if not patient.emrprofile %}
+                        <input type = "button" class="emr_toolbox_action" value="Health Info" onclick="window.location='{% url 'emr:eprofile' tuser.id %}'"/>
                     {% endif %}
+                {% endif %}
+
+                {% if permissions.canEdit %}
+                    <input type = "button" class="emr_toolbox_action" value="Test" onclick="window.location='{% url 'emr:ctest' tuser.id %}'"/>
+                    <input type = "button" class="emr_toolbox_action" value="Note" onclick="window.location='{% url 'emr:citem' tuser.id %}'"/>
+                {% endif %}
+
+                {% if permissions.canPrescribe %}
+                    <input type = "button" class="emr_toolbox_action" value="Prescription" onclick="window.location='{% url 'emr:cpre' tuser.id %}'"/>
                 {% endif %}
             </div>
         </div>
+
+
+        {% if permissions.canAdmit %}
+            <div class="emr_toolbox_wrap toolbox_action" data-canadmit="{{ permissions.canAdmit }}">
+                {% if admit %}
+                    <input type = "button" class="emr_toolbox_item clickable" value="Discharge" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
+                {% else %}
+                    <input type = "button" class="emr_toolbox_item clickable" value="Admit" onclick="window.location='{% url 'emr:admitdischarge' tuser.id %}'"/>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
     {% include 'emr/view_emr.html' %}
 

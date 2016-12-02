@@ -11,8 +11,18 @@
 {
 	float: left;
 	height: 100%;
-	width: 85%;
 	box-shadow: 3px 3px 20px #000;
+	font-size: 14pt;
+}
+
+.emr_toolbox[data-canadmit="False"]
+{
+	width: 85%;
+}
+
+.emr_toolbox[data-canadmit="True"]
+{
+	width: 76%;
 }
 
 .emr_toolbox_serchbar
@@ -39,6 +49,15 @@
 	color: #FFF;
 	text-align: left;
 	z-index: 11;
+}
+
+.emr_item_wrap
+{
+	float: left;
+	width: calc(100% - 10px);
+	padding: 10px;
+	border-bottom: solid 1px #E96F38;
+
 }
 
 .emr_toolbox_checkbox
@@ -77,6 +96,7 @@
 	margin: 0;
 	box-sizing: border-box;
 	height: 3em;
+	font-size: 14pt;
 }
 
 .emr_toolbox_wrap:hover .drop_down
@@ -88,10 +108,17 @@
 	z-index: 11;
 }
 
-.toolbox_action
+.toolbox_action[data-canadmit="False"]
 {
 	margin-left: 1%;
 	width: 14%;
+	box-shadow: 3px 3px 20px #000;
+}
+
+.toolbox_action[data-canadmit="True"]
+{
+	margin-left: 1%;
+	width: 10%;
 	box-shadow: 3px 3px 20px #000;
 }
 
@@ -117,23 +144,44 @@
 	position: relative;
 	width: 100%;
 	height: 3em;
-	background-color: #000;
+	background-color: #2D6597;
 	color: white;
 	margin: 0;
 	border: 0;
 	border-bottom: 1px solid black;
+	font-size: 14pt;
 
 	text-align: center;
+}
+
+.clickable:hover
+{
+	background-color: #2D6597;
+}
+
+.clickable
+{
+	background-color: #E96F38;
 }
 
 /**********CARD**********/
 .card_wrapper
 {
 	float: left;
-	width: 25%;
-	margin: 2%;
+	width: calc(25% - 40px);
+	margin: 20px;
 	box-shadow: 3px 3px 20px #000;
 	word-wrap: break-word;
+}
+
+.card_wrapper:hover
+{
+	box-shadow: 3px 3px 20px #E96F38;
+}
+
+.card_wrapper[data-nobox="T"]
+{
+	box-shadow: 3px 3px 20px #000;
 }
 
 .card_wrapper_big
@@ -164,9 +212,9 @@
 .card_hf
 {
 	position: relative;
+	box-sizing: border-box;
 	width: 100%;
-	padding-top: .5em;
-    padding-bottom: .5em;
+	padding: .5em;
 }
 
 .bottom_bg
@@ -238,6 +286,11 @@
 .priority_HIGH
 {
 	color: #E96F38;
+}
+
+.no_comments
+{
+	color: grey;
 }
 
 .profile

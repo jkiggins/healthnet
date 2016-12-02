@@ -4,7 +4,7 @@
 </div>
 
 {% if EMRProfile %}
-<div class="card_wrapper">
+<div class="card_wrapper" data-nobox="T">
     <div class="card_hf bottomborder text_center">{{ tuser.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
     <div class="card_body">
         <table>
@@ -27,21 +27,23 @@
 {% endif %}
 
 {% for item in EMRItems %}
-    <div class = "card_wrapper">
+    <div class = "card_wrapper"  data-pk={{ item.pk }} onclick="ajax_emr_item(this)">
         <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
         <div class = "card_body">
             {% if item.emrtest and user.getType == 'patient'%}
                 {% if item.emr.released %}
                     {{ item.content }}
+                {% else %}
+                    <span class="no_comments">No Comments</span>
                 {% endif %}
+            {% elif not item.content %}
+                <span class="no_comments">No Comments</span>
             {% else %}
                 {{ item.content }}
             {% endif %}
         </div>
         <div class = "card_hf text_right bottom_bg">
-            <a class = "right_shadow" data-pk={{ item.pk }} onclick="ajax_emr_item(this)">Details</a>
-            <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
-            <div class="card_hf_info">&nbsp;<span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span></div>
+            <span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span>
         </div>
     </div>
 {% endfor %}
