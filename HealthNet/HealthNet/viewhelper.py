@@ -318,7 +318,7 @@ def isPatient(user):
     return user.getType() == "patient"
 
 def isDoctor(user):
-    return user.getType() == "patient"
+    return user.getType() == "doctor"
 
 def isHosadmin(user):
     return user.getType() == "hosAdmin"

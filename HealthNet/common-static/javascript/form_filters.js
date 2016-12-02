@@ -1,4 +1,14 @@
 // Create and update event
+String.prototype.format_py = function () {
+	var str = this;
+	for(var i = 0; i < arguments.length; i++)
+	{
+		str = str.replace("{"+(i-1).toString()+"}", arguments[i]);
+	}
+
+	return str;
+};
+
 function resolve_pd_dependancy(e) {
 
     var oReq = new XMLHttpRequest();
@@ -15,6 +25,7 @@ function reqListener() {
     var html = this.responseText;
 	if (html.toUpperCase() != "PASS") {
 		document.getElementById('create_event_form').innerHTML = html;
+		initForms();
 	}
 }
 
@@ -170,12 +181,57 @@ function postJson(url, json) {
 	}
 }
 
+function initBody() {
+	doTooltip();
+	initForms();
+}
+
 function doTooltip() {
 
 	$( function() {
     $( document ).tooltip();
   } );
 
+}
+
+function initForms() {
+	initPickers(['dateTimeId_1']);
+}
+
+function initPickers(ids) {
+	for(var i = 0; i < ids.length; i++)
+	{
+		var ele = document.getElementById(ids[i]);
+		if (ele !== null) {
+			initTimePicker(ele);
+		}
+	}
+
+	$('.clockpicker').clockpicker({
+		placement: 'top',
+		align: 'left',
+		donetext: 'Done',
+		twelvehour: true
+	});
+
+}
+
+function initTimePicker(ele) {
+	var html = "<div class='input-group clockpicker'> \
+    <span class='input-group-addon'> \
+        <span class='glyphicon glyphicon-time'></span> \
+    </span> \
+</div>";
+
+
+	var clock = document.implementation.createHTMLDocument("clock")
+	clock.documentElement.innerHTML = html;
+	ele.className += " form-control";
+	clock.body.childNodes[0].insertBefore(ele.cloneNode(), clock.body.childNodes[0].childNodes[0]);
+
+	console.log(clock.body.innerHTML);
+
+	ele.parentElement.replaceChild(clock.body.childNodes[0], ele);
 }
 
 /*!

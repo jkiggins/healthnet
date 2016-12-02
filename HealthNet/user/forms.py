@@ -34,8 +34,6 @@ def getEventFormByUserType(type, **kwargs):
     return obj(**kwargs)
 
 
-
-
 def doctor_nurse_shared_validation(event_form):
     valid = True
 
@@ -54,8 +52,8 @@ def doctor_nurse_shared_validation(event_form):
 
 
 class EventForm(forms.ModelForm):
-    startTime = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime(attrs={'id': "dateTimeId"}), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
-                                         label="Start")
+    startTime = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeId"}), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
+                                         label="Start", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)
 

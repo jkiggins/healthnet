@@ -507,6 +507,8 @@ def createEvent(request, depend=False):
 
 
     event_form = None
+    my_events = None
+    other_events = None
 
     if isPatient(user):
 
@@ -560,7 +562,7 @@ def createEvent(request, depend=False):
         #return render(request, 'user/eventhandle.html',
          #             {'form': event_form, 'user': user, 'events': my_events, 'canAccessDay': True})
 
-    elif isNurse(user):
+    elif isNurse(user) or isHosadmin(user):
         if process_event:
             event_form = EventCreationFormNurse(request.POST)
 

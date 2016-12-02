@@ -7,8 +7,11 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'fullcalendar/dist/fullcalendar.css' %}" />
 	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui.min.css' %}" />
+	<link rel="stylesheet" type="text/css" href="{% static 'css/standalone.css' %}" />
+	<link rel="stylesheet" type="text/css" href="{% static 'css/clockpicker.css' %}" />
 	<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
 	<script src="{% static 'javascript/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'javascript/clockpicker.js' %}"></script>
 	<script src="{% static 'moment/min/moment.min.js' %}"></script>
 	<script src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
     <script type="text/javascript" src = "{% static 'javascript/form_filters.js' %}"></script>
@@ -18,7 +21,7 @@
     {% endblock %}
 </head>
 
-<body onload="doTooltip()">
+<body onload="initBody()">
 
 {% if message %}
 	<script>
