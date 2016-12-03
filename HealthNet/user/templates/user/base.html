@@ -4,17 +4,7 @@
 <head>
     <meta charset="UTF-8">
 
-	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'fullcalendar/dist/fullcalendar.css' %}" />
-	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui.min.css' %}" />
-	<link rel="stylesheet" type="text/css" href="{% static 'css/standalone.css' %}" />
-	<link rel="stylesheet" type="text/css" href="{% static 'css/clockpicker.css' %}" />
-	<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-	<script src="{% static 'javascript/jquery-ui.min.js' %}"></script>
-    <script src="{% static 'javascript/clockpicker.js' %}"></script>
-	<script src="{% static 'moment/min/moment.min.js' %}"></script>
-	<script src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
-    <script type="text/javascript" src = "{% static 'javascript/form_filters.js' %}"></script>
+    {% include 'user/sources.html' %}
     {% csrf_token %}
 
     {% block head %}
@@ -50,23 +40,29 @@
 	
     <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
 
-    <div tabindex=0 id = "note_wrap" class="drop_down_wrap">
-        <input onfocus="this.parentElement.focus()" type = "button" class="note_heading" value="Notifications"/>
-        <div class="drop_down">
-            {% for note in user.user.notification_set.all %}
-                <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}">
-                    <label>{{ note.title }}</label>
-                    <a href="" onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
-                    <a href="{% url 'user:note' note.pk %}">View</a>
+    <div tabindex=0 class="drop_down_wrap note_wrap">
+        <div id = "note" class="note_heading">
+            Notifications
+        </div>
+        <div id = "note_drop" class="drop_down_hide">
+            {% if user.user.notification_set.all.count > 0 %}
+                {% for note in user.user.notification_set.all %}
+                    <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}" onfocus="this.parentElement.focus()">
+                        <label>{{ note.title }}</label>
+                        <a onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
+                        <a href="{% url 'user:note' note.pk %}">View</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="notice">
+                    <label>No Notifications</label>
                 </div>
-            {% endfor %}
+            {% endif %}
         </div>
     </div>
 </ul>
 
-	<h1 id="baseBanner">HealthNet</h1>
-
-	<h2 id="subBanner">Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2>
+	<div id="subBanner"><h2>Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2></div>
 
     {% block content %}
     {% endblock %}

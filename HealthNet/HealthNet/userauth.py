@@ -156,7 +156,7 @@ def userCan_EMR(cuser, patient, *actions):
 
 
     if 'vitals' in actions:
-        auth_l=False
+        auth_l=userCan_EMR(cuser, patient, 'edit')
         if utype == 'patient':
             auth_l |= (patient == cuser)
         auth &= auth_l

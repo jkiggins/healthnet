@@ -1,7 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+
+from HealthNet.mixins import ModelDiffMixin
+
+
 import datetime
+
 
 # this extension of user represents a nurse
 
@@ -68,7 +73,7 @@ class Patient(models.Model):
         return "patient"
 
 
-class Contact(models.Model):
+class Contact(models.Model, ModelDiffMixin):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     full_name = models.CharField(max_length=50)
     emphone = models.CharField(max_length=10)
@@ -80,7 +85,9 @@ class Contact(models.Model):
             if hasattr(self.user, 'patient'):
                 self.emphone=self.user.patient.phone
 
+
 #this extension of user represents a doctor
+
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -99,7 +106,7 @@ class Doctor(models.Model):
         return "doctor"
 
 
-class Event(models.Model):
+class Event(models.Model, ModelDiffMixin):
     APP_BUFFER = datetime.timedelta(minutes=15)
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True, blank=True)
@@ -145,10 +152,27 @@ class Notification(models.Model):
     title = models.CharField(max_length=50, default="")
     content = models.CharField(max_length=200, default="")
     link = models.CharField(max_length=10, default="")
+    date_created = models.DateTimeField(auto_now=True)
 
     @staticmethod
     def push(user, title, content, link):
         return Notification.objects.create(user=user, title=title, content=content, link=link)
+
+
+# Notification Methods
+
+def eventTimeChange(sender, **kwargs):
+    pass
+
+def eventDeleted(sender, **kwargs):
+    pass
+
+def emritemCreated(sender, **kwargs):
+    pass
+
+def testReleased(sender, **kwargs):
+    pass
+
 
 
 

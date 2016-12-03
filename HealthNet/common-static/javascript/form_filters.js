@@ -59,6 +59,12 @@ function emr_reqListener() {
 	}
 }
 
+function newTab(url) {
+	var win = window.open(url, '_blank');
+  win.focus();
+
+}
+
 function emr_action_ajax(e, action) {
 	var oReq = new XMLHttpRequest();
     oReq.onload = emr_reqListener;
@@ -86,8 +92,7 @@ function ajax_dismiss_note(e){
 	oReq.setRequestHeader("X-CSRFToken", csrftoken);
 
     oReq.send()
-
-	e.deleteNode()
+    e.remove()
 }
 
 
@@ -181,9 +186,28 @@ function postJson(url, json) {
 	}
 }
 
+function go(url) {
+	window.location=url;
+
+}
+
 function initBody() {
 	doTooltip();
 	initForms();
+	noteDropdown();
+}
+
+function noteDropdown() {
+	document.getElementById("note").onclick = function (e) {
+		var drop = document.getElementById(e.target.id+"_drop")
+		if (drop.className.indexOf("hide") == -1)
+		{
+			drop.className = drop.className.replace("show", "hide")
+		}else{
+			drop.className = drop.className.replace("hide", "show")
+		}
+	}
+
 }
 
 function doTooltip() {

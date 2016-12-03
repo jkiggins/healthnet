@@ -1,4 +1,7 @@
+{% extends 'emr/base_emr.html' %}
 {% load staticfiles %}
+
+{% block content %}
 <div class = "card_wrapper_big" onclick="stop_event_prop(event)" onload="doTooltip()">
     <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
 
@@ -46,20 +49,22 @@
     </div>
 
     <div class = "card_hf text_right bottom_bg">
-        <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
-
-        {% if item.emrtest and permissions.canEdit %}
-            <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'releasehide')">
-                {% if item.emrtest.released %}
-                    hide
-                {% else %}
-                    release
-                {% endif %}
-            </a>
+        {% if permissions.canEdit %}
+            <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
+            {% if item.emrtest %}
+                <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'releasehide')">
+                    {% if item.emrtest.released %}
+                        hide
+                    {% else %}
+                        release
+                    {% endif %}
+                </a>
+            {% endif %}
         {% elif item.emrprescription and permissions.canPrescribe %}
             <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'stop')">Stop</a>
         {% endif %}
 
-        <div class="card_hf_info">&nbsp;<span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span></div>
+        <span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span>
     </div>
 </div>
+{% endblock %}

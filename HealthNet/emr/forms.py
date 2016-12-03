@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 import HealthNet.formvalid as formvalid
 
 
-class FilterSortForm(forms.Form):
+class FilterSortForm(forms.ModelForm):
 
     keywords = forms.CharField(widget=forms.TextInput(attrs={'class': "emr_toolbox_serchbar", 'placeholder': "Keywords..."}), required=False)
 
@@ -18,7 +18,7 @@ class FilterSortForm(forms.Form):
     )
 
 
-    filters = forms.MultipleChoiceField(required=False, choices=filter_choices, widget=forms.CheckboxSelectMultiple(attrs={'class': 'emr_toolbox_checkbox'}))
+    filters_l = forms.MultipleChoiceField(required=False, choices=filter_choices, widget=forms.CheckboxSelectMultiple(attrs={'class': 'emr_toolbox_checkbox'}))
     quick_filters = forms.HiddenInput(attrs={'id': 'form_filter'})
 
     sort_choices = (
@@ -28,6 +28,32 @@ class FilterSortForm(forms.Form):
     )
 
     sort = forms.ChoiceField(required=False, choices=sort_choices, widget=forms.RadioSelect(attrs={'class': 'emr_toolbox_checkbox'}))
+
+
+    def __init__(self, *args, **kwargs):
+        super(FilterSortForm, self).__init__(*args, **kwargs)
+
+        if 'instance' in kwargs:
+            self.initial['filters_l'] = kwargs['instance'].filters.split(",")
+
+    def save(self, commit=False):
+        m = super(FilterSortForm, self).save(commit=False)
+
+        str = ""
+        for f in self.cleaned_data['filters_l']:
+            str += f + ","
+
+        str = str[:-1]
+
+        m.filters = str
+
+        if commit:
+            m.save()
+        return m
+
+    class Meta:
+        model = FilterForm
+        fields = ['keywords', 'sort']
 
 
 class EMRItemCreateForm(forms.ModelForm):
@@ -84,8 +110,6 @@ class TestCreateForm(EMRItemCreateForm):
     def save(self, **kwargs):
         m = super(TestCreateForm, self).save(**kwargs)
 
-        print(self.cleaned_data['images'])
-
         if 'update' in kwargs:
             self.saveToModel(kwargs['update'].emrtest)
 
@@ -101,6 +125,9 @@ class TestCreateForm(EMRItemCreateForm):
 
 
 class VitalsCreateForm(EMRItemCreateForm):
+
+    height = forms.IntegerField(label="Height (inches)")
+    weight = forms.IntegerField(label="Weight (LBS)")
 
     def defaults(self, model):
         super(VitalsCreateForm, self).defaults(model)
@@ -127,6 +154,8 @@ class VitalsCreateForm(EMRItemCreateForm):
 
 class prescriptionCreateForm(EMRItemCreateForm):
 
+    amountPerDay = forms.CharField(label="Doses Per Day")
+    dosage = forms.CharField(label="Dosage(mg)")
     def save(self, **kwargs):
         commit = kwargs['commit']
         kwargs['commit'] = False
@@ -156,7 +185,7 @@ class prescriptionCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRPrescription
-        fields = ['content', 'priority', 'dosage', 'amountPerDay', 'startDate', 'endDate']
+        fields = ['medication', 'dosage', 'amountPerDay', 'startDate', 'endDate', 'content', 'priority']
 
 
 class ProfileCreateForm(forms.ModelForm):

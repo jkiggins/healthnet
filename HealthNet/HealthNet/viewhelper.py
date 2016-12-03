@@ -115,6 +115,12 @@ def addEventConflictMessages(event_form, event):
 
     return False
 
+def getBaseContext(request, user, **kwargs):
+    ctx = {'user': user, 'notes': user.user.notification_set.all().order_by("-date_created")}
+    ctx = dict(ctx, **kwargs)
+    if 'HTTP_REFERER' in request.META:
+        ctx['back'] = request.META['HTTP_REFERER']
+    return ctx
 
 class EditProfileHelper:
     @staticmethod

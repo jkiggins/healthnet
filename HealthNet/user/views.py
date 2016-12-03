@@ -611,17 +611,21 @@ def dashboardView(request):
     if isPatient(user):
         context['events'] = getVisibleEvents(user).order_by('startTime')
         context['other_events'] = user.doctor.event_set.all().order_by('startTime')
+        context['calendarView'] = "month"
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
         context['hosptials'] = user.hospitals.all()
         context['events'] = getVisibleEvents(user).order_by('startTime')
+        context['calendarView'] = "agendaDay"
     elif(user.getType() == "nurse"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
+        context['calendarView'] = "agendaWeek"
     elif(user.getType() == "hosAdmin"):
         context['patients'] = user.hospital.patient_set.all()
         context['doctors'] = user.hospital.doctor_set.all()
         context['search_form'] = HosAdminSearchForm()
+
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
 
@@ -645,11 +649,12 @@ def viewNote(request, pk):
         return HttpResponse("Access Denied")
 
     note = get_object_or_404(Notification, pk=pk)
+    url = note.link.split(',')
 
     redir = None
 
     try:
-        redir = reverse(note.link, args=tuple(note.args))
+        redir = reverse(url[0], args=tuple(url[1:]))
     except NoReverseMatch:
         if 'HTTP_REFERER' in request.META:
             redir = request.META['HTTP_REFERER']

@@ -1,0 +1,108 @@
+{% load staticfiles %}
+<html>
+    <head>
+        {% include 'user/sources.html' %}
+        {% include 'emr/sources.html' %}
+    </head>
+
+    <div id="dialog" title="Confirmation Required">
+      Note, You are attempting to export sensitive medical information. HealthNet is not responsible for how this medical information is handled once released to you.
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#dialog").dialog({
+                autoOpen: true,
+                modal: true,
+                buttons : {
+                    "Confirm" : function() {
+                        $(this).dialog("close");
+                    },
+                    "Back" : function() {
+                        window.location.href = "{% url 'emr:vemr' patient.pk %}";
+                    }
+                },
+                position: { my: "center center", at: "center center"}
+            });
+            $('.ui-widget-overlay').css({'opacity': '0.98', 'background-color': 'black'});
+
+            $(function(){$(".emr_test_image_wrap").resizable({aspectRatio: true});});
+        });
+
+    </script>
+
+    <body onload="doTooltip()">
+        {% if EMRProfile %}
+        <div class="card_wrapper" data-nobox="T">
+            <div class="card_hf bottomborder text_center">{{ patient.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
+            <div class="card_body">
+                <table>
+                   <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
+                    <tr><td>Birthdate: </td><td>{{ EMRProfile.birthdate }}</td></tr>
+                    <tr><td>Age:</td><td>{{ EMRProfile.getAge }}</td></tr>
+                    <tr><td>Gender: </td><td>{{ EMRProfile.gender }}</td></tr>
+                    <tr><td>Blood Type: </td><td>{{ EMRProfile.blood_type }}</td></tr>
+                    <tr><td>Family History: </td><td>{{ EMRProfile.family_history }}</td></tr>
+                    <tr><td>Comments: </td><td>{{ EMRProfile.comments }}</td></tr>
+                    {% if hospital %}
+                        <tr><td>Admitted To:</td><td>{{ hospital.name }}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for item in EMRItems %}
+        <div class = "card_wrapper">
+            <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
+
+            <div class = "card_body">
+                <table>
+                    <tr><td>Patient: </td><td>{{ item.patient.user.get_full_name }}</td></tr>
+
+                    {% if item.emrtest %}
+                        <tr><td>Date Ordered: </td><td>{{ item.date_created }}</td></tr>
+                        {% if item.emrtest.released or permissions.canEdit %}
+                            {% if item.emrtest.images.name != '' %}
+                                <div class="emr_test_image_wrap"><img title="Hover over the edge to resize" class = "emr_test_image" src="{% url 'emr:testmedia' item.pk %}" /></div>
+                            {% endif %}
+                            <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+                        {% endif %}
+                    {% elif item.emrvitals %}
+                        <tr><td>Date Taken: </td><td>{{ item.date_created }}</td></tr>
+                        <tr><td>Resting BPM:</td><td>{{ item.emrvitals.restingBPM }}</td></tr>
+                        <tr><td>Blood Pressure:</td><td>{{ item.emrvitals.bloodPressure }}</td></tr>
+                        <tr><td>Height:</td><td>{{ item.emrvitals.height }}</td></tr>
+                        <tr><td>Weight:</td><td>{{ item.emrvitals.weight }}</td></tr>
+                        <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+                    {% elif item.emrprescription %}
+                        <tr><td>Date Prescribed: </td><td>{{ item.date_created }}</td></tr>
+                        <tr><td>Dosage:</td><td>{{ item.emrprescription.dosage }}</td></tr>
+                        <tr><td>Dose/day:</td><td>{{ item.emrprescription.amountPerDay }}</td></tr>
+                        <tr><td>Start Date:</td><td>{{ item.emrprescription.startDate }}</td></tr>
+                        <tr><td>End Date:</td><td>{{ item.emrprescription.endDate }}</td></tr>
+                        <tr><td>Provider:</td><td>{{ item.emrprescription.proivder.get_full_name }}</td></tr>
+                        <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+                    {% elif item.emradmitstatus %}
+                        <tr><td>Date
+                            {% if item.emradmitstatus.admit %}
+                                Admitted
+                            {% else %}
+                                Discharged
+                            {% endif %}
+                            :
+                        </td>
+                        <td>{{ item.date_created }}</td>
+                        </tr>
+                        <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+
+            <div class = "card_hf text_right bottom_bg">
+                <span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </body>
+</html>

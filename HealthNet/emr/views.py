@@ -7,11 +7,18 @@ import HealthNet.viewhelper as viewhelper
 
 
 from HealthNet import userauth
+from HealthNet import notificaion
 from syslogging.models import *
 from user.models import *
 from django.core.urlresolvers import reverse
 from .forms import *
 import json
+
+
+def getFilterForm(user):
+    if hasattr(user.user, 'filterform'):
+        return user.user.filterform
+    return FilterForm.objects.create(user=user.user)
 
 
 def viewSelfEmr(request):
@@ -52,19 +59,14 @@ def editEmrProfile(request, pk):
                 m = form.save(commit=False)
 
             m.patient = patient
+            # TODO: notification
             m.save()
             return HttpResponseRedirect(reverse('emr:vemr', args=(pk,)))
 
-    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
+    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, user, form=form))
 
 
-###################EMR AJAX##########################
-def emrItemAjax(request, pk):
-    user = viewhelper.get_user(request)
-    patient = get_object_or_404(Patient, pk=pk)
-    pkdict = json.loads(request.body.decode("utf-8"))
-    item = get_object_or_404(EMRItem, pk=pkdict['emrpk'])
-    return render(request, 'emr/view_emr_item.html', {'item': item, 'permissions': getPermissionsContext(user, patient)})
+###################EMR AJAX########################
 
 
 def emrActionAjax(request, pk):
@@ -128,6 +130,7 @@ def getPermissionsContext(cuser, patient):
             'canAdmit': userauth.userCan_EMR(cuser, patient, 'admit'),
             'canPrescribe': userauth.userCan_EMR(cuser, patient, 'prescribe')}
 
+
 def viewEMR(request, pk):
     user = viewhelper.get_user(request)
     if user is None:
@@ -142,55 +145,57 @@ def viewEMR(request, pk):
     emr = patient.emritem_set.all().order_by('-date_created')
 
     form=None
-
+    ff = getFilterForm(user)
     if request.method == "POST":
-        form = FilterSortForm(request.POST)
+        form = FilterSortForm(request.POST, instance=ff)
         if form.is_valid():
-            if ('filters' in form.cleaned_data) and (form.cleaned_data['filters'] != []):
-                build = emr.none()
-                if 'prescription' in form.cleaned_data['filters']:
-                    build |= emr.exclude(emrprescription=None)
-                if 'vitals' in form.cleaned_data['filters']:
-                    build |= emr.exclude(emrvitals=None)
-                if 'test' in form.cleaned_data['filters']:
-                    build |= emr.exclude(emrtest=None)
-                if 'pending' in form.cleaned_data['filters']:
-                    build |= emr.filter(emrtest__released=False)
-                if 'admit' in form.cleaned_data['filters']:
-                    pass  # TODO: impliment admisson and dishcharge in models
-                if 'discharge' in form.cleaned_data['filters']:
-                    pass
-                emr = build
-
-            if ('keywords' in form.cleaned_data):
-                build = emr.none()
-                words = form.cleaned_data['keywords'].split(' ')
-                for word in words:
-                    build |= emr.filter(content__contains=word)
-                    build |= emr.filter(emrvitals__bloodPressure__contains=word)
-
-                    if viewhelper.try_parse(word):
-                        num = int(word)
-                        build |= emr.filter(priority=num)
-                        build |= emr.filter(emrprescription__dosage=num)
-                        build |= emr.filter(emrprescription__amountPerDay=num)
-                        build |= emr.filter(emrvitals__height=num)
-                        build |= emr.filter(emrvitals__weight=num)
-
-                emr = build
-
-            if 'sort' in form.cleaned_data:
-                if 'date' in form.cleaned_data['sort']:
-                    emr = emr.order_by('-date_created')
-                elif 'priority' in form.cleaned_data['sort']:
-                    emr = emr.order_by('-priority')
-                elif 'aplph' in form.cleaned_data['sort']:
-                    emr = emr.order_by('content')
-
+            form.save(commit=True)
     else:
-        form = FilterSortForm()
+        form = FilterSortForm(instance=ff)
 
-    ctx = {'EMRItems': emr, 'form': form, 'user': user, 'tuser': patient,
+    if not(ff is None):
+        if ff.filters != "" :
+            build = emr.none()
+            if 'prescription' in ff.filters:
+                build |= emr.exclude(emrprescription=None)
+            if 'vitals' in ff.filters:
+                build |= emr.exclude(emrvitals=None)
+            if 'test' in ff.filters:
+                build |= emr.exclude(emrtest=None)
+            if 'pending' in ff.filters:
+                build |= emr.filter(emrtest__released=False)
+            if 'admit' in ff.filters:
+                build |= emr.filter(emradmitstatus__admit=True)
+            if 'discharge' in ff.filters:
+                build |= emr.filter(emradmitstatus__admit=False)
+            emr = build
+
+        if ff.keywords != "":
+            build = emr.none()
+            words = ff.keywords.split(' ')
+            for word in words:
+                build |= emr.filter(content__contains=word)
+                build |= emr.filter(emrvitals__bloodPressure__contains=word)
+
+                if viewhelper.try_parse(word):
+                    num = int(word)
+                    build |= emr.filter(priority=num)
+                    build |= emr.filter(emrprescription__dosage=num)
+                    build |= emr.filter(emrprescription__amountPerDay=num)
+                    build |= emr.filter(emrvitals__height=num)
+                    build |= emr.filter(emrvitals__weight=num)
+
+            emr = build
+
+        if ff.sort != "":
+            if 'date' in form.cleaned_data['sort']:
+                emr = emr.order_by('-date_created')
+            elif 'priority' in form.cleaned_data['sort']:
+                emr = emr.order_by('-priority')
+            elif 'aplph' in form.cleaned_data['sort']:
+                emr = emr.order_by('content')
+
+    ctx = {'EMRItems': emr, 'form': form, 'patient': patient,
            'permissions': getPermissionsContext(user, patient),
            'admit': viewhelper.isAdmitted(patient)}
 
@@ -202,8 +207,41 @@ def viewEMR(request, pk):
 
     Syslog.viewEMR(patient, user)
 
-    return render(request, 'emr/filter_emr.html', ctx)
-#####################################VIEW EMR#####################################
+    return render(request, 'emr/filter_emr.html', viewhelper.getBaseContext(request, user, **ctx))
+
+
+def viewEmrItem(request, pk):
+    user = viewhelper.get_user(request)
+    if user is None:
+        return viewhelper.unauth(request)
+
+    item = get_object_or_404(EMRItem, pk=pk)
+
+    if not userauth.userCan_EMR(user, item.patient, 'view'):
+        # TODO: add syslogging to unauth, Syslog.unauth_acess(request)
+        return viewhelper.unauth(request)
+    return render(request, 'emr/view_emr_item.html', {'item': item, 'user': user, 'permissions': getPermissionsContext(user, item.patient)})
+
+
+def exportEMR(request, pk):
+    user = viewhelper.get_user(request)
+    if user is None:
+        return viewhelper.unauth(request)
+
+    patient = get_object_or_404(Patient, pk=pk)
+
+    if not userauth.userCan_EMR(user, patient, 'view'):
+        # TODO: add syslogging to unauth, Syslog.unauth_acess(request)
+        return viewhelper.unauth(request)
+
+    emr = patient.emritem_set.all().order_by('-date_created')
+
+    ctx = {'patient': patient, 'user': user, 'EMRItems': emr}
+    if hasattr(patient, 'emrprofile'):
+        ctx['EMRProfile'] = patient.emrprofile
+
+    return render(request, 'emr/export_emr.html', ctx)
+
 
 def canCreateEditEmr(mtype, patient, provider):
     auth = True
@@ -241,7 +279,7 @@ def EMRItemCreate(request, pk, type):
     else:
         form = getFormFromReqType(type, patient, cuser)
 
-    return render(request, 'emr/emritem_edit.html', {'user': cuser, 'form': form})
+    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, cuser, form=form))
 
 
 def editAdmitDischarge(request, emritem):
@@ -286,7 +324,6 @@ def editEmrItem(request, pk):
     form = None
 
     if request.method == "GET":
-        print(emrItemType(emritem))
         form = getFormFromReqType(emrItemType(emritem), emritem.patient, user)
         form.defaults(emritem)
     else:

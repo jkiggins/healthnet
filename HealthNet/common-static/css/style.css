@@ -50,27 +50,24 @@ li {
 }
 
 #subBanner {
-	margin-top: 0px;
+	margin-top: 2.0em;
 	margin-bottom: 0px;
 	text-align: right;
 	background-color: #E96F38;
 	color: white;
-	padding: 20px 10% 10px 0px;
-	font-size: 32pt;
+	padding: 2px 0px 2px 2px;
 	box-shadow: 3px 3px 20px #000;
+	font-size: 20pt;
 }
 
 #navbar {
-	display: inline;
-	margin: 0;
-	padding: 0;
+	position: fixed;
 	top:0;
-	left: 0;
-	margin: 0px;
+	left:0;
+	margin: 0;
 	width: 100%;
 	height: 2.5em;
 	list-style-type: none;
-	position: fixed;
 	background-color: black;
 	box-shadow: 3px 3px 20px #000;
 	z-index: 11;
@@ -80,10 +77,10 @@ li {
 	font-family: colaborate, 'Helvetica Neue', Helvetica, sans-serif;
 	color: white;
 	float: right;
-    text-align: center;
+	text-align: center;
 	font-size: 24pt;
-    padding: 7px 3% 7px 3%;
-    text-decoration: none;
+	padding: 7px 3% 7px 3%;
+	text-decoration: none;
 	transition: background-color 0.5s;
 }
 
@@ -344,15 +341,15 @@ DIV.fieldWrapper
 .drop_down_wrap
 {
 	float: right;
-    text-align: center;
+	text-align: center;
 	font-size: 24pt;
-    padding: 7px 3% 7px 3%;
-    text-decoration: none;
+	text-decoration: none;
 	transition: background-color 0.5s;
 	color: #FFF;
+	padding: 0;
 }
 
-.drop_down
+.drop_down_hide
 {
 	position: relative;
 	width: 0;
@@ -360,80 +357,97 @@ DIV.fieldWrapper
 	overflow: hidden;
 }
 
-.drop_down_wrap:focus .drop_down
+.drop_down_show
 {
 	position: relative;
 	height: auto;
-	width: inherit;
 	background-color: #000;
 	z-index: 11;
 	font-size: 12px;
-	margin: 0;
+	width: 25em;
+	margin-top: 10px;
 }
 
 
 /*Notifications*/
+.note_wrap
+{
+	height: 100%;
+}
+
 .note_heading
 {
 	position: relative;
-	width: 100%;
-	color: white;
-	margin: 0;
-	border: 0;
-	border-bottom: 1px solid black;
-
+	font-family: colaborate, 'Helvetica Neue', Helvetica, sans-serif;
 	text-align: center;
-	background-color: transparent;
+	padding: 7px 3% 7px 3%;
+	background-color: #E96F38;
+	width: 100%;
+}
+
+.note_heading_label
+{
+	position: absolute;
+	left: 0;
+	width: 80%;
+}
+
+.note_heading_count
+{
+	float: left;
+	width: 20%;
+	/* padding: .6em 0 .6em 0; */
+	font-size: 14pt;
+	background-color: #2D6597;
+}
+
+.arrow-down {
+	width: 0;
+	height: 0;
+	border-left: 20px solid transparent;
+	border-right: 20px solid transparent;
+
+	border-top: 20px solid #f00;
+	margin-left: 3px;
+	margin-right: 3px;
+
+}
+
+.note_heading:hover, .note_wrap:hover
+{
+	cursor: pointer;
 }
 
 .notice
 {
 	border-top: white solid 1px;
-	height: 3em;
+	height: auto;
 	padding: 5px;
 	width: 100%;
 	font-size: 16px;
+	text-align: left;
 }
 
-.notice a,label
+.notice a, .notice label
 {
-	display: block;
-	float: left;
-	margin: 2px;
-	padding: 0;
 	border: 0;
 }
 
-.notice a:link
-{
-	color: #2D6597;
-}
 
-.notice a:visited
+.notice a, .notice a:link, .notice a:visited
 {
 	color: #2D6597;
+	text-decoration: underline;
 }
 
 .notice label
 {
 	text-align: left;
-	width: 100%;
 }
 
 .note_item:hover
 {
 	background-color: #2D6597;
-}
-
-#note_wrap
-{
-	width: 6em;
-}
-
-#note_wrap:focus .drop_down
-{
-	margin-top: 10px;
-	width: 20em;
 }
 
 

@@ -15,14 +15,24 @@
 	font-size: 14pt;
 }
 
+.emr_drop_down
+{
+	position: relative;
+	width: 100%;
+	height: 0;
+	background-color: #000;
+	z-index: 11;
+	overflow: hidden;
+}
+
 .emr_toolbox[data-canadmit="False"]
 {
-	width: 85%;
+	width: 76%;
 }
 
 .emr_toolbox[data-canadmit="True"]
 {
-	width: 76%;
+	width: 67%;
 }
 
 .emr_toolbox_serchbar
@@ -99,7 +109,7 @@
 	font-size: 14pt;
 }
 
-.emr_toolbox_wrap:hover .drop_down
+.emr_toolbox_wrap:hover .emr_drop_down
 {
 	position: relative;
 	width: 100%;
@@ -111,7 +121,7 @@
 .toolbox_action[data-canadmit="False"]
 {
 	margin-left: 1%;
-	width: 14%;
+	width: 11%;
 	box-shadow: 3px 3px 20px #000;
 }
 
@@ -167,8 +177,9 @@
 /**********CARD**********/
 .card_wrapper
 {
+	box-sizing: border-box;
 	float: left;
-	width: calc(25% - 40px);
+	width: calc(25% - 41px);
 	margin: 20px;
 	box-shadow: 3px 3px 20px #000;
 	word-wrap: break-word;
@@ -189,10 +200,11 @@
 {
 	width: 75%;
 	min-height: 75%;
-	margin: 12.4%;
+	margin: 3% 12.5% 3% 12.5%;
 	word-wrap: break-word;
 	background-color: #FFF;
 	z-index: 401;
+	box-shadow: 3px 3px 20px #000;
 }
 
 .overlay

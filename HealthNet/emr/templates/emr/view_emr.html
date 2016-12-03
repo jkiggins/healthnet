@@ -5,7 +5,7 @@
 
 {% if EMRProfile %}
 <div class="card_wrapper" data-nobox="T">
-    <div class="card_hf bottomborder text_center">{{ tuser.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
+    <div class="card_hf bottomborder text_center">{{ patient.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
     <div class="card_body">
         <table>
            <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
@@ -21,13 +21,13 @@
         </table>
     </div>
    <div class = "card_hf text_right bottom_bg">
-        <a href="{% url 'emr:eprofile' tuser.pk %}">edit</a>
+        <a href="{% url 'emr:eprofile' patient.pk %}">edit</a>
    </div>
 </div>
 {% endif %}
 
 {% for item in EMRItems %}
-    <div class = "card_wrapper"  data-pk={{ item.pk }} onclick="ajax_emr_item(this)">
+    <div class = "card_wrapper"  data-pk={{ item.pk }} onclick="go('{% url 'emr:vemri' item.pk%}')">
         <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
         <div class = "card_body">
             {% if item.emrtest and user.getType == 'patient'%}

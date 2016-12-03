@@ -3,9 +3,11 @@ import datetime
 from user.models import Doctor, Patient
 from django.contrib.auth.models import User
 from hospital.models import *
+from HealthNet.mixins import ModelDiffMixin
+from django.db import models
 
 
-class EMRItem(models.Model):
+class EMRItem(models.Model, ModelDiffMixin):
     """"This is generic item which can be stored in the EMR, other models will extend this"""
 
     PRIORITY_CHOICES = ((0, 'LOW'), (1, "MEDIUM"), (2, "HIGH"))
@@ -20,7 +22,6 @@ class EMRItem(models.Model):
             if hasattr(self, subtype):
                 return getattr(self, subtype).getTitle()
         return 'Note'
-
 
     def getType(self):
         for subtype in ['emrvitals', 'emrprofile', 'emrtest', 'emrprescription', 'emradmitstatus']:
@@ -43,6 +44,10 @@ class EMRVitals(EMRItem):
     height = models.FloatField(default=0)  # Height of the patient in inches
     weight = models.FloatField(default=0)  # Weight of a person in Lbs
 
+    @property
+    def emritem(self):
+        return EMRItem.objects.get(pk=self.emritem_ptr_id)
+
     def getType(self):
         return 'vitals'
 
@@ -52,7 +57,11 @@ class EMRVitals(EMRItem):
 
 class EMRAdmitStatus(EMRItem):
     hospital = models.ForeignKey(Hospital, null=True, blank=True)
-    admit = models.BooleanField(default=True)
+    admit = models.BooleanField(default=True, editable=False)
+
+    @property
+    def emritem(self):
+        return EMRItem.objects.get(pk=self.emritem_ptr_id)
 
     def getType(self):
         if self.admit:
@@ -66,7 +75,7 @@ class EMRAdmitStatus(EMRItem):
             return "Discharge"
 
 
-class EMRProfile(models.Model):
+class EMRProfile(models.Model, ModelDiffMixin):
     patient = models.OneToOneField(Patient, blank=True, null=True)
     birthdate = models.DateTimeField(default=timezone.now)
     gender = models.CharField(max_length=10, default="")
@@ -95,9 +104,16 @@ class EMRProfile(models.Model):
         return 'profile'
 
 
-class EMRTest(EMRItem):
+class EMRTest(EMRItem, ModelDiffMixin):
     images = models.ImageField(null=True, blank=True)
     released = models.BooleanField(default=False)
+
+    @property
+    def emritem(self):
+        items = EMRItem.objects.all().filter(pk=self.emritem_ptr_id)
+        if items.count() > 0:
+            return items[0]
+        return None
 
     def getType(self):
         return 'test'
@@ -107,6 +123,13 @@ class EMRTest(EMRItem):
             return "Test"
         else:
             return "Test (Pending)"
+
+
+class FilterForm(models.Model):
+    user = models.OneToOneField(User, blank=True, null=True)
+    keywords = models.CharField(max_length=100, default="", blank=True, null=True)
+    filters = models.CharField(max_length=20, default="", blank=True, null=True)
+    sort = models.CharField(max_length=20, default="", blank=True, null=True)
 
 
 def isTest(item):
@@ -144,12 +167,16 @@ Extending EMRItem for created DateTime and linked to a emr
 class EMRPrescription(EMRItem):
     # Created DateTimeField is found in EMRItem
     proivder = models.ForeignKey(User, null=True, blank=True)
-    # TODO: DRUG DATABASE
+    medication = models.CharField(max_length=50, default="")
     dosage = models.CharField(max_length=50, default="", null=False)
     amountPerDay = models.CharField(max_length=50, default="", null=False)
     startDate = models.DateField(default=datetime.date.today)
     endDate = models.DateField(default=(timezone.now() + datetime.timedelta(days=30)))
     deactivated = models.BooleanField(default=False)
+
+    @property
+    def emritem(self):
+        return EMRItem.objects.get(pk=self.emritem_ptr_id)
 
     def getType(self):
         return 'prescription'
