@@ -140,7 +140,7 @@ def viewProfileSelf(request):
         return HttpResponseRedirect(reverse('login'))
 
     if (cuser.getType() == 'patient') and not userauth.userCan_Profile(cuser, cuser, 'view'):
-        return HttpResponseRedirect(reverse('user:eProfile'))
+        return HttpResponseRedirect(reverse('user:eProfile' , args={cuser.user.pk}))
     else:
         return render(request, 'user/viewprofile.html', {'user': cuser, 'tuser': cuser})
 
@@ -276,133 +276,152 @@ class viewProfile(View):
 
         return render(request, 'user/viewprofile.html', context)
 
+def editProfile(request, pk):
 
-class EditProfile(View):
-
-    @staticmethod
-    def dependand_post(request, **kwargs):
-        if request.method == "POST":
-            user = get_user(request)
-            tuser = None
-
-            if user is None:
-                return HttpResponseRedirect(reverse('login'))
-
-            if 'pk' in kwargs:
-                if kwargs['pk'] == user.pk:
-                    return HttpResponseRedirect(reverse('user:eProfile'))
-                else:
-                    tuser = get_object_or_404(User, pk=kwargs['pk'])
-                    tuser = getHealthUser(tuser)
-
-                    if not userauth.userCan_Profile(user, tuser, 'edit'):
-                        return HttpResponseRedirect('user:dashboard')
-            else:
-                tuser = user
-
-            ctx = EditProfileHelper.getContextWithPopulatedForm(request.POST)
-
-            ctx['form_medical'].full_clean()
-            populateDependantFieldsDH(ctx['form_medical'], Doctor.objects.all(), Hospital.objects.all())
-
-            ctx['user'] = user
-            ctx['tuser'] = user
-
-            return render(request, 'user/editprofile.html', ctx)
-
-
-
-    def post(self, request, **kwargs):
-        user = get_user(request)
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
-
-        basic = EditProfileForm_basic(request.POST)
-        medical = EditProfileForm_medical(request.POST)
-        emergency = EditProfileForm_emergency(request.POST)
-
-        # turns true if one of the forms fail, makes it so other forms save if they pass and one form fails
-        failed = False
-
-        if basic.is_valid():
-            if 'pk' in kwargs:
-                tuser = get_object_or_404(User, pk=kwargs['pk'])
-                tuser = getHealthUser(tuser)
-                EditProfileHelper.updateUserProfile(basic, tuser)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
-            else:
-                EditProfileHelper.updateUserProfile(basic, user)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfilec'))
-        else:
-            failed = True
-
-        if medical.is_valid():
-            if 'pk' in kwargs:
-                tuser = get_object_or_404(User, pk=kwargs['pk'])
-                tuser = getHealthUser(tuser)
-                EditProfileHelper.updateUserProfile(medical, tuser)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
-            else:
-                EditProfileHelper.updateUserProfile(medical, user)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfilec'))
-        else:
-            failed = True
-
-        if emergency.is_valid():
-            if 'pk' in kwargs:
-                tuser = get_object_or_404(User, pk=kwargs['pk'])
-                tuser = getHealthUser(tuser)
-                EditProfileHelper.updateUserProfile(emergency, tuser)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
-            else:
-                EditProfileHelper.updateUserProfile(emergency, user)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfilec'))
-        else:
-            failed = True
-
-        if failed:
-            return render(request, 'user/editprofile.html', {'form_basic':basic, 'form_medical':medical, 'form_emergency':emergency})
-
-
-    def get(self, request, **kwargs):
+    if not request.method == "POST":
         user = get_user(request)
         tuser = None
 
         if user is None:
             return HttpResponseRedirect(reverse('login'))
 
-        if 'pk' in kwargs:
-            if kwargs['pk'] == user.pk:
-                return HttpResponseRedirect(reverse('user:eProfile'))
-            else:
-                tuser = get_object_or_404(User, pk=kwargs['pk'])
-                tuser = getHealthUser(tuser)
 
-                if not userauth.userCan_Profile(user, tuser, 'edit'):
-                    return HttpResponseRedirect('user:dashboard')
+        tuser = get_object_or_404(User, pk=pk)
+        tuser = getHealthUser(tuser)
+
+        if not userauth.userCan_Profile(user, tuser, 'edit'):
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
+        form = EditProfileForm()
+        form.filterUserQuerySet(user)
+
+        setEditFormDefault(tuser, form)
+
+        return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form': form})
+    else:
+        print("hello")
+        user = get_user(request)
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        form = EditProfileForm(request.POST)
+
+        # turns true if the form fails
+        failed = False
+
+        if form.is_valid():
+            tuser = get_object_or_404(User, pk=pk)
+            tuser = getHealthUser(tuser)
+            print(tuser.getType)
+            updateUserProfile(form, tuser)
+            print(tuser.getType)
+            print(user.__dict__)
+            Syslog.editProfile(user)
+            return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
-            tuser=user
+            failed = True
+
+        if failed:
+            return render(request, 'user/editprofile.html', {'form': form})
 
 
-        form_medical = None
-
-        if (tuser.hospital is None) or userauth.isHAdmin(user):
-            form_medical = EditProfileForm_medical()
-
-        form_basic = EditProfileForm_basic()
-        form_emergency = EditProfileForm_emergency()
-
-        setFormDefaultsFromModel(tuser, form_basic)
-        setFormDefaultsFromModel(tuser.user, form_basic)
-        setFormDefaultsFromModel(tuser.contact, form_emergency)
-
-        return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form_basic': form_basic, 'form_medical': form_medical, 'form_emergency': form_emergency})
+# class EditProfile(View):
+#
+#     @staticmethod
+#     def dependand_post(request, **kwargs):
+#         if request.method == "POST":
+#             user = get_user(request)
+#             tuser = None
+#
+#             if user is None:
+#                 return HttpResponseRedirect(reverse('login'))
+#
+#             if 'pk' in kwargs:
+#                 if kwargs['pk'] == user.pk:
+#                     return HttpResponseRedirect(reverse('user:eProfile'))
+#                 else:
+#                     tuser = get_object_or_404(User, pk=kwargs['pk'])
+#                     tuser = getHealthUser(tuser)
+#
+#                     if not userauth.userCan_Profile(user, tuser, 'edit'):
+#                         return HttpResponseRedirect('user:dashboard')
+#             else:
+#                 tuser = user
+#
+#             ctx = EditProfileHelper.getContextWithPopulatedForm(request.POST)
+#
+#             ctx['form_medical'].full_clean()
+#             populateDependantFieldsDH(ctx['form_medical'], Doctor.objects.all(), Hospital.objects.all())
+#
+#             ctx['user'] = user
+#             ctx['tuser'] = user
+#
+#             return render(request, 'user/editprofile.html', ctx)
+#
+#
+#
+#     def post(self, request, **kwargs):
+#         user = get_user(request)
+#         if user is None:
+#             return HttpResponseRedirect(reverse('login'))
+#
+#         form = EditProfileForm(request.POST)
+#
+#         # turns true if one of the forms fail, makes it so other forms save if they pass and one form fails
+#         failed = False
+#
+#         if form.is_valid():
+#             if 'pk' in kwargs:
+#                 tuser = get_object_or_404(User, pk=kwargs['pk'])
+#                 tuser = getHealthUser(tuser)
+#                 EditProfileHelper.updateUserProfile(form, tuser)
+#                 Syslog.editProfile(user)
+#                 return HttpResponseRedirect(reverse('user:vProfile'), args=(kwargs['pk']))
+#             else:
+#                 EditProfileHelper.updateUserProfile(form, user)
+#                 Syslog.editProfile(user)
+#                 return HttpResponseRedirect(reverse('user:vProfilec'))
+#         else:
+#             failed = True
+#
+#         if failed:
+#             return render(request, 'user/editprofile.html', {'form_basic':basic, 'form_medical':medical, 'form_emergency':emergency})
+#
+#
+#     def get(self, request, **kwargs):
+#         user = get_user(request)
+#         tuser = None
+#
+#         if user is None:
+#             return HttpResponseRedirect(reverse('login'))
+#
+#         if 'pk' in kwargs:
+#             if kwargs['pk'] == user.pk:
+#                 return HttpResponseRedirect(reverse('user:eProfile'))
+#             else:
+#                 tuser = get_object_or_404(User, pk=kwargs['pk'])
+#                 tuser = getHealthUser(tuser)
+#
+#                 if not userauth.userCan_Profile(user, tuser, 'edit'):
+#                     return HttpResponseRedirect('user:dashboard')
+#         else:
+#             tuser=user
+#
+#
+#         form_medical = None
+#
+#         if (tuser.hospital is None) or userauth.isHAdmin(user):
+#             form_medical = EditProfileForm_medical()
+#
+#         form_basic = EditProfileForm_basic()
+#         form_emergency = EditProfileForm_emergency()
+#         form.filterUserQuerySet(user)
+#
+#         setFormDefaultsFromModel(tuser, form_basic)
+#         setFormDefaultsFromModel(tuser.user, form_basic)
+#         setFormDefaultsFromModel(tuser.contact, form_emergency)
+#
+#         return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form_basic': form_basic, 'form_medical': form_medical, 'form_emergency': form_emergency})
 
 
 class EditEvent(View):

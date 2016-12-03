@@ -237,49 +237,41 @@ class EventCreationFormHadmin(EventForm):
         fields = ["patient", "doctor", "startTime", "description"]
 
 
-class EditProfileForm_basic(forms.Form):
+class EditProfileForm(forms.Form):
     first_name = forms.CharField(max_length=20, required=False)
     last_name = forms.CharField(max_length=20, required=False)
     email = forms.CharField(max_length=50, required=False)
     phone = forms.CharField(max_length=10, label="Phone Number", required=False)
     address = forms.CharField(max_length=50, label="Your Address", required=False)
 
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False)
 
-class EditProfileForm_emergency(forms.Form):
-    user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
+    emuser = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     full_name = forms.CharField(max_length=50, required=False)
     emphone = forms.CharField(max_length=10, label="Phone Number", required=False)
 
+    def filterUserQuerySet(self, user):
+        self.fields['emuser'].queryset = User.objects.all().exclude(pk = user.pk)
+
     def is_valid(self):
-        valid = super(EditProfileForm_emergency, self).is_valid()
+        self.fields['doctor'].required = True
+        self.fields['hospital'].required = True
+        valid = super(EditProfileForm, self).is_valid()
         if not valid:
             return valid
 
-        if self.cleaned_data['user'] is None:
+        if self.cleaned_data['emuser'] is None:
             valid &= not((self.cleaned_data['full_name'] is None) or (self.cleaned_data['phone'] is None))
             if not valid:
                 EventCreationFormValidator.add_messages(self, {'full_name': "Field Required", 'phone': "Field Required"}, {'user': "alternativly select a user from the system"})
 
         return valid
 
-
-class EditProfileForm_medical(forms.Form):
-    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
-    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False)
-
     def __init__(self, *args, **kwargs):
-        super(EditProfileForm_medical, self).__init__(*args, **kwargs)
+        super(EditProfileForm, self).__init__(*args, **kwargs)
         self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
         self.fields['hospital'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
-
-    def is_valid(self):
-        self.fields['doctor'].required = True
-        self.fields['hospital'].required = True
-        valid = super(EditProfileForm_medical, self).is_valid()
-        if not valid:
-            return valid
-
-        return valid
 
 
 class HosAdminSearchForm(forms.Form):
@@ -319,29 +311,6 @@ class TrustedNurses(forms.Form):
 
 
 class EditProfileHelper:
-    @staticmethod
-    def getFormByPostData(post):
-        if dict_has_keys(['medical'], post):
-            return EditProfileForm_medical(post)
-        elif dict_has_keys(['basic'], post):
-            return EditProfileForm_basic(post)
-        elif dict_has_keys(['emergency'], post):
-            return EditProfileForm_emergency(post)
-
-    @staticmethod
-    def getContextWithPopulatedForm(post):
-        ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
-
-        if dict_has_keys(['medical'], post):
-            ret['form_medical'] = EditProfileForm_medical(post)
-        elif dict_has_keys(['basic'], post):
-            ret['form_basic'] = EditProfileForm_basic(post)
-        elif dict_has_keys(['emergency'], post):
-            ret['form_emergency'] = EditProfileForm_emergency(post)
-
-        return ret
-
-
     @staticmethod
     def getContextFromForm(form):
         ctx = {}

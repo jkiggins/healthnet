@@ -47,3 +47,20 @@ def setFormDefaultsFromModel(model, form):
                 form.fields[key].initial = getattr(model, key).pk
             else:
                 form.fields[key].initial = getattr(model, key)
+
+
+def setEditFormDefault(user, form):
+    form.fields['first_name'].initial = getattr(user.user, 'first_name')
+    form.fields['last_name'].initial = getattr(user.user, 'last_name')
+    form.fields['email'].initial = getattr(user.user, 'email')
+
+    if user is not None:
+        form.fields['phone'].initial = getattr(user, 'phone')
+        form.fields['address'].initial = getattr(user, 'address')
+        form.fields['doctor'].initial = getattr(user, 'doctor')
+        form.fields['hospital'].initial = getattr(user, 'hospital')
+
+    if user.contact is not None:
+        form.fields['emuser'].initial = getattr(user.contact, 'emuser')
+        form.fields['full_name'].initial = getattr(user.contact, 'full_name')
+        form.fields['emphone'].initial = getattr(user.contact, 'emphone')

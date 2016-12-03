@@ -74,7 +74,7 @@ class Patient(models.Model):
 
 
 class Contact(models.Model, ModelDiffMixin):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    emuser = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     full_name = models.CharField(max_length=50)
     emphone = models.CharField(max_length=10)
 

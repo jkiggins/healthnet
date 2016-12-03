@@ -68,12 +68,11 @@ def userCan_Event(user, event, *actions):
 
 def userCan_Profile(cuser, tuser, *actions):
 
-    auth = False
+    auth_l = False
     utype = cuser.getType()
     tutype = tuser.getType()
 
     if 'view' in actions:
-        auth_l = False
         if(utype == 'nurse' and tutype == 'doctor'):
             auth_l |= (cuser.hospital in tuser.hospitals.all())
         elif (tutype == 'nurse' and utype == 'doctor'):
@@ -82,25 +81,27 @@ def userCan_Profile(cuser, tuser, *actions):
             auth_l |= (tuser.hospitals.all() & cuser.hospitals.all()).count() > 0
         elif (tutype == 'nurse' and utype == 'nurse'):
             auth_l |= (tuser.hospital == cuser.hospital)
-        elif (tutype == "patient" and utype == "doctor"):
+        elif (tutype == 'patient' and utype == 'doctor'):
             auth_l |= (tuser.hospital in cuser.hospitals.all()) or (tuser.admittedHospital() in cuser.hospitals.all()) # Admission
-        elif (tuser.pk==cuser.pk):
-            auth_l |= patientHasCompletedProfile(tuser)
+        elif (tuser.user.pk==cuser.user.pk):
+            auth_l |= True
 
         auth_l |= (utype == 'hosAdmin')
-        auth &= auth_l
 
     if 'edit' in actions:
-        auth_l = False
-
         auth_l |= (utype == 'hosAdmin')
         auth_l |= (utype == 'patient') and (cuser.user.pk == tuser.user.pk)
 
+        if auth_l:
+            print("hi")
+
         if not ('view' in actions):
             auth_l &= userCan_Profile(cuser, tuser, 'view')
-        auth &= auth_l
 
-    return auth
+        if auth_l:
+            print("bbb")
+
+    return auth_l
 
 
 def userCan_Registry(user, *actions):
@@ -122,7 +123,7 @@ def userCan_EMR(cuser, patient, *actions):
     if 'view' in actions:
         auth_l = False
         if utype == 'patient':
-            return patientHasCompletedProfile(cuser)
+            return True
         elif utype == 'doctor':
             auth_l |= patient.hospital in cuser.hospitals.all()
             auth_l |= patient.admittedHospital() in cuser.hospitals.all() # Admission

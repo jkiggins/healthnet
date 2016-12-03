@@ -2,30 +2,25 @@
 
 {% block content %}
 
-    {% if form_basic != None %}
+    {% if form != None %}
         <div id="registerBox">
-            <h2>Profile Info</h2>
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form_basic.as_ul }}
-
-                {% if form_medical != None %}
-                    <h2>Doctor and Hospital</h2>
-                        {% csrf_token %}
-                        {{ form_medical.as_ul }}
-                {% else %}
-                <h2>Doctor and Hospital</h2>
-                    <li>Doctor: {{ tuser.doctor }}</li>
-                    <li>Hospital {{ tuser.hospital }}</li>
-                {% endif %}
-
-                {% if form_emergency != None %}
-                    <h2>Emergency Contact</h2>
-                        {% csrf_token %}
-                        {{ form_emergency.as_ul }}
+                <li><h2>Personal Information</h2></li>
+                <li>First Name:{{ form.first_name }}</li>
+                <li>Last Name:{{ form.last_name }}</li>
+                <li>Email:{{ form.email }}</li>
+                <li>Phone Number:{{ form.phone }}</li>
+                <li>Address:{{ form.address }}</li>
+                <li><h2>Hospital Information</h2></li>
+                <li>Hospital:{{ form.hospital }}</li>
+                <li>Doctor:{{ form.doctor }}</li>
+                <li><h2>Emergency Contact</h2></li>
+                <li>Pre-Registered User:{{ form.emuser }}</li>
+                <li>Full Name:{{ form.full_name }}</li>
+                <li>Phone Number:{{ form.emphone }}</li>
                 <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
             </form>
-            {% endif %}
         </div>
     {% endif %}
 {% endblock %}

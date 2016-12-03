@@ -16,7 +16,7 @@
         {% endif %}
 
         {% if user.getType == 'patient' %}
-            <li><a href="{% url 'user:eProfile' %}" class="button">Edit</a></li>
+            <li><a href="{% url 'user:eProfile' user.user.pk %}" class="button">Edit</a></li>
         {% endif %}
 
         {% if user.getType == 'hosAdmin' %}

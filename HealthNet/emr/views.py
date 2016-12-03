@@ -25,7 +25,7 @@ def viewSelfEmr(request):
     cuser = viewhelper.get_user(request)
     if cuser is None:
         return HttpResponseRedirect(reverse('login'))
-    return HttpResponseRedirect(reverse('emr:vemr', args=(cuser.pk,)))
+    return HttpResponseRedirect(reverse('emr:vemr', args={cuser.pk}))
 
 
 def feedBackView(request, *args):

@@ -45,7 +45,7 @@ class Register(View):
                 login(request, user)
 
                 Syslog.userCreate(p)
-                return HttpResponseRedirect(reverse('user:eProfile'))
+                return HttpResponseRedirect(reverse('user:eProfile' , args={user.pk}))
             else:
                 form = RegistrationForm(initial={'insuranceNum': request.POST['insuranceNum']})
 
