@@ -417,6 +417,12 @@ def editProfile(request, pk):
 #
 #         return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form_basic': form_basic, 'form_medical': form_medical, 'form_emergency': form_emergency})
 
+def getEventTitle(event):
+    title = "Event Details"
+    if not (event.patient is None):
+        title = "Appointment Details"
+
+    return title
 
 class EditEvent(View):
 
@@ -462,7 +468,7 @@ class EditEvent(View):
         context = {'form': form, 'event': event, 'user': user}
 
         elevate_if_trusted_event(form, user, event)
-        return render(request, 'user/eventdetail.html', context)
+        return render(request, 'user/eventdetail.html', getBaseContext(request, user, form=form, event=event, title=getEventTitle(event)))
 
     @staticmethod
     def post_dependant_fields(request, pk):
@@ -496,14 +502,11 @@ def viewEvent(request, pk):
 
     if userauth.userCan_Event(user, event, 'view'):
 
-        title = "Event Details"
-        if not(event.patient is None):
-            title = "Appointment Details"
-
         permissions = {'can_edit': userauth.userCan_Event(user, event, 'edit'),
                        'can_cancle': userauth.userCan_Event(user, event, 'cancle')}
 
-        return render(request, 'user/eventdetail.html', getBaseContext(request, user, permissions=permissions, title=title))
+
+        return render(request, 'user/eventdetail.html', getBaseContext(request, user, permissions=permissions, title=getEventTitle(event), event=event))
     else:
         return unauth(request)
 
@@ -618,6 +621,17 @@ def createEvent(request, depend=False):
     ctx = getBaseContext(request, user, otherEvents=other_events, events=my_events, form=event_form, title=title)
 
     return render(request, 'user/eventhandle.html', ctx)
+
+
+def cancleEvent(request, pk):
+    user = get_user(request)
+    event = get_object_or_404(Event, pk=pk)
+    if user is None:
+        return unauth(request)
+    elif not userauth.userCan_Event(user, event, 'cancle'):
+        return unauth(request)
+
+    event.visible = False
 
 
 def dashboardView(request):

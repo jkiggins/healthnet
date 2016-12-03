@@ -84,7 +84,9 @@ class EventCreationFormPatient(EventForm):
 
     def __init__(self, *args, **kwargs):
         super(EventCreationFormPatient, self).__init__(*args, **kwargs)
-        self.order_fields(['startTime', 'duration', 'endTime', 'description']) # Change Field order so they are displayed properly
+        self.fields['duration'].disabled=True
+
+        self.order_fields(['startTime', 'duration', 'description']) # Change Field order so they are displayed properly
 
     def getModel(self):
         m = super(EventCreationFormPatient, self).getModel()
@@ -97,8 +99,6 @@ class EventCreationFormPatient(EventForm):
         valid = super(EventCreationFormPatient, self).is_valid()
         if not valid:
             return valid
-
-        valid &= EventCreationFormValidator.eventDurationBounded(self, 15, 30, {'duration': "Duration must be between 15 and 30 minutes"},{})
 
         if self.mode == 'create':
             valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 24, {'startTime': "Start Time must be atleast 24 hours in the future"}, {})

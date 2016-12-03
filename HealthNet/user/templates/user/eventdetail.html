@@ -24,8 +24,17 @@
         <li>Doctor: <a href="{% url 'user:vProfile' event.doctor.user.id %}">{{ event.doctor.user.get_full_name }}</a></li>
 		<li>Description: {{ event.description }}</li>
         </ul>
-        {% if can_edit %}
-            <input type = "button" onclick="window.location='{% url 'user:eEvent' event.id %}'" value = "Edit" />
+        {% if permissions.can_edit %}
+            <input type = "button" class="button" onclick="window.location='{% url 'user:eEvent' event.id %}'" value = "Edit" />
+
+            <input type = "button" class="button"
+            {% if permissions.can_cancel %}
+                onclick="window.location='{% url 'user:cEvent' event.id %}'"
+            {% else %}
+               title = "Events that are less than 48 hours in the future can't be canceled"
+            {% endif %}
+            value = "Cancel" />
+
         {% endif %}
     {% endif %}
 </div>

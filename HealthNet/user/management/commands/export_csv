@@ -1,0 +1,74 @@
+import csv
+from user.models import *
+from hospital.models import *
+from emr.models import *
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
+
+
+
+class Command(BaseCommand):
+    def handleDoctors(self, mpath):
+        with open(mpath, 'w') as csvfile:
+            """Username,password,first_name,last_name,max_capacity,[phone_number],hospital1,[hospital2, …]"""
+            doctors = csv.writer(csvfile)
+            
+
+
+
+    def handleNurses(self, mpath):
+        with open(mpath) as csvfile:
+            """Username,password,first_name,last_name,hospital,[phone_number],doctor1,[doctor2…]"""
+            nurses = self.cleanCSVReader(csvfile)
+
+            for row in nurses:
+                u = makeDjangoUser(*row[:4])
+                u.save()
+
+                h = makeHos(row[4])
+
+                n = makeNurse(u, h)
+                n.accepted = True
+                n.save()
+
+                for doc in row[6:]:
+                    d = getDoctorByUname(doc)
+                    if not (d is None):
+                        d.nurses.add(n)
+                        d.save()
+                    else:
+                        print("error adding nurse: {0} to doctor: {1} 's Trusted list, Doctor Doesnt Exist".format(
+                            n.user.usernname, doc))
+
+    def handlePatients(self, mpath):
+        with open(mpath) as csvfile:
+            """patient_email,patient_password,first_name,last_name,insurance_number,birth_date,sex, Doctor,hospital,[phone, address,emergency_contact_first,emergency_contact_last, emergency_contact_phone]"""
+            patients = self.cleanCSVReader(csvfile)
+
+            for row in patients:
+                u = makeDjangoUser(*row[:4])
+                u.save()
+
+                d = getDoctorByUname(row[7])
+                d.accepted = True
+                d.save()
+
+                h = getHospitalByName(row[8])
+                p = makePatient(u, d, h, row[4], row[9])
+                p.save()
+
+    def handle(self, **options):
+
+        Hospital.objects.all().delete()
+        User.objects.all().delete()
+        Doctor.objects.all().delete()
+        Patient.objects.all().delete()
+        Nurse.objects.all().delete()
+        HospitalAdmin.objects.all().delete()
+
+        self.handleDoctors('media/csv/doctor.csv')
+        self.handleNurses('media/csv/nurse.csv')
+        self.handlePatients('media/csv/patient.csv')
+
+        printForTest()

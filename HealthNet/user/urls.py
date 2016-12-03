@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)editProfile/$', views.editProfile, name = 'eProfile'),
     url(r'^editProfile/d$', views.editProfile, name = 'eProfiled'),
     url(r'^createEvent/$', views.createEvent, name='cEvent'),
+    url(r'^createEvent/$', views.cancleEvent, name='delEvent'),
     url(r'^createEvent/d$', views.createEvent, {'depend': True}, name='veEventd'),
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote')

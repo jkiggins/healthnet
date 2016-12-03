@@ -1,4 +1,5 @@
 from emr.models import *
+from .viewhelper import *
 
 def getAttrIfExists(obj, attr):
     if hasattr(obj, attr):
@@ -24,7 +25,7 @@ def nurseIsTrusted(nurse, doctor):
 
 def userCan_Event(user, event, *actions):
 
-    auth = False
+    auth = True
     utype = user.getType()
 
     if 'view' in actions:
@@ -47,21 +48,35 @@ def userCan_Event(user, event, *actions):
         auth_l |= user == event.doctor
         auth_l |= user == event.patient
 
+
         if utype == 'nurse':
             auth |= (user in event.doctor.nurses.all()) or not(event.patient is None)
         elif utype == 'hosAdmin':
             auth |= (user.hospital in event.doctor.hospitals.all())
 
         if utype != 'hosadmin' and auth_l:
-            auth_l &= (timezone.now() - event.startTime) < datetime.timedelta(minutes=15)
+            auth_l &= (timezone.now() - event.startTime) < datetime.timedelta(minutes=0)
 
         auth &= auth_l
 
+
     if 'create' in actions:
+        auth_l = False
         if utype == 'patient':
-            auth |= patientHasCompletedProfile(user)
+            auth_l |= patientHasCompletedProfile(user)
         else:
-            auth = True
+            auth_l = True
+        auth &= auth_l
+
+
+    if 'cancel' in actions:
+        auth_l = False
+
+        if isPatient(user):
+            auth_l |= (event.startTime - timezone.now()) < datetime.timedelta(hours=48)
+
+        if not('edit' in actions):
+            auth_l &= userCan_Event(user, event, 'edit')
 
     return auth
 
@@ -109,6 +124,7 @@ def userCan_Registry(user, *actions):
 
 def isHAdmin(user):
     return user.getType() == 'hosAdmin'
+
 
 def userCan_EMR(cuser, patient, *actions):
     auth = True

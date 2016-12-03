@@ -5,28 +5,28 @@ from emr.models import *
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-def makeDjangoUser(mlist):
-    return User.objects.create_user(username=mlist[0],
-                                         password=mlist[1],
-                                         first_name=mlist[2],
-                                         last_name=mlist[3])
+def makeDjangoUser(username, password, first_name, last_name):
+    return User.objects.create_user(username=username,
+                                         password=password,
+                                         first_name=first_name,
+                                         last_name=last_name)
 
 
-def makeDoctor(mlist):
-    return Doctor.objects.get_or_create(user=mlist[0],
-                                 patientCap=mlist[1])[0]
+def makeDoctor(user, patientCap):
+    return Doctor.objects.get_or_create(user=user,
+                                 patientCap=patientCap)[0]
 
-def makeNurse(mlist):
-    return Nurse.objects.get_or_create(user=mlist[0],
-                                       hospital=mlist[1])[0]
+def makeNurse(user, hospital):
+    return Nurse.objects.get_or_create(user=user,
+                                       hospital=hospital)[0]
 
 
-def makePatient(mlist):
-    return Patient.objects.get_or_create(user=mlist[0],
-                                         doctor=mlist[1],
-                                         hospital=mlist[2],
-                                         insuranceNum=mlist[3],
-                                         phone=mlist[4])[0]
+def makePatient(*args):
+    return Patient.objects.get_or_create(user=args[0],
+                                         doctor=args[1],
+                                         hospital=args[2],
+                                         insuranceNum=args[3],
+                                         phone=args[4])[0]
 
 
 def getDoctorByUname(uname):
@@ -67,10 +67,11 @@ class Command(BaseCommand):
             doctors = self.cleanCSVReader(csvfile)
 
             for row in doctors:
-                u = makeDjangoUser(row[:4])
+                u = makeDjangoUser(*row[:4])
                 u.save()
+
                 pcap = int(row[4])
-                d = makeDoctor([u, pcap])
+                d = makeDoctor(u, pcap)
                 for hos in row[6:]:
                     d.hospitals.add(makeHos(hos))
 
@@ -83,12 +84,12 @@ class Command(BaseCommand):
             nurses = self.cleanCSVReader(csvfile)
 
             for row in nurses:
-                u = makeDjangoUser(row[:4])
+                u = makeDjangoUser(*row[:4])
                 u.save()
 
                 h = makeHos(row[4])
 
-                n = makeNurse([u, h])
+                n = makeNurse(u, h)
                 n.accepted = True
                 n.save()
 
@@ -107,7 +108,7 @@ class Command(BaseCommand):
             patients = self.cleanCSVReader(csvfile)
 
             for row in patients:
-                u = makeDjangoUser(row[:4])
+                u = makeDjangoUser(*row[:4])
                 u.save()
 
                 d = getDoctorByUname(row[7])
@@ -115,8 +116,10 @@ class Command(BaseCommand):
                 d.save()
 
                 h = getHospitalByName(row[8])
-                p = makePatient([u, d, h, row[4], row[9]])
+                p = makePatient(u, d, h, row[4], row[9])
                 p.save()
+
+
 
 
     def handle(self, **options):
