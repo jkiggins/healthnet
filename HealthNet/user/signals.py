@@ -14,15 +14,15 @@ def eventPreSave(sender, instance, *args, **kwargs):
 
 def eventNotify(event, new):
     nbody = 'Starts at: {0} and lasts for: {1} minutes'.format(event.startTime, (event.endTime - event.startTime).minutes)
-
+    title = ""
     if not (event.patient is None):
         title = "Appointment Updated"
         if new:
             title = "New Appointment"
-        Notification.push(event.patient, title, nbody, 'vevent,{0}'.format(event.pk))
-        Notification.push(event.doctor, "New Appointment", nbody, 'vevent,{0}'.format(event.pk))
+        Notification.push(event.patient, title, nbody, 'user:vevent,{0}'.format(event.pk))
     else:
         title = "Event Updated"
         if new:
             title = "New Event"
-        Notification.push(event.patient, "New Event", nbody, 'vevent,{0}'.format(event.pk))
+
+    Notification.push(event.doctor, title, nbody, 'user:vevent,{0}'.format(event.pk))

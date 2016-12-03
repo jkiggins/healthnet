@@ -11,7 +11,7 @@ def notePostSave(sender, instance, *args, **kwargs):
     emritem = instance.emritem
     patient = emritem.patient
 
-    link = 'vemri,{0}'.format(instance.pk)
+    link = 'emr:vemri,{0}'.format(instance.pk)
     if new:
         Notification.push(patient.user, "Note added to your EMR", "", link)
     else:
@@ -24,10 +24,10 @@ def vitalsPostSave(sender, instance, *args, **kwargs):
     patient = emritem.patient
 
     Notification.push(patient.user, "Your {0}'s have been updated in the emr".format(instance.getTitle()), "",
-                      'vemri,{0}'.format(instance.pk))
+                      'emr:vemri,{0}'.format(instance.pk))
     Notification.push(patient.doctor.user,
                       "New {0}'s your patient, {1}".format(instance.getTitle(), patient.user.get_full_name()), "",
-                      'vemri,{0}'.format(instance.pk))
+                      'emr:vemri,{0}'.format(instance.pk))
 
 
 @receiver(post_save, sender=EMRPrescription)
@@ -39,13 +39,13 @@ def prescriptionPostSave(sender, instance, *args, **kwargs):
     med = "Medication: {0}".format(instance.medication)
     Notification.push(instance.emrpatient.user,
                       "You have a new {0} from DR {1}".format(instance.getTitle(),instance.provider.user.get_full_name()), med,
-                      'vemri,{0}'.format(instance.pk))
+                      'emr:vemri,{0}'.format(instance.pk))
 
     if instance.provider != patient.doctor:
         Notification.push(patient.user, "{0} has written a prescription for you Patient {1}".format(
            instance.provider.user.get_full_name(),instance.emrpatient),
                           med,
-                          'vemri,{0}'.format(instance.pk))
+                          'emr:vemri,{0}'.format(instance.pk))
 
 
 @receiver(post_save, sender=EMRAdmitStatus)
@@ -61,7 +61,7 @@ def emradmitPostSave(sender, instance, *args, **kwargs):
 
     Notification.push(patient.doctor.user,
                       "Your patient {0}, has been {1} {2}".format(instance.getTitle(), status, instance.hospital), "",
-                      'vemri,{0}'.format(instance.pk))
+                      'emr:vemri,{0}'.format(instance.pk))
 
 
 
@@ -71,7 +71,7 @@ def emrtestPostSave(sender, instance, *args, **kwargs):
     emritem = instance.emritem
     patient = emritem.patient
     
-    link = 'vemri,{0}'.format(instance.pk)
+    link = 'emr:vemri,{0}'.format(instance.pk)
     if new:
         Notification.push(patient.user, "A {0} was added to your emr".format(instance.getTitle()), "", link)
     else:
@@ -85,11 +85,11 @@ def emrtestPostSave(sender, instance, *args, **kwargs):
 def emrprofilePostSave(sender, instance, *args, **kwargs):
     Notification.push(instance.patient.user,
                       "Your Basic Medical Info has been updated", "",
-                      'vemr,{0}'.format(instance.patient.pk))
+                      'emr:vemr,{0}'.format(instance.patient.pk))
 
     Notification.push(instance.patient.doctor.user,
                       "{0}'s Medical Info has been updated".format(instance.patient.user.get_full_name()), "",
-                      'vemr,{0}'.format(instance.patient.pk))
+                      'emr:vemr,{0}'.format(instance.patient.pk))
 
 
 

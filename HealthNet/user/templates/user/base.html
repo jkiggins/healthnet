@@ -9,6 +9,7 @@
 
     {% block head %}
     {% endblock %}
+    <title>{{ title }}</title>
 </head>
 
 <body onload="initBody()">
@@ -26,7 +27,7 @@
 
 <ul id="navbar">
 	<li><a href="/logout" class="right">Log Out</a></li>
-    <li><a href="{% url 'user:vProfilec' %}">Profile</a></li>
+    <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
 	
 	{% if user.getType == "patient" %}
         <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
@@ -50,7 +51,7 @@
                     <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}" onfocus="this.parentElement.focus()">
                         <label>{{ note.title }}</label>
                         <a onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
-                        <a href="{% url 'user:note' note.pk %}">View</a>
+                        <a href="{{ note.getLink }}">View</a>
                     </div>
                 {% endfor %}
             {% else %}
@@ -62,7 +63,12 @@
     </div>
 </ul>
 
-	<div id="subBanner"><h2>Welcome, {% block name %} {{ user.user.get_full_name }} {% endblock %} to HealthNet</h2></div>
+	<div id="subBanner">
+        {% block back %}
+        {% endblock %}
+
+        <h2>{{ title }}</h2>
+    </div>
 
     {% block content %}
     {% endblock %}

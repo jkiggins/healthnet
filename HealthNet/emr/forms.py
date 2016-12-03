@@ -121,7 +121,7 @@ class TestCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRTest
-        fields = ['content', 'priority', 'images', 'released']
+        fields = ['images', 'released', 'content', 'priority']
 
 
 class VitalsCreateForm(EMRItemCreateForm):
@@ -149,7 +149,7 @@ class VitalsCreateForm(EMRItemCreateForm):
 
     class Meta:
         model = EMRVitals
-        fields = ['content', 'priority', 'restingBPM', 'bloodPressure', 'height', 'weight']
+        fields = ['restingBPM', 'bloodPressure', 'height', 'weight','content', 'priority']
 
 
 class prescriptionCreateForm(EMRItemCreateForm):
@@ -260,4 +260,4 @@ class AdmitDishchargeForm(EMRItemCreateForm):
 
     class Meta:
         model=EMRAdmitStatus
-        fields = ['content', 'priority', 'hospital']
+        fields = ['hospital', 'priority', 'content']

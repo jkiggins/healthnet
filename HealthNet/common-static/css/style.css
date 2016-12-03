@@ -50,14 +50,38 @@ li {
 }
 
 #subBanner {
-	margin-top: 2.0em;
+	position: relative;
+	top: 2em;
+	left: 0;
+	width: 100%;
+	box-sizing: border-box;
 	margin-bottom: 0px;
 	text-align: right;
 	background-color: #E96F38;
 	color: white;
-	padding: 2px 0px 2px 2px;
+	padding: 1px 50px 1px 1px;
 	box-shadow: 3px 3px 20px #000;
 	font-size: 20pt;
+}
+
+#subBanner button
+{
+	position: absolute;
+	top:0;
+	left:0;
+	border: 0;
+	border-right: solid black 2px;
+	height: 100%;
+	width: 10%;
+	text-decoration:none;
+	background-color: transparent;
+	color: white;
+}
+
+#subBanner button:hover
+{
+	background-color: #2D6597;
+
 }
 
 #navbar {
@@ -71,6 +95,7 @@ li {
 	background-color: black;
 	box-shadow: 3px 3px 20px #000;
 	z-index: 11;
+	padding-left: 20px;
 }
 
 #navbar li a {
@@ -160,12 +185,12 @@ li {
 /* CALENDAR STUFF */
 .calendar {
 	position: relative;
+	top: 2.8em;
 	overflow-y: hidden;
-
 	margin: auto;
 	margin-top: 20px;
 	margin-bottom: 20px;
-	text-align: center;
+	/* text-align: center; */
 	width: 90%;
 	height: 600px;
 }
@@ -423,7 +448,6 @@ DIV.fieldWrapper
 	border-top: white solid 1px;
 	height: auto;
 	padding: 5px;
-	width: 100%;
 	font-size: 16px;
 	text-align: left;
 }

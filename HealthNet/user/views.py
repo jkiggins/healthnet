@@ -1,5 +1,4 @@
 import HealthNet.userauth as userauth
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.shortcuts import render
@@ -8,7 +7,6 @@ from django.views.generic import View
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import NoReverseMatch
 
 
 from HealthNet.formhelper import *
@@ -212,6 +210,8 @@ class viewProfile(View):
 
         tuser = get_object_or_404(User, pk=kwargs['pk'])
         tuser = getHealthUser(tuser)
+
+
 
         if not userauth.userCan_Profile(cuser, tuser, 'view'):
             Syslog.unauth_acess(request)
@@ -501,10 +501,17 @@ def viewEvent(request, pk):
     event = get_object_or_404(Event, pk=pk)
 
     if userauth.userCan_Event(user, event, 'view'):
-        can_edit = userauth.userCan_Event(user, event, 'edit')
-        return render(request, 'user/eventdetail.html', {'user': user, 'event': event, 'can_edit': can_edit})
+
+        title = "Event Details"
+        if not(event.patient is None):
+            title = "Appointment Details"
+
+        permissions = {'can_edit': userauth.userCan_Event(user, event, 'edit'),
+                       'can_cancle': userauth.userCan_Event(user, event, 'cancle')}
+
+        return render(request, 'user/eventdetail.html', getBaseContext(request, user, permissions=permissions, title=title))
     else:
-        return HttpResponseRedirect(reverse('user:dashboard'))
+        return unauth(request)
 
 
 def createEvent(request, depend=False):
@@ -528,6 +535,7 @@ def createEvent(request, depend=False):
     event_form = None
     my_events = None
     other_events = None
+    title="Create a new Event or Appointment"
 
     if isPatient(user):
 
@@ -549,6 +557,7 @@ def createEvent(request, depend=False):
 
         my_events = getVisibleEvents(user)
         other_events = user.doctor.event_set.all()
+        title = "Create a new Appointment with DR {0}".format(user.doctor.user.get_full_name())
 
 
     elif isDoctor(user):
@@ -612,9 +621,9 @@ def createEvent(request, depend=False):
 
     event_form.setStart(d)
 
-    return render(request, 'user/eventhandle.html',
-                  {'form': event_form, 'user': user, 'otherEvents': other_events, 'events': my_events,
-                   'canAccessDay': True})
+    ctx = getBaseContext(request, user, otherEvents=other_events, events=my_events, form=event_form, title=title)
+
+    return render(request, 'user/eventhandle.html', ctx)
 
 
 def dashboardView(request):
@@ -629,7 +638,8 @@ def dashboardView(request):
 
     if isPatient(user):
         context['events'] = getVisibleEvents(user).order_by('startTime')
-        context['other_events'] = user.doctor.event_set.all().order_by('startTime')
+        if user.accepted:
+            context['other_events'] = user.doctor.event_set.all().order_by('startTime')
         context['calendarView'] = "month"
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
@@ -647,6 +657,7 @@ def dashboardView(request):
 
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
+    context['title'] = "Dashboard"
 
     return render(request, 'user/dashboard.html', context)
 
@@ -660,27 +671,5 @@ def dismissNote(request, pk):
     obj.delete()
 
     return HttpResponse("EMPTY")
-
-
-def viewNote(request, pk):
-    user = get_user(request)
-    if user is None:
-        return HttpResponse("Access Denied")
-
-    note = get_object_or_404(Notification, pk=pk)
-    url = note.link.split(',')
-
-    redir = None
-
-    try:
-        redir = reverse(url[0], args=tuple(url[1:]))
-    except NoReverseMatch:
-        if 'HTTP_REFERER' in request.META:
-            redir = request.META['HTTP_REFERER']
-        else:
-            redir = reverse('user:dashboard')
-
-    return HttpResponseRedirect(redir)
-
 
 

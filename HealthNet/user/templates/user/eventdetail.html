@@ -1,5 +1,5 @@
 {% extends 'user/base.html' %}
-
+{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 {% block content %}
 <div id="registerBox">
     <h2>{{ event.title|truncatewords:10 }}</h2>

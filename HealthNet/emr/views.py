@@ -63,7 +63,10 @@ def editEmrProfile(request, pk):
             m.save()
             return HttpResponseRedirect(reverse('emr:vemr', args=(pk,)))
 
-    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, user, form=form))
+    return render(request, 'emr/emritem_edit.html'
+                  , viewhelper.getBaseContext(request, user, form=form,
+                                                            title="Edit {0}'s Basic Health Information".format(patient.user.get_full_name()),
+                                                            patient=patient))
 
 
 ###################EMR AJAX########################
@@ -207,7 +210,7 @@ def viewEMR(request, pk):
 
     Syslog.viewEMR(patient, user)
 
-    return render(request, 'emr/filter_emr.html', viewhelper.getBaseContext(request, user, **ctx))
+    return render(request, 'emr/filter_emr.html', viewhelper.getBaseContext(request, user, title="{0}'s Electronic Medical Record".format(patient.user.get_full_name()), **ctx))
 
 
 def viewEmrItem(request, pk):
@@ -220,7 +223,7 @@ def viewEmrItem(request, pk):
     if not userauth.userCan_EMR(user, item.patient, 'view'):
         # TODO: add syslogging to unauth, Syslog.unauth_acess(request)
         return viewhelper.unauth(request)
-    return render(request, 'emr/view_emr_item.html', {'item': item, 'user': user, 'permissions': getPermissionsContext(user, item.patient)})
+    return render(request, 'emr/view_emr_item.html', viewhelper.getBaseContext(request, user, item=item, title="Medical Record Detail", permissions=getPermissionsContext(user, item.patient)))
 
 
 def exportEMR(request, pk):
@@ -279,7 +282,7 @@ def EMRItemCreate(request, pk, type):
     else:
         form = getFormFromReqType(type, patient, cuser)
 
-    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, cuser, form=form))
+    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, cuser, title="Add {0} to {1}'s Electronic Medical Record".format(type, patient.user.get_full_name()), form=form, patient=patient))
 
 
 def editAdmitDischarge(request, emritem):
@@ -305,7 +308,7 @@ def editAdmitDischarge(request, emritem):
     form.lockField('hospital', emritem.emradmitstatus.hospital)
     form.lockField('patient', emritem.patient)
 
-    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
+    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, user, form=form, patient=emritem.patient))
 
 
 def editEmrItem(request, pk):
@@ -333,7 +336,7 @@ def editEmrItem(request, pk):
             form.save(update=emritem, commit=True)
             return HttpResponseRedirect(reverse('emr:vemr', args=(emritem.patient.pk,)))
 
-    return render(request, 'emr/emritem_edit.html', {'user': user, 'form': form})
+    return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, user, form=form, patient=emritem.patient))
 
 
 class AdmitDishchargeView(DetailView):
@@ -355,13 +358,13 @@ class AdmitDishchargeView(DetailView):
 
         form = AdmitDishchargeForm(initial={'emrpatient': patient.pk})
 
-        ctx = {'user': cuser, 'form': form}
+        title=""
 
         if patient.admittedHospital() is None:
             if not userauth.userCan_EMR(cuser, patient, 'admit'):
                 return self.kick(patient)
 
-            ctx['formtitle'] = "Admission Form"
+            title = "Admission Form"
             form.lockField('admit', True)
 
             if cuser.getType() in ['nurse', 'hosAdmin']:
@@ -373,13 +376,13 @@ class AdmitDishchargeView(DetailView):
             if not userauth.userCan_EMR(cuser, patient, 'discharge'):
                 return self.kick(patient)
 
-            ctx['formtitle'] = "Discharge Form"
+            title = "Discharge Form"
             form.lockField('admit', False)
 
             form.lockField('hospital', '')
 
 
-        return render(request, 'emr/emritem_edit.html', ctx)
+        return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, cuser, form=form, patient=patient, title=title))
 
 
     def post(self, request, **kwargs):
@@ -389,7 +392,7 @@ class AdmitDishchargeView(DetailView):
 
         patient = self.get_object()
 
-        form = AdmitDishchargeForm(request.POST, initial={'emrpatient': patient.pk})
+        form = AdmitDishchargeForm(request.POST)
         ctx = {'user': cuser, 'form': form}
 
         title=None
@@ -429,7 +432,7 @@ class AdmitDishchargeView(DetailView):
 
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
         else:
-            return render(request, 'emr/emritem_edit.html', ctx)
+            return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, cuser, form=form, patient=patient))
 
 
 def serveTestMedia(request, pk):

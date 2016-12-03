@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse, NoReverseMatch
 
 from HealthNet.mixins import ModelDiffMixin
 
@@ -153,6 +154,16 @@ class Notification(models.Model):
     content = models.CharField(max_length=200, default="")
     link = models.CharField(max_length=10, default="")
     date_created = models.DateTimeField(auto_now=True)
+
+    def getLink(self):
+        url = self.link.split(",")
+        redir = ""
+        try:
+            redir = reverse(url[0], args=tuple(url[1:]))
+        except NoReverseMatch:
+            print("No reverse match with url: {0} and args: {1}".format(url[0], url[1]))
+
+        return redir
 
     @staticmethod
     def push(user, title, content, link):

@@ -232,7 +232,7 @@ function initPickers(ids) {
 	}
 
 	$('.clockpicker').clockpicker({
-		placement: 'top',
+		placement: 'bottom',
 		align: 'left',
 		donetext: 'Done',
 		twelvehour: true

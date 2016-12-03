@@ -1,11 +1,8 @@
 {% extends 'user/base.html' %}
 {% load staticfiles %}
-{% block head %}
-    <title>New Event</title>
-{% endblock %}
-
+{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 {% block content %}
-<div class="content_box half left">
+<div class="content_box">
     <form id = "create_event_form" enctype="multipart/form-data" action="{% url 'user:cEvent' %}" method="POST">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -19,12 +16,5 @@
         {% endfor %}
         <input type = "submit" value = "Save" class="button"/>
     </form>
-</div>
-
-<div class="half right">
-	<div id="calendar"></div>
-	
-	{% include 'user/calendar.html' %}
-	
 </div>
 {% endblock %}

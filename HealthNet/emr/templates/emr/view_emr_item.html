@@ -1,6 +1,6 @@
 {% extends 'emr/base_emr.html' %}
 {% load staticfiles %}
-
+{% block back %}<button onclick="go('{% url 'emr:vemr' item.patient.pk %}')">Back</button>{% endblock %}
 {% block content %}
 <div class = "card_wrapper_big" onclick="stop_event_prop(event)" onload="doTooltip()">
     <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>

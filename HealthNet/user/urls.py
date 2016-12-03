@@ -15,6 +15,5 @@ urlpatterns = [
     url(r'^createEvent/$', views.createEvent, name='cEvent'),
     url(r'^createEvent/d$', views.createEvent, {'depend': True}, name='veEventd'),
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
-    url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
-    url(r'^(?P<pk>[0-9]+)/note$', views.viewNote, name='note')
+    url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote')
     ]
