@@ -62,8 +62,6 @@ class Registry(View):
                 patients |= pqset.filter(user__last_name__contains=word)
                 patients |= pqset.filter(hospital__name__contains=word)
 
-            print(pqset)
-
         if 'doctor' in form.cleaned_data['filterBy']:
             dqset = Doctor.objects.filter(user__is_active=True).filter(accepted=True)
             for word in words:
@@ -299,7 +297,6 @@ def editProfile(request, pk):
 
         return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form': form})
     else:
-        print("hello")
         user = get_user(request)
         if user is None:
             return HttpResponseRedirect(reverse('login'))
@@ -312,10 +309,7 @@ def editProfile(request, pk):
         if form.is_valid():
             tuser = get_object_or_404(User, pk=pk)
             tuser = getHealthUser(tuser)
-            print(tuser.getType)
             updateUserProfile(form, tuser)
-            print(tuser.getType)
-            print(user.__dict__)
             Syslog.editProfile(user)
             return HttpResponseRedirect(reverse('user:vProfilec'))
         else:

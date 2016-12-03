@@ -92,14 +92,8 @@ def userCan_Profile(cuser, tuser, *actions):
         auth_l |= (utype == 'hosAdmin')
         auth_l |= (utype == 'patient') and (cuser.user.pk == tuser.user.pk)
 
-        if auth_l:
-            print("hi")
-
         if not ('view' in actions):
             auth_l &= userCan_Profile(cuser, tuser, 'view')
-
-        if auth_l:
-            print("bbb")
 
     return auth_l
 

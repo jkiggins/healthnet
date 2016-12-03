@@ -171,7 +171,6 @@ class EditProfileHelper:
             else:
                 contact = user.contact
 def updateUserProfile(form, user):
-    print("update")
     contact = None
     if user.contact is None:
         contact = Contact(full_name="filler", emphone="filler")
@@ -189,24 +188,12 @@ def updateUserProfile(form, user):
     contact.save()
     user.contact = contact
 
-    setattr(user.user, 'first_name', form.cleaned_data['first_name'])
-    setattr(user.user, 'last_name', form.cleaned_data['last_name'])
-    setattr(user.user, 'email', form.cleaned_data['email'])
-    setattr(user, 'phone', form.cleaned_data['phone'])
-    setattr(user, 'address', form.cleaned_data['address'])
-    setattr(user, 'doctor', form.cleaned_data['doctor'])
-    setattr(user, 'hospital', form.cleaned_data['hospital'])
-
-
-    # for key in form.cleaned_data:
-    #     print(key)
-    #     if not(form.cleaned_data[key] is None):
-    #         if hasattr(user, key):
-    #             setattr(user, key, form.cleaned_data[key])
-    #         elif hasattr(user.user, key):
-    #             setattr(user.user, key, form.cleaned_data[key])
-
-    print(user)
+    for key in form.cleaned_data:
+        if not(form.cleaned_data[key] is None):
+            if hasattr(user, key):
+                setattr(user, key, form.cleaned_data[key])
+            elif hasattr(user.user, key):
+                setattr(user.user, key, form.cleaned_data[key])
 
     user.user.save()
     user.save()
