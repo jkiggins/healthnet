@@ -17,5 +17,6 @@ urlpatterns = [
     url(r'^message/', views.sendMessage.as_view(), name='sendMessage'),
     url(r'^createEvent/d$', views.createEvent, {'depend': True}, name='veEventd'),
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
+    url(r'^(?P<pk>[0-9]+)/adminDash/', views.hosAdDashView, name='hosDash'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote')
     ]

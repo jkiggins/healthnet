@@ -121,55 +121,6 @@ def getBaseContext(request, user, **kwargs):
     return ctx
 
 
-class EditProfileHelper:
-    @staticmethod
-    def getFormByPostData(post):
-        if dict_has_keys(['doctor'], post):
-            return EditProfileForm_medical(post)
-        elif dict_has_keys(['first_name'], post):
-            return EditProfileForm_basic(post)
-        elif dict_has_keys(['user'], post):
-            return EditProfileForm_emergency(post)
-
-    @staticmethod
-    def getContextWithPopulatedForm(post):
-        ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
-
-        if dict_has_keys(['doctor'], post):
-            ret['form_medical'] = EditProfileForm_medical(post)
-        elif dict_has_keys(['first_name'], post):
-            ret['form_basic'] = EditProfileForm_basic(post)
-        elif dict_has_keys(['user'], post):
-            ret['form_emergency'] = EditProfileForm_emergency(post)
-
-        return ret
-
-
-    @staticmethod
-    def getContextFromForm(form):
-        ctx = {}
-        if 'doctor' in form.fields:
-            ctx['form_medical']=form
-        elif 'user' in form.fields:
-            ctx['form_emergency']=form
-        elif 'first_name' in form.fields:
-            ctx['form_basic']=form
-
-        return ctx
-
-    @staticmethod
-    def updateUserProfile(form, user):
-        if 'doctor' in form.fields:
-            user.hospital = form.cleaned_data['hospital']
-            user.doctor = form.cleaned_data['doctor']
-            user.save()
-        elif 'user' in form.fields:
-            contact = None
-            if user.contact is None:
-                contact = Contact(full_name="filler", phone="filler")
-                contact.save()
-            else:
-                contact = user.contact
 def updateUserProfile(form, user):
     contact = None
     if user.contact is None:
@@ -194,6 +145,8 @@ def updateUserProfile(form, user):
                 setattr(user, key, form.cleaned_data[key])
             elif hasattr(user.user, key):
                 setattr(user.user, key, form.cleaned_data[key])
+
+    user.accepted = True
 
     user.user.save()
     user.save()

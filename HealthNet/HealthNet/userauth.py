@@ -7,18 +7,6 @@ def getAttrIfExists(obj, attr):
     return None
 
 
-def patientHasCompletedProfile(user):
-    # if user.getType() == "patient":
-    #     auth=True
-    #     auth &= not((user.hospital is None) or (user.doctor is None))
-    #     auth &= (user.user.get_full_name() != '') and (user.phone != '') and (user.address != '')
-    #     auth &= not(user.contact is None)
-    #
-    #     return auth
-
-    return user.accepted
-
-
 def nurseIsTrusted(nurse, doctor):
     return (nurse in doctor.nurses.all())
 
@@ -29,6 +17,9 @@ def userCan_Event(user, event, *actions):
     utype = user.getType()
 
     if 'view' in actions:
+        if utype == 'patient' and user.accepted == False:
+            return False
+
         auth |= user == event.patient
         auth |= user == event.doctor
 
@@ -45,6 +36,10 @@ def userCan_Event(user, event, *actions):
 
     if 'edit' in actions:
         auth_l = False
+
+        if utype == 'patient' and user.accepted == False:
+            return False
+
         auth_l |= user == event.doctor
         auth_l |= user == event.patient
 
@@ -62,8 +57,10 @@ def userCan_Event(user, event, *actions):
 
     if 'create' in actions:
         auth_l = False
-        if utype == 'patient':
-            auth_l |= patientHasCompletedProfile(user)
+        if utype == 'patient' and user.accepted == False:
+            return False
+        elif utype == 'patient':
+            auth |= True
         else:
             auth_l = True
         auth &= auth_l
@@ -72,7 +69,9 @@ def userCan_Event(user, event, *actions):
     if 'cancel' in actions:
         auth_l = False
 
-        if isPatient(user):
+        if utype == 'patient' and user.accepted == False:
+            return False
+        elif isPatient(user):
             auth_l |= (event.startTime - timezone.now()) < datetime.timedelta(hours=48)
 
         if not('edit' in actions):
@@ -87,7 +86,11 @@ def userCan_Profile(cuser, tuser, *actions):
     utype = cuser.getType()
     tutype = tuser.getType()
 
+
+
     if 'view' in actions:
+
+
         if(utype == 'nurse' and tutype == 'doctor'):
             auth_l |= (cuser.hospital in tuser.hospitals.all())
         elif (tutype == 'nurse' and utype == 'doctor'):
@@ -132,7 +135,9 @@ def userCan_EMR(cuser, patient, *actions):
 
     if 'view' in actions:
         auth_l = False
-        if utype == 'patient':
+        if utype == 'patient' and not cuser.accepted:
+            return False
+        elif utype == 'patient' and cuser.accepted:
             return True
         elif utype == 'doctor':
             auth_l |= patient.hospital in cuser.hospitals.all()
@@ -168,7 +173,9 @@ def userCan_EMR(cuser, patient, *actions):
 
     if 'vitals' in actions:
         auth_l=userCan_EMR(cuser, patient, 'edit')
-        if utype == 'patient':
+        if utype == 'patient' and cuser.accepted == False:
+            return False
+        elif utype == 'patient':
             auth_l |= (patient == cuser)
         auth &= auth_l
 
@@ -197,7 +204,9 @@ def userCan_EMRItem(cuser, item, *actions):
     if 'view' in actions:
         auth_l = False
 
-        if cuser.getType() == 'doctor':
+        if cuser.getType() == 'patient' and cuser.accepted == False:
+            return False
+        elif cuser.getType() == 'doctor':
             auth_l |= item.patient.hospital in cuser.hospitals.all()
         elif cuser.getType() == 'patient':
             if isTest(item):

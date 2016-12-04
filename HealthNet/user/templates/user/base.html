@@ -32,7 +32,7 @@
 	{% if user.getType == "patient" %}
         <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
 
-    {% elif user.getType == "nurse" or user.getType == "doctor" %}
+    {% elif user.getType == "nurse" or user.getType == "doctor"  or user.getType == "hosAdmin"%}
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
 
     {% elif user.getType == "hosAdmin" %}

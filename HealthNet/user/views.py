@@ -109,7 +109,7 @@ class Registry(View):
 
 
         if cuser.getType() == "hosAdmin":
-            return render(request, 'user/dashboard.html', {'user': cuser, 'results': results, 'search_form': form})
+            return render(request, 'user/registry.html', {'user': cuser, 'results': results, 'search_form': form})
         else:
             return render(request, 'user/registry.html', {'user': cuser, 'results': results, 'search_form': form})
 
@@ -122,11 +122,11 @@ class Registry(View):
         if not userauth.userCan_Registry(cuser, 'view'):
             return reverse('user:dashboard')
 
-        form = SearchForm()
-
         if cuser.getType() == "hosAdmin":
-            return render(request, 'user/dashboard.html', {'search_form': form, 'user': cuser})
+            form = HosAdminSearchForm()
+            return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
         else:
+            form = SearchForm()
             return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
 
 
@@ -659,15 +659,37 @@ def dashboardView(request):
         context['doctors'] = user.hospital.doctor_set.all()
         context['calendarView'] = "agendaWeek"
     elif(user.getType() == "hosAdmin"):
-        context['patients'] = user.hospital.patient_set.all()
-        context['doctors'] = user.hospital.doctor_set.all()
-        context['search_form'] = HosAdminSearchForm()
-
+        return HttpResponseRedirect(reverse('user:hosDash', args={user.user.pk}))
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
     context['title'] = "Dashboard"
 
     return render(request, 'user/dashboard.html', context)
+
+
+def hosAdDashView(request, pk):
+    user = get_user(request)
+
+    if user is None:
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('admin:index'))
+        else:
+            return HttpResponseRedirect(reverse('login'))
+
+    tuser = get_object_or_404(User, pk=pk)
+    tuser = getHealthUser(tuser)
+
+    context = {'user': user}
+    if not isHosadmin(tuser) and not isNurse(tuser):
+        context['events'] = getVisibleEvents(tuser).order_by('startTime')
+    context['patients'] = user.hospital.patient_set.all()
+    context['doctors'] = user.hospital.doctor_set.all().filter(accepted=True)
+    context['search_form'] = HosAdminSearchForm()
+    context['tuser'] = user
+    context['title'] = "Dashboard"
+    context['calendarView'] = "agendaWeek"
+    context['key'] = pk
+    return render(request, 'user/hosAdDash.html', context)
 
 
 def dismissNote(request, pk):

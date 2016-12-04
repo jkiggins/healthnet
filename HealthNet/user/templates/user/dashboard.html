@@ -2,10 +2,7 @@
 
 {% block content %}
 
-    {% if user.getType == "hosAdmin" %}
-        {% include 'user/SearchModule.html' %}
-    {% else %}
-
+    {% if user.getType != "hosAdmin" %}
         {% comment %} this displays fullcalendar.io {% endcomment %}
         <script>
 
