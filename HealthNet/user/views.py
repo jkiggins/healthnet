@@ -277,17 +277,17 @@ class viewProfile(View):
 def editProfile(request, pk):
 
     if not request.method == "POST":
-            user = get_user(request)
-            tuser = None
+        user = get_user(request)
+        tuser = None
 
-            if user is None:
-                return HttpResponseRedirect(reverse('login'))
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
 
 
         tuser = get_object_or_404(User, pk=pk)
-                    tuser = getHealthUser(tuser)
+        tuser = getHealthUser(tuser)
 
-                    if not userauth.userCan_Profile(user, tuser, 'edit'):
+        if not userauth.userCan_Profile(user, tuser, 'edit'):
             return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = EditProfileForm()
@@ -308,16 +308,15 @@ def editProfile(request, pk):
 
         if form.is_valid():
             tuser = get_object_or_404(User, pk=pk)
-                tuser = getHealthUser(tuser)
+            tuser = getHealthUser(tuser)
             updateUserProfile(form, tuser)
-                Syslog.editProfile(user)
-                return HttpResponseRedirect(reverse('user:vProfilec'))
+            Syslog.editProfile(user)
+            return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
             failed = True
 
         if failed:
             return render(request, 'user/editprofile.html', {'form': form})
-
 
 # class EditProfile(View):
 #
@@ -647,8 +646,8 @@ def dashboardView(request):
     if isPatient(user):
         context['events'] = getVisibleEvents(user).order_by('startTime')
         if user.accepted:
-        context['other_events'] = user.doctor.event_set.all().order_by('startTime')
-        context['calendarView'] = "month"
+            context['other_events'] = user.doctor.event_set.all().order_by('startTime')
+            context['calendarView'] = "month"
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
         context['hosptials'] = user.hospitals.all()
