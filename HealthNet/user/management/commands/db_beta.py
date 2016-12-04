@@ -17,6 +17,7 @@ def makeDoctor(user, patientCap):
     return Doctor.objects.get_or_create(user=user,
                                  patientCap=patientCap)[0]
 
+
 def makeNurse(user, hospital):
     return Nurse.objects.get_or_create(user=user,
                                        hospital=hospital)[0]
