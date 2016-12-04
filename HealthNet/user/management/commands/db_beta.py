@@ -5,17 +5,11 @@ from emr.models import *
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-def makeDjangoUser(is_hash, username, password, first_name, last_name):
-    if is_hash:
-        return User.objects.create(username=username,
-                                             password=password,
-                                             first_name=first_name,
-                                             last_name=last_name)
-    else:
-        return User.objects.create_user(username=username,
-                                             password=password,
-                                             first_name=first_name,
-                                             last_name=last_name)
+def makeDjangoUser(username, password, first_name, last_name):
+    return User.objects.create_user(username=username,
+                                         password=password,
+                                         first_name=first_name,
+                                         last_name=last_name)
 
 
 def makeDoctor(user, patientCap):
@@ -34,6 +28,9 @@ def makePatient(*args):
                                          insuranceNum=args[3],
                                          phone=args[4])[0]
 
+def makeHosAdmin(*args):
+    return HospitalAdmin.objects.get_or_create(user=args[0],
+                                               hospital=args[1])[0]
 
 def getDoctorByUname(uname):
     user = User.objects.get(username=uname)
@@ -51,6 +48,7 @@ def printForTest():
     print("Doctors: {0}".format(Doctor.objects.all()))
     print("Nurse: {0}".format(Nurse.objects.all()))
     print("Patients: {0}".format(Patient.objects.all()))
+    print("Hospital Admin: {0}".format(HospitalAdmin.objects.all()))
 
     for doc in Doctor.objects.all().exclude(nurses=None):
         print("Doctor {0} Trusts: ".format(doc.user.username))
@@ -58,25 +56,8 @@ def printForTest():
             print("\t"+nurse.user.username)
 
 
-def ensureIndex(*args):
-    for i in args[1:]:
-        if not(i < len(args[0])):
-            return False
-    return True
-
 
 class Command(BaseCommand):
-
-    is_hash = False
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--hash',
-            action='store_true',
-            dest='hash',
-            default=False,
-            help='Use this option if the csv files contain password hashes instead of plaintext passwords',
-        )
 
     def cleanCSVReader(self, file):
         read = csv.reader(file)
@@ -90,7 +71,7 @@ class Command(BaseCommand):
             doctors = self.cleanCSVReader(csvfile)
 
             for row in doctors:
-                u = makeDjangoUser(self.is_hash, *row[:4])
+                u = makeDjangoUser(*row[:4])
                 u.save()
 
                 pcap = int(row[4])
@@ -107,7 +88,7 @@ class Command(BaseCommand):
             nurses = self.cleanCSVReader(csvfile)
 
             for row in nurses:
-                u = makeDjangoUser(self.is_hash, *row[:4])
+                u = makeDjangoUser(*row[:4])
                 u.save()
 
                 h = makeHos(row[4])
@@ -131,50 +112,45 @@ class Command(BaseCommand):
             patients = self.cleanCSVReader(csvfile)
 
             for row in patients:
-                if ensureIndex(row, *range(4)):
-                    u = makeDjangoUser(self.is_hash, *row[:4])
-                    u.save()
+                u = makeDjangoUser(*row[:4])
+                u.save()
 
-                    if ensureIndex(row, *range(4,11)):
-                        d = getDoctorByUname(row[7])
-                        d.accepted=True
-                        d.save()
+                d = getDoctorByUname(row[7])
+                d.accepted=True
+                d.save()
 
-                        h = getHospitalByName(row[8])
-                        p = makePatient(u, d, h, row[4], row[9])
-                        p.accepted=True
-
-                        if ensureIndex(row, 11, 12, 13):
-                            c = Contact.objects.create(full_name=row[11] + row[12], emphone=row[13])
-                            p.contact = c
-
-                        p.phone = row[9]
-                        p.address = row[10]
+                h = getHospitalByName(row[8])
+                p = makePatient(u, d, h, row[4], row[9])
+                p.save()
 
 
-                        p.save()
+    def handleHosAdmin(self, mpath):
+        with open(mpath) as csvfile:
+            """Username,password,first_name,last_name,Hospital"""
+            HosAdmins = self.cleanCSVReader(csvfile)
 
-                        bday = datetime.datetime.strptime(row[5], '%m/%d/%Y')
-                        bday = timezone.make_aware(bday, timezone.get_current_timezone())
-                        EMRProfile.objects.create(patient=p, birthdate=bday, gender=row[6])
+            for row in HosAdmins:
+                u = makeDjangoUser(*row[:4])
+                u.save()
+
+                h = getHospitalByName(row[4])
+                ha = makeHosAdmin(u, h)
+                ha.save()
 
 
     def handle(self, **options):
 
-        if options['hash']:
-            self.is_hash = True
-
         Hospital.objects.all().delete()
+        User.objects.all().delete()
         Doctor.objects.all().delete()
         Patient.objects.all().delete()
         Nurse.objects.all().delete()
         HospitalAdmin.objects.all().delete()
-        User.objects.all().delete()
-
 
         self.handleDoctors('media/csv/doctor.csv')
         self.handleNurses('media/csv/nurse.csv')
         self.handlePatients('media/csv/patient.csv')
+        self.handleHosAdmin('media/csv/hosadmin.csv')
 
         printForTest()
 
