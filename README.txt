@@ -60,6 +60,7 @@ Running
         Nurse - Nurse Normal, username: nursenormal and password: pass
         Patient- Patient Zero, username: patientzero and password: pass
 	Hospital Administrator - Kid Cudi, username: cudi and password: pass
+	System admin - username: admin and password: pass
 
     Creating an Admin account
     -------------------------
