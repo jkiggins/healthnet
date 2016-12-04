@@ -53,3 +53,8 @@ class Syslog(models.Model):
                               message="User: {0} edited their profile, pk: {1}".format(
                                   user.user.get_full_name(), user.id))
 
+    @staticmethod
+    def sentmessage(userfrom, userto, message):
+        Syslog.objects.create(type="Message",
+                              message="User: {0} messaged user: {1} saying: '{2} '".format(
+                                  userfrom.user.get_full_name(),userto.get_full_name(),message))
