@@ -213,7 +213,7 @@ class viewProfile(View):
 
         if not userauth.userCan_Profile(cuser, tuser, 'view'):
             Syslog.unauth_acess(request)
-            return HttpResponseRedirect(reverse('user:dashboard'))
+            anauth(request, "You are not authoprized to view this content.")
 
         if cuser.user.pk == tuser.user.pk:
             return HttpResponseRedirect(reverse('user:vProfilec'))
@@ -544,6 +544,7 @@ def createEvent(request, depend=False):
 
                 if addEventConflictMessages(event_form, event):
                     event.save()
+                    request.session['message'] = "Event created successfully."
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
         else:
@@ -573,6 +574,7 @@ def createEvent(request, depend=False):
 
                 if addEventConflictMessages(event_form, event):
                     event.save()
+                    request.session['message'] = "Event created successfully."
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
         else:
@@ -601,6 +603,7 @@ def createEvent(request, depend=False):
 
                 if addEventConflictMessages(event_form, event):
                     event.save()
+                    request.session['message'] = "Event created successfully."
                     Syslog.createEvent(event, user)
                     return HttpResponseRedirect(reverse('user:dashboard'))
         else:

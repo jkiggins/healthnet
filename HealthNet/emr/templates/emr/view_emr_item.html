@@ -26,6 +26,7 @@
                 <tr><td>Weight:</td><td>{{ item.emrvitals.weight }}</td></tr>
                 <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
             {% elif item.emrprescription %}
+				<tr><td>Medication: </td><td> {{item.emrprescription.medication}}
                 <tr><td>Date Prescribed: </td><td>{{ item.date_created }}</td></tr>
                 <tr><td>Dosage:</td><td>{{ item.emrprescription.dosage }}</td></tr>
                 <tr><td>Dose/day:</td><td>{{ item.emrprescription.amountPerDay }}</td></tr>

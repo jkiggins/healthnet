@@ -3,13 +3,16 @@
 {% load staticfiles %}
 
 {% block content %}
-    <div id="registerBox">
+    <div id="contentBox">
         {% if formtitle %}
             <h1>{{ formtitle }}</h1>
         {% endif %}
         <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
             {{ form.as_ul }}
-            <input type="submit" value="Save" />
+			<script>
+				initEMRForms();
+			</script>
+            <input type="submit" value="Save" class = "button"/>
         </form>
     </div>
 {% endblock %}

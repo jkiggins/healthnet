@@ -217,7 +217,13 @@ function doTooltip() {
 }
 
 function initForms() {
+	// 1 = clock, 0 = date
 	initPickers(['dateTimeId_1'], ['dateTimeId_0']);
+}
+
+function initEMRForms () {
+	initDatePicker('id_startDate');
+	initDatePicker('id_endDate');
 }
 
 function initPickers(cids, dids) {
@@ -240,6 +246,10 @@ function initPickers(cids, dids) {
 		twelvehour: true
 	});
 
+}
+
+function initDatePicker(ele) {
+	$("#" + ele).datepicker({dateFormat: "yy-mm-dd"});
 }
 
 function initTimePicker(ele) {
