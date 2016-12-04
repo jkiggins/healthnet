@@ -277,17 +277,17 @@ class viewProfile(View):
 def editProfile(request, pk):
 
     if not request.method == "POST":
-        user = get_user(request)
-        tuser = None
+            user = get_user(request)
+            tuser = None
 
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
+            if user is None:
+                return HttpResponseRedirect(reverse('login'))
 
 
         tuser = get_object_or_404(User, pk=pk)
-        tuser = getHealthUser(tuser)
+                    tuser = getHealthUser(tuser)
 
-        if not userauth.userCan_Profile(user, tuser, 'edit'):
+                    if not userauth.userCan_Profile(user, tuser, 'edit'):
             return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = EditProfileForm()
@@ -308,10 +308,10 @@ def editProfile(request, pk):
 
         if form.is_valid():
             tuser = get_object_or_404(User, pk=pk)
-            tuser = getHealthUser(tuser)
+                tuser = getHealthUser(tuser)
             updateUserProfile(form, tuser)
-            Syslog.editProfile(user)
-            return HttpResponseRedirect(reverse('user:vProfilec'))
+                Syslog.editProfile(user)
+                return HttpResponseRedirect(reverse('user:vProfilec'))
         else:
             failed = True
 
@@ -647,7 +647,7 @@ def dashboardView(request):
     if isPatient(user):
         context['events'] = getVisibleEvents(user).order_by('startTime')
         if user.accepted:
-            context['other_events'] = user.doctor.event_set.all().order_by('startTime')
+        context['other_events'] = user.doctor.event_set.all().order_by('startTime')
         context['calendarView'] = "month"
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
@@ -703,3 +703,42 @@ def dismissNote(request, pk):
     return HttpResponse("EMPTY")
 
 
+def viewNote(request, pk):
+    user = get_user(request)
+    if user is None:
+        return HttpResponse("Access Denied")
+
+    note = get_object_or_404(Notification, pk=pk)
+    url = note.link.split(',')
+
+    redir = None
+
+    try:
+        redir = reverse(url[0], args=tuple(url[1:]))
+    except NoReverseMatch:
+        if 'HTTP_REFERER' in request.META:
+            redir = request.META['HTTP_REFERER']
+        else:
+            redir = reverse('user:dashboard')
+
+    return HttpResponseRedirect(redir)
+
+
+class sendMessage(View):
+
+
+    def get(self, request):
+        """ displays a messaging page """
+        form = messagingForm()
+        currentUser = get_user(request)
+
+        form.staff_queryset(User.objects.all().exclude(username=currentUser.user.username).filter(patient=None))
+        # all_users = #ONLY ONES WHO CAN MESSAGE
+        context = {'cuser': get_user(request),
+                   'messaging_form': form}
+
+        return render(request, 'user/sendMessage.html', context)
+
+    def post(self, request):
+        """ sends a message generates a notification"""
+        #also syslog item with from, to, time, and content
