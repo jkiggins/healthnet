@@ -272,10 +272,13 @@ def EMRItemCreate(request, pk, type):
         if form.is_valid():
             m = form.save(commit=False, patient=patient)
 
+            print(m.__dict__.keys())
             if isPrescription(m):
+                print("presave")
                 m.provider = cuser
 
             m.save()
+            print("postsave")
 
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
 

@@ -1,4 +1,6 @@
 {% load staticfiles %}
+<script src="{% static 'javascript/masonry.pkgd.min.js' %}"></script>
+
 <div id = "vemr_overlay" onclick="overlay_off(this)" class="hidden">
 
 </div>
@@ -31,12 +33,12 @@
         <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
         <div class = "card_body">
             {% if item.emrtest and user.getType == 'patient'%}
-                {% if item.emr.released %}
+                {% if item.emrtest.released %}
                     {{ item.content }}
                 {% else %}
                     <span class="no_comments">No Comments</span>
                 {% endif %}
-            {% elif not item.content %}
+            {% elif item.content == "" %}
                 <span class="no_comments">No Comments</span>
             {% else %}
                 {{ item.content }}
@@ -47,3 +49,11 @@
         </div>
     </div>
 {% endfor %}
+
+<script>
+    $('.grid').masonry({
+
+      itemSelector: '.card_wrapper',
+      columnWidth: 200
+    });
+</script>

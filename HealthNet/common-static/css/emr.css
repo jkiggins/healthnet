@@ -181,7 +181,7 @@
 	box-sizing: border-box;
 	float: left;
 	width: calc(25% - 41px);
-	margin: 20px;
+	margin: 1%;
 	box-shadow: 3px 3px 20px #000;
 	word-wrap: break-word;
 }

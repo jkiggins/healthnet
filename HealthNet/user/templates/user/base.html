@@ -51,7 +51,9 @@
                     <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}" onfocus="this.parentElement.focus()">
                         <label>{{ note.title }}</label>
                         <a onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
-                        <a href="{{ note.getLink }}">View</a>
+                        {% if note.getLine != "" %}
+                            <a href="{{ note.getLink }}">View</a>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}

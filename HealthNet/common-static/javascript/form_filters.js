@@ -54,8 +54,6 @@ function emr_reqListener() {
 		overlay.innerHTML = html;
 		overlay.setAttribute("class", "overlay");
 		document.body.setAttribute("class", "noscroll");
-
-		$(function(){$(".emr_test_image_wrap").resizable({aspectRatio: true});});
 	}
 }
 

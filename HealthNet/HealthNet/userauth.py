@@ -69,13 +69,16 @@ def userCan_Event(user, event, *actions):
     if 'cancel' in actions:
         auth_l = False
 
-        if utype == 'patient' and user.accepted == False:
-            return False
-        elif isPatient(user):
+        if isPatient(user):
             auth_l |= (event.startTime - timezone.now()) < datetime.timedelta(hours=48)
+            auth_l &= user.accepted
 
-        if not('edit' in actions):
-            auth_l &= userCan_Event(user, event, 'edit')
+        elif not('edit' in actions):
+            auth_l = userCan_Event(user, event, 'edit')
+        else:
+            auth_l = True
+
+        auth &= auth_l
 
     return auth
 

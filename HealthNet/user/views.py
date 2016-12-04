@@ -538,7 +538,7 @@ def createEvent(request, depend=False):
         if process_event:
             event_form = EventCreationFormPatient(request.POST)
             if event_form.is_valid():
-                event = event_form.getModel()
+                event = event_form.save(commit=False)
                 add_dict_to_model({'patient': user, 'doctor': user.doctor, 'hospital': user.hospital, 'appointment': True},
                               event)
 
@@ -566,7 +566,7 @@ def createEvent(request, depend=False):
                 return render(request, 'user/render_form.html', {'form': event_form})
 
             elif event_form.is_valid():
-                event = event_form.getModel()
+                event = event_form.save(commit=False)
 
                 event.doctor = user
                 event.appointment = not (event_form.cleaned_data['patient'] is None)
@@ -594,7 +594,7 @@ def createEvent(request, depend=False):
                 return render(request, 'user/render_form.html', {'form': event_form})
 
             elif event_form.is_valid():
-                event = event_form.getModel()
+                event = event_form.save(commit=False)
 
                 if not (event_form.cleaned_data['patient'] is None):
                     add_dict_to_model({'hospital': event_form.cleaned_data['patient'].hospital, 'appointment': True}, event)
@@ -625,6 +625,9 @@ def cancleEvent(request, pk):
         return unauth(request)
 
     event.visible = False
+    event.save()
+
+    return HttpResponseRedirect(reverse('user:dashboard'))
 
 
 def dashboardView(request):

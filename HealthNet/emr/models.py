@@ -132,33 +132,6 @@ class FilterForm(models.Model):
     sort = models.CharField(max_length=20, default="", blank=True, null=True)
 
 
-def isTest(item):
-    return hasattr(item, 'emrtest')
-
-def isVital(item):
-    return hasattr(item, 'emrvitals')
-
-def isAdmit(item):
-    return hasattr(item, 'emradmitstatus')
-
-def isPrescription(item):
-    return hasattr(item, 'emrprescription')
-
-def isNote(item):
-    return not(isAdmit(item) or isTest(item) or isVital(item) or isPrescription(item))
-
-def emrItemType(item):
-    if isTest(item):
-        return 'test'
-    elif isVital(item):
-        return 'vitals'
-    elif isPrescription(item):
-        return 'prescription'
-    elif isAdmit(item):
-        return 'admitdischarge'
-
-    return 'note'
-
 """
 This Prescription class holds all the information relating to a single prescription
 
@@ -183,3 +156,31 @@ class EMRPrescription(EMRItem):
 
     def getTitle(self):
         return "Prescription"
+
+
+def isTest(item):
+    return hasattr(item, 'emrtest') or isinstance(item, EMRTest)
+
+def isVital(item):
+    return hasattr(item, 'emrvitals') or isinstance(item, EMRVitals)
+
+def isAdmit(item):
+    return hasattr(item, 'emradmitstatus') or isinstance(item, EMRAdmitStatus)
+
+def isPrescription(item):
+    return hasattr(item, 'emrprescription') or isinstance(item, EMRPrescription)
+
+def isNote(item):
+    return not(isAdmit(item) or isTest(item) or isVital(item) or isPrescription(item))
+
+def emrItemType(item):
+    if isTest(item):
+        return 'test'
+    elif isVital(item):
+        return 'vitals'
+    elif isPrescription(item):
+        return 'prescription'
+    elif isAdmit(item):
+        return 'admitdischarge'
+
+    return 'note'

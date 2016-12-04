@@ -8,21 +8,32 @@ from user.models import *
 # Event Signals
 @receiver(pre_save, sender=Event)
 def eventPreSave(sender, instance, *args, **kwargs):
-    eventNotify(instance, instance.pk is None)
+    pass
+    new = instance.pk is None
 
-
-
-def eventNotify(event, new):
-    nbody = 'Starts at: {0} and lasts for: {1} minutes'.format(event.startTime, (event.endTime - event.startTime).minutes)
+    nbody = 'Starts at: {0} and lasts for: {1} minutes'.format(instance.startTime, (instance.endTime - instance.startTime).seconds / 60)
     title = ""
-    if not (event.patient is None):
+    if not (instance.patient is None):
         title = "Appointment Updated"
         if new:
             title = "New Appointment"
-        Notification.push(event.patient, title, nbody, 'user:vevent,{0}'.format(event.pk))
+        Notification.push(instance.patient.user, title, nbody, 'user:vEvent,{0}'.format(instance.pk))
     else:
         title = "Event Updated"
         if new:
             title = "New Event"
 
-    Notification.push(event.doctor, title, nbody, 'user:vevent,{0}'.format(event.pk))
+    Notification.push(instance.doctor.user, title, nbody, 'user:vEvent,{0}'.format(instance.pk))
+
+
+@receiver(post_delete, sender=Event)
+def eventPostDel(sender, event, *args, **kwargs):
+    nbody = 'Started at: {0} and lasted for: {1} minutes'.format(event.startTime,
+                                                               (event.endTime - event.startTime).minutes)
+    type = "Appointment"
+    if not event.appointment:
+        type = "Event"
+    else:
+        Notification.push(event.patient.user, "Your {0} has been cancled".format(type), nbody, "")
+
+    Notification.push(event.doctor.user, "Your {0} has been cancled".format(type), nbody, "")

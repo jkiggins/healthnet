@@ -5,6 +5,16 @@ from user.models import Notification
 
 from emr.models import *
 
+def hasattr_s(object, *args):
+    for attr in args:
+        depth = attr.split('.')
+        target = object
+        for attr_d in depth:
+            if (not hasattr(target, attr_d)) or (getattr(target, attr_d) is None):
+                return False
+            target = getattr(target, attr_d)
+
+
 @receiver(post_delete, sender=EMRItem)
 def notePostSave(sender, instance, *args, **kwargs):
     new = 'emritem_ptr' in instance.changed_fields
@@ -36,7 +46,7 @@ def prescriptionPostSave(sender, instance, *args, **kwargs):
     patient = emritem.patient
 
     med = "Medication: {0}".format(instance.medication)
-    Notification.push(instance.emrpatient.user,
+    Notification.push(patient.user,
                       "You have a new {0} from DR {1}".format(instance.getTitle(),instance.provider.user.get_full_name()), med,
                       'emr:vemri,{0}'.format(instance.pk))
 
@@ -80,15 +90,18 @@ def emrtestPostSave(sender, instance, *args, **kwargs):
         Notification.push(patient.doctor.user,
                           "Test Results for {0} require your approval".format(patient.user.get_full_name()), "", link)
 
+
 @receiver(post_save, sender=EMRProfile)
 def emrprofilePostSave(sender, instance, *args, **kwargs):
-    Notification.push(instance.patient.user,
-                      "Your Basic Medical Info has been updated", "",
-                      'emr:vemr,{0}'.format(instance.patient.pk))
 
-    Notification.push(instance.patient.doctor.user,
-                      "{0}'s Medical Info has been updated".format(instance.patient.user.get_full_name()), "",
-                      'emr:vemr,{0}'.format(instance.patient.pk))
+    if hasattr_s(instance, 'patient.doctor'):
+        Notification.push(instance.patient.user,
+                          "Your Basic Medical Info has been updated", "",
+                          'emr:vemr,{0}'.format(instance.patient.pk))
+
+        Notification.push(instance.patient.doctor.user,
+                          "{0}'s Medical Info has been updated".format(instance.patient.user.get_full_name()), "",
+                          'emr:vemr,{0}'.format(instance.patient.pk))
 
 
 

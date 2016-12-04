@@ -14,6 +14,7 @@
                 {% if item.emrtest.released or permissions.canEdit %}
                     {% if item.emrtest.images.name != '' %}
                         <div class="emr_test_image_wrap"><img title="Hover over the edge to resize" class = "emr_test_image" src="{% url 'emr:testmedia' item.pk %}" /></div>
+                        <script>$(function(){$(".emr_test_image_wrap").resizable({aspectRatio: true});});</script>
                     {% endif %}
                     <tr><td>Comments: </td><td>{{ item.content }}</td></tr>
                 {% endif %}
@@ -52,7 +53,7 @@
         {% if permissions.canEdit %}
             <a class = "right_shadow" onclick="window.location='{% url 'emr:eemrItem' item.id %}'">edit</a>
             {% if item.emrtest %}
-                <a class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'releasehide')">
+                <a href = "" class = "right_shadow" data-pk = "{{ item.pk }}" onclick="emr_action_ajax(this, 'releasehide')">
                     {% if item.emrtest.released %}
                         hide
                     {% else %}

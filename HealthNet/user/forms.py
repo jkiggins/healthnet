@@ -43,7 +43,7 @@ def doctor_nurse_shared_validation(event_form):
     # valid &= EventCreationFormValidator.startDateInXhoursFuture(event_form, hours, {
     #     'startTime': "Start Time must be at least "+ str(hours) +" hours in the future"}, {})
 
-    if event_form.mode == 'create':
+    if event_form.instance is None:
         valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
 
     valid &= EventCreationFormValidator.eventPositiveDuration(event_form, datetime.timedelta(minutes=15),
@@ -58,27 +58,20 @@ class EventForm(forms.ModelForm):
     duration = forms.DurationField(initial=datetime.timedelta(minutes=30), label="Duration")
     description = forms.CharField(widget=forms.Textarea(), label="Description/Comments", required=False)
 
-    mode='create'
+    def setStart(self, dt):
+        self.fields['startTime'].initial = dt
 
-    def __init__(self, *args, **kwargs):
-
-        if 'mode' in kwargs:
-            self.mode = kwargs['mode']
-            kwargs.pop('mode')
-
-        super(EventForm, self).__init__(*args, **kwargs)
-
-
-    def setStart(self, d):
-        self.fields['startTime'].initial = d
-
-
-
-    def getModel(self):
-        m = self.save(commit=False)
+    def save(self, commit=False):
+        m = super(EventForm, self).save(commit=False)
         m.endTime = m.startTime + self.cleaned_data['duration']
 
+        if commit:
+            m.save()
+
         return m
+
+
+
 
 
 class EventCreationFormPatient(EventForm):
@@ -88,12 +81,6 @@ class EventCreationFormPatient(EventForm):
         self.fields['duration'].disabled=True
 
         self.order_fields(['startTime', 'duration', 'description']) # Change Field order so they are displayed properly
-
-    def getModel(self):
-        m = super(EventCreationFormPatient, self).getModel()
-        m.appointment = True
-
-        return m
 
 
     def is_valid(self):
@@ -136,7 +123,6 @@ class EventCreationFormDoctor(EventForm):
 
     def save(self, commit=False):
         m = super(EventCreationFormDoctor, self).save(commit=False)
-
         if m.patient is None:
             m.appointment = False
 

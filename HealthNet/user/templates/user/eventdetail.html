@@ -28,12 +28,12 @@
             <input type = "button" class="button" onclick="window.location='{% url 'user:eEvent' event.id %}'" value = "Edit" />
 
             <input type = "button" class="button"
-            {% if permissions.can_cancel %}
-                onclick="window.location='{% url 'user:cEvent' event.id %}'"
+            {% if permissions.can_cancle %}
+                onclick="window.location='{% url 'user:delEvent' event.id %}'"
             {% else %}
-               title = "Events that are less than 48 hours in the future can't be canceled"
+               title = "Events that are less than 48 hours in the future can't be cancleed"
             {% endif %}
-            value = "Cancel" />
+            value = "cancle" />
 
         {% endif %}
     {% endif %}
