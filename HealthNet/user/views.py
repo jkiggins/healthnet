@@ -685,7 +685,7 @@ def hosAdDashView(request, pk):
     context['title'] = "Dashboard"
     context['calendarView'] = "agendaWeek"
     context['key'] = pk
-    return render(request, 'user/hosAdDash.html', context)
+    return render(request, 'user/dashboard.html', context)
 
 
 def dismissNote(request, pk):
