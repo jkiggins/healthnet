@@ -5,6 +5,7 @@ from emr.models import *
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
+
 def makeDjangoUser(username, password, first_name, last_name):
     return User.objects.create_user(username=username,
                                          password=password,
@@ -151,6 +152,7 @@ class Command(BaseCommand):
         self.handleNurses('media/csv/nurse.csv')
         self.handlePatients('media/csv/patient.csv')
         self.handleHosAdmin('media/csv/hosadmin.csv')
+        User.objects.create_superuser(username='admin', email='admin@admin.com', password='pass')
 
         printForTest()
 
