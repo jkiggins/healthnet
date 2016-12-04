@@ -733,7 +733,7 @@ class sendMessage(View):
 
         form.staff_queryset(User.objects.all().exclude(username=currentUser.user.username).filter(patient=None))
         # all_users = #ONLY ONES WHO CAN MESSAGE
-        context = {'user': get_user(request),
+        context = {'user': currentUser,
                    'messaging_form': form,
                    'title': 'Send Another Health Care Professional A Message:'}
 
@@ -741,4 +741,28 @@ class sendMessage(View):
 
     def post(self, request):
         """ sends a message generates a notification"""
-        #also syslog item with from, to, time, and content
+        currentUser = get_user(request)
+        form = messagingForm(request.POST)
+        form.staff_queryset(User.objects.all().exclude(username=currentUser.user.username).filter(patient=None))
+
+        if not form.is_valid():
+            return HttpResponseRedirect(reverse('user:sendMessage'))
+        form.full_clean()
+        recipient = form.cleaned_data['userTO']
+        message = form.cleaned_data['messageContent']
+        sentdialog = 'Message to '+ recipient.first_name +" sent successfully!"
+
+        #Generate/Push Notification
+        Notification.push(recipient, "New Message from: " + currentUser.user.first_name, message, 'user:sendMessage') # TODO WILL NEED A PK IN THE URL
+
+        #system log of message
+        Syslog.sentmessage(currentUser,recipient,message)
+
+        context = {'user': currentUser,
+                   'messaging_form': form,
+                   'title': 'Message Sent!',
+                   'recipient': recipient.first_name, # remove
+                   'message': sentdialog
+                   }
+        # also syslog item with from, to, time, and content
+        return render(request, 'user/sendMessage.html', context)
