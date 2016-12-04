@@ -1,13 +1,8 @@
 {% extends 'user/base.html' %}
 
-{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 
 {% block content %}
 <div id="contentBox">
-    <form action={% url 'user:sendMessage' %} method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ messaging_form.as_ul }}
-        <input type="submit" class="button" value="Send" />
-    </form>
+{% include 'user/sendMessageBox.html' %}
 </div>
 {% endblock %}

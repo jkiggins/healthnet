@@ -751,9 +751,11 @@ class sendMessage(View):
         recipient = form.cleaned_data['userTO']
         message = form.cleaned_data['messageContent']
         sentdialog = 'Message to '+ recipient.first_name +" sent successfully!"
-
+        namesender = currentUser.user.get_full_name()
         #Generate/Push Notification
-        Notification.push(recipient, "New Message from: " + currentUser.user.first_name, message, 'user:sendMessage') # TODO WILL NEED A PK IN THE URL
+        n = Notification.push(recipient, "New Message from: " + namesender, message, '') # TODO WILL NEED A PK IN THE URL
+        n.link = 'user:viewMessage,'+ str(n.pk)
+        n.save()
 
         #system log of message
         Syslog.sentmessage(currentUser,recipient,message)
@@ -766,3 +768,15 @@ class sendMessage(View):
                    }
         # also syslog item with from, to, time, and content
         return render(request, 'user/sendMessage.html', context)
+
+
+def viewMessage(request, pk):
+
+    notification = get_object_or_404(Notification, pk=pk)
+    message = notification.content
+    sender = notification.title
+    context = {'user': get_user(request),
+               'from': sender,
+               'messagetext': message}
+
+    return render(request, 'user/viewMessage.html', context)
