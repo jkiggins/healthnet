@@ -158,10 +158,11 @@ class Notification(models.Model):
     def getLink(self):
         url = self.link.split(",")
         redir = ""
-        try:
-            redir = reverse(url[0], args=tuple(url[1:]))
-        except NoReverseMatch:
-            print("No reverse match with url: {0} and args: {1}".format(url[0], url[1]))
+        if len(url) >= 2:
+            try:
+                redir = reverse(url[0], args=tuple(url[1:]))
+            except NoReverseMatch:
+                print("No reverse match with url: {0} and args: {1}".format(url[0], url[1]))
 
         return redir
 

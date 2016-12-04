@@ -8,8 +8,7 @@ from emr.models import *
 @receiver(post_delete, sender=EMRItem)
 def notePostSave(sender, instance, *args, **kwargs):
     new = 'emritem_ptr' in instance.changed_fields
-    emritem = instance.emritem
-    patient = emritem.patient
+    patient = instance.patient
 
     link = 'emr:vemri,{0}'.format(instance.pk)
     if new:

@@ -186,13 +186,10 @@ li {
 .calendar {
 	position: relative;
 	top: 2.8em;
-	overflow-y: hidden;
 	margin: auto;
 	margin-top: 20px;
 	margin-bottom: 20px;
-	/* text-align: center; */
 	width: 90%;
-	height: 600px;
 }
 
 .fc-event

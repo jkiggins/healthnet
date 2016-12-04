@@ -1,3 +1,3 @@
 patient_email,patient_password,first_name,last_name,insurance_number,birth_date,sex, Doctor,hospital,[phone, address,emergency_contact_first,emergency_contact_last, emergency_contact_phone]
-patientzero,pass,Patient, Zero,A12345678910,10/10/1980,Male,drstrange,Big Hos,5555555555, asjljasd
-patientone,pass,Patient, One,A12345678911,10/10/1980,Female,drnormal,Big Hos,5555555555, asjljasd
+patientzero,pass,Patient, Zero,A12345678910,10/10/1980,Male,drstrange,Big Hos,5555555555, Patient, One, 5555555
+patientone,pass,Patient, One,A12345678911,10/10/1980,Female,drnormal,Big Hos,5555555555, Patient, Zero, 5555555
