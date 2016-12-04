@@ -317,3 +317,13 @@ class messagingForm(forms.Form):
 
     def staff_queryset(self, staff_qset):
         self.fields['userTO'].queryset = staff_qset
+
+    def is_valid(self):
+        self.fields['userTO'].required = True
+        self.fields['messageContent'].required = True
+        valid = super(messagingForm, self).is_valid()
+        if not valid:
+            return valid
+
+        return valid
+
