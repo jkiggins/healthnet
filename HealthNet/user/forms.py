@@ -2,6 +2,8 @@ from django import forms
 from .models import *
 import logging
 
+
+
 from django import forms
 from django.contrib.admin import widgets
 
@@ -15,7 +17,6 @@ logger = logging.getLogger(__name__)
 def get_dthtml(dt):
     return'{0}-{1:02d}-{2:02d}T{3:02d}:{4:02d}'.format(dt.year, dt.month, dt.day,
                                                                dt.hour, dt.minute)
-
 
 def getEventFormByUserType(type, **kwargs):
     if type == "patient":
@@ -308,3 +309,85 @@ class TrustedNurses(forms.Form):
 
     def setQuerySet(self , qset):
         self.fields['docs'].queryset = qset
+        self.fields['docs'].queryset = qset
+
+
+class EditProfileHelper:
+    @staticmethod
+    def getFormByPostData(post):
+        if dict_has_keys(['medical'], post):
+            return EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            return EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            return EditProfileForm_emergency(post)
+
+    @staticmethod
+    def getContextWithPopulatedForm(post):
+        ret = {'form_medical': EditProfileForm_medical(), 'form_emergency': EditProfileForm_emergency(), 'form_basic': EditProfileForm_basic()}
+
+        if dict_has_keys(['medical'], post):
+            ret['form_medical'] = EditProfileForm_medical(post)
+        elif dict_has_keys(['basic'], post):
+            ret['form_basic'] = EditProfileForm_basic(post)
+        elif dict_has_keys(['emergency'], post):
+            ret['form_emergency'] = EditProfileForm_emergency(post)
+
+        return ret
+
+
+    @staticmethod
+    def getContextFromForm(form):
+        ctx = {}
+        if 'medical' in form.fields:
+            ctx['form_medical']=form
+        elif 'emergency' in form.fields:
+            ctx['form_emergency']=form
+        elif 'basic' in form.fields:
+            ctx['form_basic']=form
+
+        return ctx
+
+    @staticmethod
+    def updateUserProfile(form, user):
+        if 'medical' in form.fields:
+            user.hospital = form.cleaned_data['hospital']
+            user.doctor = form.cleaned_data['doctor']
+            user.save()
+        elif 'emergency' in form.fields:
+            contact = None
+            if user.contact is None:
+                contact = Contact(full_name="filler", phone="filler")
+                contact.save()
+                user.contact = contact
+                user.save()
+            else:
+                contact = user.contact
+
+            if form.cleaned_data['user'] is None:
+                contact.full_name = form.cleaned_data['full_name']
+                contact.phone = form.cleaned_data['phone']
+            else:
+                contact.user = form.cleaned_data['user']
+                contact.updateFromUser()
+
+            contact.save()
+
+        elif 'basic' in form.fields:
+            for key in form.cleaned_data:
+                if not(form.cleaned_data[key] is None):
+                    if hasattr(user, key):
+                        setattr(user, key, form.cleaned_data[key])
+                    elif hasattr(user.user, key):
+                        setattr(user.user, key, form.cleaned_data[key])
+
+            user.user.save()
+            user.save()
+
+
+class messagingForm(forms.Form):
+    userTO = forms.ModelChoiceField(queryset=Doctor.objects.all(), label="To:", required=True)
+    messageContent = forms.CharField(max_length=None, label="Message", min_length=1, required=True)
+
+    def staff_queryset(self, staff_qset):
+        self.fields['userTO'].queryset = staff_qset
