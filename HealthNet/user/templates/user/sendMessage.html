@@ -1,0 +1,13 @@
+{% extends 'user/base.html' %}
+
+{% block name %} {{ cuser.user.get_full_name }} {% endblock %}
+
+{% block content %}
+<div id="contentBox">
+    <form action={% url 'user:sendMessage' %} method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ messaging_form.as_ul }}
+        <input type="submit" class="button" value="Send" />
+    </form>
+</div>
+{% endblock %}

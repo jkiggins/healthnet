@@ -28,7 +28,7 @@
 <ul id="navbar">
 	<li><a href="/logout" class="right">Log Out</a></li>
     <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
-	
+
 	{% if user.getType == "patient" %}
         <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
 
@@ -61,6 +61,10 @@
             {% endif %}
         </div>
     </div>
+
+    {% if user.getType != "patient" %}
+        <li><a href="{% url 'user:sendMessage' %}">Message</a></li>
+    {% endif %}
 </ul>
 
 	<div id="subBanner">
