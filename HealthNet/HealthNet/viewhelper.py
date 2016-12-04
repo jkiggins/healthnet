@@ -1,7 +1,7 @@
 from HealthNet.formvalid import *
 from user.models import *
 from django import forms
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.generic import View
@@ -55,8 +55,15 @@ def get_user(request):
         return getHealthUser(request.user)
     return None
 
-def unauth(request):
-    return HttpResponseRedirect(reverse('user:dashboard'))
+
+# second argument parameter is used to represent error messages, should never exceed 1 string type message
+def unauth(request, *args):
+    if (len(args) == 0):
+        return HttpResponseRedirect(reverse('user:dashboard'))
+
+    else:
+        request.session['message']=args[0]
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
 
 def add_dict_to_model(dict, model):

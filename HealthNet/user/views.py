@@ -513,7 +513,7 @@ def createEvent(request, depend=False):
     if user is None:
         return unauth(request)
     elif not userauth.userCan_Event(user, None, 'create'):
-        return unauth(request)
+        return unauth(request, "Your profile must be completed to create an event.")
 
     process_event = False
     d = timezone.now().replace(hour=6, minute=0) + datetime.timedelta(days=1)
@@ -637,6 +637,7 @@ def dashboardView(request):
 
     context = {'user': user}
 
+
     if isPatient(user):
         context['events'] = getVisibleEvents(user).order_by('startTime')
         if user.accepted:
@@ -656,7 +657,9 @@ def dashboardView(request):
 
     context['tuser'] = user #TODO: Remove once nurse has searchable columns
     context['title'] = "Dashboard"
-
+    if ('message' in request.session):
+        message = request.session.pop('message')
+        context['message'] = message
     return render(request, 'user/dashboard.html', context)
 
 

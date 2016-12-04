@@ -2,7 +2,7 @@
     <form action={% url 'user:registry' %} method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ search_form.as_ul }}
-        <input type="submit" class="button" value="Search" />
+        <input type="submit" class="button" value="Search" style="display: inline;"/>
     </form>
 </div>
 

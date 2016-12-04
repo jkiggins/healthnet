@@ -1,14 +1,17 @@
 {% extends "logIn/banner.html" %}
 
 {% block content %}
+<script>
+    $("#wizard").steps();
+</script>
 
 <div id="registerBox">
     <form enctype="multipart/form-data" action="" method="POST">
         {% csrf_token %}
         {{ form.non_field_errors }}
         {% for field in form %}
-            <div class="fieldWrapper">
-                {{ field.label_tag }} {{ field }} {{ field.errors }}
+            <div id="wizard" class="fieldWrapper">
+                <h1>{{ field.label_tag }}</h1> <div>{{ field }}</div> {{ field.errors }}
                 {% if field.help_text %}
                 <p class="help">{{ field.help_text|safe }}</p>
                 {% endif %}

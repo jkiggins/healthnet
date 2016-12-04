@@ -1,16 +1,25 @@
 {% extends 'logIn/banner.html' %}
 {% block content %}
-
-<div id="centerBox">
-	<h2>Please Log In</h2>
+<div class="cardWrapper">
+	<div class="card">
+		<h2>Returning User?</h2>
+		<h3>Please log in</h3>
+		
+		<form action="" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			{{ form.as_ul }}
+			<input type="submit" value="Log In" class="button blockDisplay"/>
+		</form>
 	
-	<form action="" method="POST" enctype="multipart/form-data">
-		{% csrf_token %}
-		{{ form.as_ul }}
-		<input type="submit" value="Log In" class="button"/>
-		<a href="/register/" class="button">Register</a> 
-		<a href="{% url 'logIn:userSelect' %}" class="button">Staff Register</a>
-	</form>
+	</div>
+	
+	<div class="card">
+		<h2>New to HealthNet?</h2>
+		<h3>Please register</h3>
+		
+			<a href="/register/" class="button blockDisplay">Patient Registration</a> 
+			<a href="{% url 'logIn:userSelect' %}" class="button blockDisplay">Staff Registration</a>
+	
+	</div>
 </div>
-
 {% endblock %}
