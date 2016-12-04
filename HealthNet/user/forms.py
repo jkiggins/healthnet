@@ -313,7 +313,7 @@ class TrustedNurses(forms.Form):
 
 class messagingForm(forms.Form):
     userTO = forms.ModelChoiceField(queryset=Doctor.objects.all(), label="To:", required=True)
-    messageContent = forms.CharField(max_length=None, label="Message", min_length=1, required=True)
+    messageContent = forms.CharField(widget=forms.Textarea, max_length=None, label="Message", min_length=1, required=True)
 
     def staff_queryset(self, staff_qset):
         self.fields['userTO'].queryset = staff_qset
