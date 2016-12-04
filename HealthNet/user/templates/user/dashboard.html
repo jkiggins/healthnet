@@ -34,6 +34,21 @@
         {% endif %}
 
         <div id='calendar' class='calendar'></div>
+    {% else %}
+        <div id="contentBox">
+            <ul>
+                <li>Hospital: {{hospital.name}}</li>
+                <li>Number of {{hospital.name}} Registered Patients: {{patients.count}} </li>
+                <li>Number of Admitted Patients: {{admittedpatients.count}}</li>
+                <li>Number Doctors: {{doctors.count}} </li>
+                <li>Average of all appointments:</li>
+                <li>Most Prescribed drug:</li>
+            </ul>
+        </div>
+
     {% endif %}
+
+
+
 
 {% endblock %}

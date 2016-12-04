@@ -678,13 +678,15 @@ def hosAdDashView(request, pk):
     context = {'user': user}
     if not isHosadmin(tuser) and not isNurse(tuser):
         context['events'] = getVisibleEvents(tuser).order_by('startTime')
-    context['patients'] = user.hospital.patient_set.all()
-    context['doctors'] = user.hospital.doctor_set.all().filter(accepted=True)
+    context['patients'] = user.hospital.patient_set.all().filter(hospital=user.hospital)
+    context['doctors'] = user.hospital.doctor_set.all().filter(accepted=True).filter(hospitals=user.hospital)
+    context['admittedpatients'] = user.hospital.patient_set.all().filter(emrprofile__admit_status=True)
     context['search_form'] = HosAdminSearchForm()
     context['tuser'] = user
-    context['title'] = "Dashboard"
+    context['title'] = "Dashboard - System Statistics"
     context['calendarView'] = "agendaWeek"
     context['key'] = pk
+    context['hospital'] = user.hospital
     return render(request, 'user/dashboard.html', context)
 
 
