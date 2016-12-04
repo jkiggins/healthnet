@@ -119,12 +119,6 @@ class EventCreationFormDoctor(EventForm):
         self.fields['patient'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)", 'data-key': "patient"}
         self.fields['hospital'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)", 'data-key': "hospital"}
 
-    def getModel(self):
-        m = super(EventCreationFormDoctor, self).getModel()
-        m.appointment = not(self.fields['patient'] is None)
-
-        return m
-
 
     def is_valid(self):
         valid = super(EventCreationFormDoctor, self).is_valid()
@@ -140,18 +134,16 @@ class EventCreationFormDoctor(EventForm):
         return valid
 
 
-    def dependantFields(self, pqset, hqset):
-        if ('patient' in self.cleaned_data) and ('hospital' in self.cleaned_data):
-            if (self.cleaned_data['patient'] is None) and (self.cleaned_data['hospital'] is None):
-                self.fields['patient'].queryset = pqset
-                self.fields['hospital'].queryset = hqset
-            elif not (self.cleaned_data['patient'] is None):
-                # TODO: add code to set defualt value of dropdown to the hospital
-                self.fields['hospital'].queryset = Hospital.objects.filter(pk=self.cleaned_data['patient'].hospital.pk)
-            elif not (self.cleaned_data['hospital'] is None):
-                patients = pqset.filter(hospital=self.cleaned_data['hospital'])
-                self.fields['patient'].queryset = patients
-                self.fields['hospital'].queryset = hqset
+    def save(self, commit=False):
+        m = super(EventCreationFormDoctor, self).save(commit=False)
+
+        if m.patient is None:
+            m.appointment = False
+
+        if commit:
+            m.save()
+
+        return m
 
 
     def set_hospital_patient_queryset(self, hqset, pqset):
@@ -177,26 +169,6 @@ class EventCreationFormNurse(EventForm):
         self.fields['doctor'].required = False
 
 
-    def dependantFields(self, dqset, pqset, hospital):
-        if ('patient' in self.cleaned_data) and ('doctor' in self.cleaned_data):
-            if (self.cleaned_data['patient'] is None) and (self.cleaned_data['doctor'] is None):
-                self.fields['patient'].queryset = pqset
-                self.fields['doctor'].queryset = dqset
-            elif not (self.cleaned_data['patient'] is None):
-                # TODO: add code to set defualt value of dropdown to the doctor
-                self.fields['doctor'].queryset = Doctor.objects.filter(pk=self.cleaned_data['patient'].doctor.pk)
-            elif not (self.cleaned_data['doctor'] is None):
-                patients = self.cleaned_data['doctor'].patient_set.filter(hospital=hospital, accepted=True)
-                self.fields['patient'].queryset = patients
-
-
-    def getModel(self):
-        m = super(EventCreationFormNurse, self).getModel()
-        m.appointment = not(self.fields['patient'] is None)
-
-        return m
-
-
     def is_valid(self):
         valid = super(EventCreationFormNurse, self).is_valid()
         if not valid:
@@ -207,6 +179,17 @@ class EventCreationFormNurse(EventForm):
             valid &= EventCreationFormValidator.eventIsAppointment(self, {'patient': "This field is required"}, {})
 
         return valid
+
+    def save(self, commit=False):
+        m = super(EventCreationFormNurse, self).save(commit=False)
+
+        if m.patient is None:
+            m.appointment = False
+
+        if commit:
+            m.save()
+
+        return m
 
 
     def set_patient_doctor_queryset(self, patient_qset, doctor_qset):
@@ -229,9 +212,18 @@ class EventCreationFormHadmin(EventForm):
         self.fields['patient'].queryset = patient_qset
         self.fields['doctor'].queryset = doctor_qset
         self.fields['patient'].required = False
-        self.fields['doctor'].required = False
-        self.fields['patient'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
-        self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
+        self.fields['doctor'].required = True
+
+    def save(self, commit=False):
+        m = super(EventCreationFormHadmin, self).save(commit=False)
+
+        if m.patient is None:
+            m.appointment = False
+
+        if commit:
+            m.save()
+
+        return m
 
     class Meta:
         model = Event

@@ -219,16 +219,20 @@ function doTooltip() {
 }
 
 function initForms() {
-	initPickers(['dateTimeId_1']);
+	initPickers(['dateTimeId_1'], ['dateTimeId_0']);
 }
 
-function initPickers(ids) {
-	for(var i = 0; i < ids.length; i++)
+function initPickers(cids, dids) {
+	for(var i = 0; i < cids.length; i++)
 	{
-		var ele = document.getElementById(ids[i]);
+		var ele = document.getElementById(cids[i]);
 		if (ele !== null) {
 			initTimePicker(ele);
 		}
+	}
+
+	for(var i = 0; i < dids.length; i++) {
+		$("#" + dids[i]).datepicker({dateFormat: "yy-mm-dd"});
 	}
 
 	$('.clockpicker').clockpicker({

@@ -423,73 +423,71 @@ def getEventTitle(event):
 
     return title
 
-class EditEvent(View):
 
-    def post(self, request, pk):
-        user = get_user(request)
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
+def editEvent(request, pk, depend=False):
+    user = get_user(request)
+    if user is None:
+        return HttpResponseRedirect(reverse('login'))
+    event = get_object_or_404(Event, pk=pk)
+    if not userauth.userCan_Event(user, event, 'edit'):
+        return unauth(request)
 
-        old_event = get_visible_event_or_404(pk)
+    event_form = None
 
-        event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
+    if isPatient(user):
+        if request.method == "POST":
+            event_form = EventCreationFormPatient(data=request.POST, instance=event)
+        else:
+            event_form = EventCreationFormPatient(instance=event)
+    elif isDoctor(user):
+        if request.method == "POST":
+            if depend:
+                #AJAX response
+                event_form.set_hospital_patient_queryset(user.hospitals.all(), user.acceptedPatients())
+                event_form.full_clean()
+                populateDependantFieldsPH(event_form, user.acceptedPatients(), user.hospitals.all())
+                return render(request, 'user/render_form.html', {'form': event_form})
+            else:
+                event_form = EventCreationFormDoctor(data=request.POST, instance=event)
+        else:
+            event_form = EventCreationFormDoctor(instance=event)
+
+        event_form.set_hospital_patient_queryset(user.hospitals.all(), user.patient_set.all())
+
+    elif isNurse(user):
+        if request.method == "POST":
+            if depend:
+                # Handle ajax post
+                event_form.set_patient_doctor_queryset(user.hospital.acceptedPatients(), user.hospital.doctor_set.all())
+                event_form.full_clean()
+                populateDependantFieldsPD(event_form, user.hospital.acceptedPatients(), user.hospital.doctor_set.all(), user.hospital)
+                return render(request, 'user/render_form.html', {'form': event_form})
+            else:
+                event_form = EventCreationFormNurse(data=request.POST, instance=event)
+
+            if not (event_form.cleaned_data['doctor'] is None):
+                if user in event_form.cleaned_data['doctor'].nurses:
+                    event_form.elevated = True
+        else:
+            event_form = EventCreationFormNurse(instance=event)
+
+        event_form.set_patient_doctor_queryset(user.hospital.patient_set.all(), user.hospital.doctor_set.all())
+
+
+    if request.method == "POST":
+        event_form.full_clean()
 
         if event_form.is_valid():
-            if deleteInPostIsTrue(request.POST): # deleting event
-                old_event.visible = False
-                old_event.save()
-                Syslog.deleteEvent(old_event,user)
+
+            new_event = event_form.save(commit=False)
+
+            if addEventConflictMessages(event_form, new_event):
+                new_event.save()
+                Syslog.modifyEvent(new_event, user)
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
-            new_event = event_form.getModel()
-            updateEventFromModel(old_event, new_event)
 
-            if addEventConflictMessages(event_form, old_event):
-                old_event.save()
-                Syslog.modifyEvent(new_event,user)
-                return HttpResponseRedirect(reverse('user:dashboard'))
-
-        context = {'form': event_form, 'event': old_event, 'user': user}
-
-        elevate_if_trusted_event(event_form, user, old_event)
-        return render(request, 'user/eventdetail.html', context)
-
-
-    def get(self, request, pk):
-        event = get_visible_event_or_404(pk)
-
-        user = get_user(request)
-        if user is None or not userauth.userCan_Event(user, event, 'edit'):
-            return HttpResponseRedirect(reverse('user:dashboard'))
-
-        form = getEventFormByUserType(user.getType())
-        setEventFormFromModel(form, event)
-        context = {'form': form, 'event': event, 'user': user}
-
-        elevate_if_trusted_event(form, user, event)
-        return render(request, 'user/eventdetail.html', getBaseContext(request, user, form=form, event=event, title=getEventTitle(event)))
-
-    @staticmethod
-    def post_dependant_fields(request, pk):
-        event = get_visible_event_or_404(pk)
-        if request.method == 'POST':
-            user = get_user(request)
-            if user is None:
-                return HttpResponseRedirect(reverse('login'))
-
-            event_form = getEventFormByUserType(user.getType(), data=request.POST, mode='update')
-            event_form.full_clean()
-
-
-            if user.getType() == 'doctor':
-                populateDependantFieldsPH(event_form, user.patient_set.all(), user.hospitals.all())
-            if user.getType() == 'nurse':
-                populateDependantFieldsPD(event_form, user.hospital.patient_set.all(), user.hospital.doctor_set.all(), user.hospital)
-
-            elevate_if_trusted(event_form, user)
-            return render(request, 'user/eventdetail.html', {'form': event_form, 'user': user, 'event': event})
-        else:
-            return HttpResponseRedirect(reverse('user:eEvent', args=(pk,)))
+    return render(request, 'user/eventdetail.html', getBaseContext(request, user, form=event_form, event=event, title=getEventTitle(event)))
 
 
 def viewEvent(request, pk):
@@ -564,7 +562,7 @@ def createEvent(request, depend=False):
                 #AJAX response
                 event_form.set_hospital_patient_queryset(user.hospitals.all(), user.acceptedPatients())
                 event_form.full_clean()
-                populateDependantFieldsPH(event_form, user.hospitals.all(), user.acceptedPatients())
+                populateDependantFieldsPH(event_form, user.acceptedPatients(), user.hospitals.all())
                 return render(request, 'user/render_form.html', {'form': event_form})
 
             elif event_form.is_valid():
@@ -583,8 +581,6 @@ def createEvent(request, depend=False):
 
         my_events = getVisibleEvents(user)
 
-        #return render(request, 'user/eventhandle.html',
-         #             {'form': event_form, 'user': user, 'events': my_events, 'canAccessDay': True})
 
     elif isNurse(user) or isHosadmin(user):
         if process_event:
@@ -610,8 +606,6 @@ def createEvent(request, depend=False):
         else:
             event_form = EventCreationFormNurse()
             event_form.set_patient_doctor_queryset(user.hospital.acceptedPatients(), user.hospital.doctor_set.all())
-
-            #return render(request, 'user/eventhandle.html', {'form': event_form, 'user': user, 'canAccessDay': True})
 
     # TODO: hosAdmin
 

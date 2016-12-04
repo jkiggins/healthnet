@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.generic import View
 from user.forms import *
+from django.core.management import call_command
 
 def augmentEventCreationFormForUpdate(form, augment=None):
     form.fields['delete'] = forms.BooleanField(label="Delete?", initial=False, widget=forms.CheckboxInput(), required=False)
@@ -119,6 +120,7 @@ def getBaseContext(request, user, **kwargs):
     ctx = {'user': user, 'notes': user.user.notification_set.all().order_by("-date_created")}
     ctx = dict(ctx, **kwargs)
     return ctx
+
 
 
 def updateUserProfile(form, user):
@@ -298,4 +300,9 @@ def toLastPage(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def exportCsv(blankpass):
+    call_command('export_csv', blankpass=blankpass)
+
+def importCsv(is_hash):
+    call_command('db_beta', hash=is_hash)
 

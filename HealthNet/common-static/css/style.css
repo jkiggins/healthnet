@@ -64,6 +64,13 @@ li {
 	font-size: 20pt;
 }
 
+#subBanner h2
+{
+	display: table;
+	margin-right: auto;
+	margin-left: auto;
+}
+
 #subBanner button
 {
 	position: absolute;

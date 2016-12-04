@@ -37,7 +37,7 @@ def userCan_Event(user, event, *actions):
     if 'edit' in actions:
         auth_l = False
 
-        if utype == 'patient' and user.accepted == False:
+        if isPatient(user) and user.accepted == False:
             return False
 
         auth_l |= user == event.doctor
