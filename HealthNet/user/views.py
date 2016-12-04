@@ -733,8 +733,9 @@ class sendMessage(View):
 
         form.staff_queryset(User.objects.all().exclude(username=currentUser.user.username).filter(patient=None))
         # all_users = #ONLY ONES WHO CAN MESSAGE
-        context = {'cuser': get_user(request),
-                   'messaging_form': form}
+        context = {'user': get_user(request),
+                   'messaging_form': form,
+                   'title': 'Send Another Health Care Professional A Message:'}
 
         return render(request, 'user/sendMessage.html', context)
 
