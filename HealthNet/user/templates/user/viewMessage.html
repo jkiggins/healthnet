@@ -1,0 +1,18 @@
+{% extends 'user/base.html' %}
+
+{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
+
+{% block content %}
+
+<div id="contentBox">
+    {{from}}
+    <br>
+    Message: {{messagetext}}
+    <br>
+    <button class="button" onclick="go('{% url 'user:sendMessage' %}')">Reply</button>
+</div>
+
+
+{% endblock %}
+
+
