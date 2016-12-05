@@ -19,6 +19,7 @@ def get_dthtml(dt):
                                                                dt.hour, dt.minute)
 
 def getEventFormByUserType(type, **kwargs):
+    obj = None
     if type == "patient":
         obj = EventCreationFormPatient
     elif type == "doctor":
@@ -27,10 +28,6 @@ def getEventFormByUserType(type, **kwargs):
         obj = EventCreationFormNurse
     elif type == 'hosAdmin':
         obj = EventCreationFormHadmin
-
-    if not('mode' in kwargs):
-        kwargs['mode'] = 'create'
-
 
     return obj(**kwargs)
 
@@ -88,7 +85,7 @@ class EventCreationFormPatient(EventForm):
         if not valid:
             return valid
 
-        if self.mode == 'create':
+        if self.instance is None:
             valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 24, {'startTime': "Start Time must be atleast 24 hours in the future"}, {})
 
         return valid
