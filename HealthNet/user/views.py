@@ -785,3 +785,13 @@ def viewMessage(request, pk):
                'messagetext': message}
 
     return render(request, 'user/viewMessage.html', context)
+
+
+def viewStats(request):
+    user = get_user(request)
+    if user is None:
+        return unauth(request, "You must be logged in to view this page")
+    if not userauth.userCan_stats(user, 'view'):
+        return unauth(request, "You must be a Nurse, Doctor, or Hospital Administrator to view this page")
+
+

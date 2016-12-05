@@ -178,12 +178,28 @@
 /**********CARD**********/
 .card_wrapper
 {
-	box-sizing: border-box;
-	float: left;
-	width: calc(25% - 41px);
-	margin: 1%;
+	width: 23%;
 	box-shadow: 3px 3px 20px #000;
 	word-wrap: break-word;
+	margin: 1%;
+}
+
+.grid
+{
+	position: relative;
+	top: 8em;
+	left:0;
+	width: 100%;
+}
+
+.grid-item
+{
+
+}
+
+.grid-sizer
+{
+	width: 23%;
 }
 
 .card_wrapper:hover

@@ -5,55 +5,62 @@
 
 </div>
 
-{% if EMRProfile %}
-<div class="card_wrapper" data-nobox="T">
-    <div class="card_hf bottomborder text_center">{{ patient.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
-    <div class="card_body">
-        <table>
-           <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
-            <tr><td>Birthdate: </td><td>{{ EMRProfile.birthdate }}</td></tr>
-            <tr><td>Age:</td><td>{{ EMRProfile.getAge }}</td></tr>
-            <tr><td>Gender: </td><td>{{ EMRProfile.gender }}</td></tr>
-            <tr><td>Blood Type: </td><td>{{ EMRProfile.blood_type }}</td></tr>
-            <tr><td>Family History: </td><td>{{ EMRProfile.family_history }}</td></tr>
-            <tr><td>Comments: </td><td>{{ EMRProfile.comments }}</td></tr>
-            {% if hospital %}
-                <tr><td>Admitted To:</td><td>{{ hospital.name }}</td></tr>
-            {% endif %}
-        </table>
-    </div>
-   <div class = "card_hf text_right bottom_bg">
-        <a href="{% url 'emr:eprofile' patient.pk %}">edit</a>
-   </div>
-</div>
-{% endif %}
+<div class = "grid-sizer"></div>
 
-{% for item in EMRItems %}
-    <div class = "card_wrapper"  data-pk={{ item.pk }} onclick="go('{% url 'emr:vemri' item.pk%}')">
-        <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
-        <div class = "card_body">
-            {% if item.emrtest and user.getType == 'patient'%}
-                {% if item.emrtest.released %}
-                    {{ item.content }}
-                {% else %}
-                    <span class="no_comments">No Comments</span>
+<div class = "grid">
+    {% if EMRProfile %}
+    <div class="card_wrapper grid-item" data-nobox="T">
+        <div class="card_hf bottomborder text_center">{{ patient.user.get_full_name }}'s Profile<img class = "emr_type_label" src="{% static 'img/'|add:EMRProfile.getType|add:'.png' %}"/></div>
+        <div class="card_body">
+            <table>
+               <tr><td>Insurance Number: </td><td>{{ EMRProfile.getInumber }}</td></tr>
+                <tr><td>Birthdate: </td><td>{{ EMRProfile.birthdate }}</td></tr>
+                <tr><td>Age:</td><td>{{ EMRProfile.getAge }}</td></tr>
+                <tr><td>Gender: </td><td>{{ EMRProfile.gender }}</td></tr>
+                <tr><td>Blood Type: </td><td>{{ EMRProfile.blood_type }}</td></tr>
+                <tr><td>Family History: </td><td>{{ EMRProfile.family_history }}</td></tr>
+                <tr><td>Comments: </td><td>{{ EMRProfile.comments }}</td></tr>
+                {% if hospital %}
+                    <tr><td>Admitted To:</td><td>{{ hospital.name }}</td></tr>
                 {% endif %}
-            {% elif item.content == "" %}
-                <span class="no_comments">No Comments</span>
-            {% else %}
-                {{ item.content }}
-            {% endif %}
+            </table>
         </div>
-        <div class = "card_hf text_right bottom_bg">
-            <span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span>
-        </div>
+       <div class = "card_hf text_right bottom_bg">
+            <a href="{% url 'emr:eprofile' patient.pk %}">edit</a>
+       </div>
     </div>
-{% endfor %}
+    {% endif %}
+
+
+    {% for item in EMRItems %}
+        <div class = "card_wrapper grid-item"  data-pk={{ item.pk }} onclick="go('{% url 'emr:vemri' item.pk%}')">
+            <div class="card_hf bottomborder text_center">{{ item.getTitle }}<img class = "emr_type_label" src="{% static 'img/'|add:item.getType|add:'.png' %}"/></div>
+            <div class = "card_body">
+                {% if item.emrtest and user.getType == 'patient'%}
+                    {% if item.emrtest.released %}
+                        {{ item.content }}
+                    {% else %}
+                        <span class="no_comments">No Comments</span>
+                    {% endif %}
+                {% elif item.content == "" %}
+                    <span class="no_comments">No Comments</span>
+                {% else %}
+                    {{ item.content }}
+                {% endif %}
+            </div>
+            <div class = "card_hf text_right bottom_bg">
+                <span class="priority_{{ item.getPriorityStr }}">Priority: {{ item.getPriorityStr }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 
 <script>
-    $('.grid').masonry({
 
-      itemSelector: '.card_wrapper',
-      columnWidth: 200
+    $('document').ready(function () {
+        $('.grid').masonry({
+            itemSelector: '.grid-item'
+        });
     });
+
 </script>

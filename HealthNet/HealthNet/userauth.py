@@ -232,3 +232,10 @@ def userCan_EMRItem(cuser, item, *actions):
     return auth
 
 
+def userCan_stats(user, *actions):
+    auth = True
+
+    if 'view' in actions:
+        auth_l = False
+        auth_l |= not isPatient(user)
+        auth &= auth_l

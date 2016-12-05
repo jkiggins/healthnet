@@ -51,7 +51,7 @@ li {
 
 #subBanner {
 	position: relative;
-	top: 2em;
+	top: 1.5em;
 	left: 0;
 	width: 100%;
 	box-sizing: border-box;
@@ -97,7 +97,7 @@ li {
 	left:0;
 	margin: 0;
 	width: 100%;
-	height: 2.5em;
+	height: 2em;
 	list-style-type: none;
 	background-color: black;
 	box-shadow: 3px 3px 20px #000;
@@ -110,7 +110,6 @@ li {
 	color: white;
 	float: right;
 	text-align: center;
-	font-size: 24pt;
 	padding: 7px 3% 7px 3%;
 	text-decoration: none;
 	transition: background-color 0.5s;
@@ -390,8 +389,6 @@ DIV.fieldWrapper
 {
 	float: right;
 	text-align: center;
-	font-size: 24pt;
-	text-decoration: none;
 	transition: background-color 0.5s;
 	color: #FFF;
 	padding: 0;
