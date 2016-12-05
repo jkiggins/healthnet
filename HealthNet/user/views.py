@@ -707,6 +707,7 @@ def hosAdDashView(request, pk):
         context['events'] = getVisibleEvents(tuser).order_by('startTime')
     context['patients'] = user.hospital.patient_set.all().filter(hospital=user.hospital)
     context['doctors'] = user.hospital.doctor_set.all().filter(accepted=True).filter(hospitals=user.hospital)
+    context['nurses'] = user.hospital.nurse_set.all().filter(accepted=True).filter(hospital=user.hospital)
     context['admittedpatients'] = user.hospital.patient_set.all().filter(emrprofile__admit_status=True)
     context['search_form'] = HosAdminSearchForm()
     context['tuser'] = user

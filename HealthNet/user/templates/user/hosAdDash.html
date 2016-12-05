@@ -1,0 +1,22 @@
+<div class="right content_box">
+    <li><h2>Doctors</h2></li>
+    {% for doc in doctors %}
+        <li>{{ doc.user.get_full_name }}: <a href="{% url 'user:hosDash' doc.user.id %}">View Calendar</a> &nbsp;
+            <a href="{% url 'user:vProfile' doc.user.id %}">View Profile</a></li>
+    {% endfor %}
+
+    <li><h2>Patients</h2></li>
+    {% for pat in patients %}
+        <li>{{ pat.user.get_full_name }}: <a href="{% url 'user:hosDash' pat.user.id %}">View Calendar</a> &nbsp;
+            <a href="{% url 'user:vProfile' pat.user.id %}">View Profile</a></li>
+    {% endfor %}
+
+    <li><h2>Nurses</h2></li>
+    {% for nur in nurses %}
+        <li>{{ nur.user.get_full_name }}: <a href="{% url 'user:vProfile' nur.user.id %}">View Profile</a></li>
+    {% endfor %}
+</div>
+
+<div id="calendar" class="half left" style="margin-right:20px;">
+    {% include "user/calendar.html" %}
+</div>
