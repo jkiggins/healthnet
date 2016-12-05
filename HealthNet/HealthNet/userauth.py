@@ -18,6 +18,7 @@ def userCan_Event(user, event, *actions):
 
     if 'view' in actions:
         if utype == 'patient' and user.accepted == False:
+            print(0)
             return False
 
         auth |= user == event.patient
@@ -38,6 +39,7 @@ def userCan_Event(user, event, *actions):
         auth_l = False
 
         if isPatient(user) and user.accepted == False:
+            print(1)
             return False
 
         auth_l |= user == event.doctor
@@ -52,19 +54,22 @@ def userCan_Event(user, event, *actions):
         if utype != 'hosadmin' and auth_l:
             auth_l &= (timezone.now() - event.startTime) < datetime.timedelta(minutes=0)
 
+        print("edit")
         auth &= auth_l
 
 
     if 'create' in actions:
-        auth_l = False
+        auth_l = True
+        print(utype)
+        print(user.accepted)
         if utype == 'patient' and user.accepted == False:
-            print(user.name)
-            print(user.accepted)
+            print(2)
             return False
         elif utype == 'patient':
             auth |= True
         else:
             auth_l = True
+        print("create")
         auth &= auth_l
 
 
@@ -79,7 +84,7 @@ def userCan_Event(user, event, *actions):
             auth_l = userCan_Event(user, event, 'edit')
         else:
             auth_l = True
-
+        print("cancel")
         auth &= auth_l
 
     return auth

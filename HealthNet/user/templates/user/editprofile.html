@@ -3,35 +3,6 @@
 {% block content %}
 
     {% if form != None %}
-<!--<<<<<<< .mine
-        <div id="cardWrapper">
-			<div class="card" style="width: 19%;">
-				<h2>Profile Info</h2>
-				<form action="" method="POST" enctype="multipart/form-data">
-					{% csrf_token %}
-					{{ form_basic.as_ul }}
-			</div>
-			<div class="card" style="width: 19%;">
-				{% if form_medical != None %}
-					<h2>Doctor and Hospital</h2>
-						{% csrf_token %}
-						{{ form_medical.as_ul }}
-				{% else %}
-				<h2>Doctor and Hospital</h2>
-					<li>Doctor: {{ tuser.doctor }}</li>
-					<li>Hospital {{ tuser.hospital }}</li>
-				{% endif %}
-			</div>
-			
-			<div class="card" style="width: 19%;">
-               {% if form_emergency != None %}
-                   <h2>Emergency Contact</h2>
-                       {% csrf_token %}
-                       {{ form_emergency.as_ul }}               
-				</form>
-				{% endif %}
-			</div>
-======= -->
         <div id="contentBox">
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -50,9 +21,6 @@
                 <li>Phone Number:{{ form.emphone }}</li>
                 <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
             </form>
-<!-->>>>>>> .r269-->
         </div>
-		
-		<!--<input type = "button" onclick="submit_form(this)" value = "Save" class="button" style="width: 60%; display: block; margin: auto; margin-bottom: 25px;"> -->
     {% endif %} 
 {% endblock %}
