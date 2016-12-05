@@ -6,7 +6,7 @@ import HealthNet.formvalid as formvalid
 
 class FilterSortForm(forms.ModelForm):
 
-    keywords = forms.CharField(widget=forms.TextInput(attrs={'class': "emr_toolbox_serchbar", 'placeholder': "Keywords..."}), required=False)
+    keywords = forms.CharField(widget=forms.TextInput(attrs={'class': "toolbar_searchbar", 'placeholder': "Keywords..."}), required=False)
 
     filter_choices = (
         ('prescription', 'Prescriptions'),
@@ -18,7 +18,7 @@ class FilterSortForm(forms.ModelForm):
     )
 
 
-    filters_l = forms.MultipleChoiceField(required=False, choices=filter_choices, widget=forms.CheckboxSelectMultiple(attrs={'class': 'emr_toolbox_checkbox'}))
+    filters_l = forms.MultipleChoiceField(required=False, choices=filter_choices, widget=forms.CheckboxSelectMultiple(attrs={'class': 'toolbar_item_checkbox'}))
     quick_filters = forms.HiddenInput(attrs={'id': 'form_filter'})
 
     sort_choices = (
@@ -27,7 +27,7 @@ class FilterSortForm(forms.ModelForm):
         ('priority', 'Priority')
     )
 
-    sort = forms.ChoiceField(required=False, choices=sort_choices, widget=forms.RadioSelect(attrs={'class': 'emr_toolbox_checkbox'}))
+    sort = forms.ChoiceField(required=False, choices=sort_choices, widget=forms.RadioSelect(attrs={'class': 'toolbar_item_checkbox'}))
 
 
     def __init__(self, *args, **kwargs):

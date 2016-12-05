@@ -788,6 +788,13 @@ def viewMessage(request, pk):
 
 
 def viewStats(request):
+    """
+        number of patients visiting the hospital
+        average number of visits per patient
+        average length of stay (from admission to discharge)
+        most common reasons for being admitted to the hospital
+        prescription statistics
+    """
     user = get_user(request)
     if user is None:
         return unauth(request, "You must be logged in to view this page")
@@ -796,7 +803,33 @@ def viewStats(request):
 
     form = None
     if request.method == "POST":
-        pass
+        form = statsForm(request.POST)
+        if form.is_valid():
+            resolution = 10
+            start = form.cleaned_data['start']
+            end = form.cleaned_data['end']
+            kw = form.cleaned_data['keywords']
+
+            pstats = [{}]
+            if isDoctor(user):
+                for p in user.patients.all():
+                    visits = p.event_set.all().filter(starttime__geq=start, starttime__leq=end).count
+                    admission = p.emritem_set.all().exclude(emradmitstatus=None).order_by('date_created')
+
+                    # calculate average stay per patient
+                    avg_stay=0
+                    i = 0
+                    while i < (len(avg_stay) / 2)*2:
+                        avg_stay += admission(i+1).date_created - admission(i).date_created
+                        i += 2
+                    avg_stay /= len(admission)/2
+
+
+
+
+                    visits += admission.filter(emradmitstatus__admit=True).count()
+                    pstats.append({'patient': p})
+
     else:
         form = statsForm()
 

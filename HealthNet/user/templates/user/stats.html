@@ -1,45 +1,60 @@
 {% extends 'emr/base_emr.html' %}
 
 {% block content %}
-    <div class = "emr_action_wrap">
+    <div id = stats_manage>
         <form action="" method="POST" enctype="multipart/form-data" onkeypress="submit_on_enter()">
             {% csrf_token %}
-            <div class = "emr_toolbox">
-                {{ form.keywords }}
-                <div class="emr_toolbox_wrap stat_tool_wrap">
-                    <input type = "button" class="emr_toolbox_item" value="Filter"/>
-                    <div class="emr_drop_down">
-                        <div class="emr_item_wrap">
-                            <input type="button" class="emr_toolbox_label" value="Average Number of patients visiting the hospital each day" />{{ form.filters.0.tag }}
+            <div class = "toolbar">
+                <div class="toolbar_item_wrap">
+                    <input type = "button" class="toolbar_item_header" value="Most Frequent Keywords"/>
+                    <div class="toolbar_drop_down_css">
+                        <div class="toolbar_item split_field_stat no_border">
+                            <div class="stat_label">Admission</div>
+                            {{ form.kw_admit }}
                         </div>
-                        <div class="emr_item_wrap">
-                            <input type="button" class="emr_toolbox_label" value="Average Visits for the selected patients" />{{ form.filters.1.tag }}
+                        <div class="toolbar_item split_field_stat no_border">
+                            <div class="stat_label">Discharge</div>
+                            {{ form.kw_dis }}
                         </div>
-                        <div class="emr_item_wrap">
-                            <input type="button" class="emr_toolbox_label" value="Most common reasons for admission" />{{ form.filters.2.tag }}
+                    </div>
+                </div>
+                <div class="toolbar_item_wrap">
+                    <input type = "button" class="toolbar_item_header" value="Filter"/>
+                    <div class="toolbar_drop_down_css">
+                        <div class="toolbar_item">
+                            <input type="button" class="toolbar_item_label_inline" value="Average Number of patients visiting the hospital each day" />{{ form.filters.0.tag }}
                         </div>
-                        <div class="emr_item_wrap">
-                            <input type="button" class="emr_toolbox_label" value="Most common prescriptions" />{{ form.filters.3.tag }}
+                        <div class="toolbar_item">
+                            <input type="button" class="toolbar_item_label_inline" value="Average Visits for the selected patients" />{{ form.filters.1.tag }}
+                        </div>
+                        <div class="toolbar_item">
+                            <input type="button" class="toolbar_item_label_inline" value="Most common reasons for admission" />{{ form.filters.2.tag }}
+                        </div>
+                        <div class="toolbar_item">
+                            <input type="button" class="toolbar_item_label_inline" value="Most common prescriptions" />{{ form.filters.3.tag }}
+                        </div>
+                        <div class="toolbar_item">
+                            <div class="stat_label">Patient Name</div>{{ form.kw_patient }}
                         </div>
 
                     </div>
                 </div>
 
-                <div class="emr_toolbox_wrap stat_tool_wrap">
-                    <input type = "button" class="emr_toolbox_item" value="Timeframe"/>
-                    <div class="emr_drop_down">
-                        <div class="emr_item_wrap split_field_stat no_border">
+                <div class="toolbar_item_wrap">
+                    <input id = "stat_timeframe" type = "button" class="toolbar_item_header" value="Timeframe"/>
+                    <div class="toolbar_drop_down_js hide_l" data-toggle_id="stat_timeframe">
+                        <div class="toolbar_item split_field_stat no_border">
                             <div class="stat_label">Interval Start</div>
                             {{ form.start }}
                         </div>
-                        <div class="emr_item_wrap split_field_stat no_border">
+                        <div class="toolbar_item split_field_stat no_border">
                             <div class="stat_label">Interval End</div>
                             {{ form.end }}
                         </div>
                     </div>
                 </div>
 
-                <input type = "submit" value="Submit" class="emr_toolbox_submit submit_stat" />
+                <input type = "submit" value="Submit" class="toolbar_submit" />
             </div>
         </form>
     </div>

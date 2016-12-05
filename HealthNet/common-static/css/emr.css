@@ -1,5 +1,5 @@
 /******************EMR******************/
-.emr_action_wrap
+#emr_manage
 {
 	float: left;
 	width: 96%;
@@ -8,7 +8,101 @@
 	z-index: 101;
 }
 
-.emr_toolbox
+#emr_manage .toolbar_searchbar
+{
+	height: 3em;
+	width: 40%;
+}
+
+#emr_manage .toolbar_item_wrap
+{
+	width: 22.5%;
+	height: 3em;
+	font-size: 14pt;
+
+}
+
+#emr_manage .toolbar_item_header
+{
+	height: 3em;
+
+}
+
+#emr_manage .toolbar_item_label_inline
+{
+	width: calc(100% - 42px);
+	height: 1.5em;
+}
+
+#emr_manage .toolbar_item_checkbox
+{
+	width: 40px; height: 1.5em;
+
+}
+
+#emr_manage .toolbar_submit
+{
+	width: 15%;
+	height: 3em;
+}
+
+/************* Stats **************/
+
+#stats_manage
+{
+	float: left;
+	width: 96%;
+	margin: 2%;
+	margin-top: 4em;
+	z-index: 101;
+}
+
+#stats_manage .toolbar_searchbar
+{
+	height: 3em;
+	width: 30%;
+}
+
+#stats_manage .toolbar_item_wrap
+{
+	width: 30%;
+	height: 3em;
+	font-size: 14pt;
+
+}
+
+#stats_manage .toolbar_item_header
+{
+	height: 3em;
+
+}
+
+#stats_manage .toolbar_item_label_inline
+{
+	width: calc(100% - 42px);
+	height: 1.5em;
+}
+
+#stats_manage .toolbar_item_checkbox
+{
+	width: 40px; height: 1.5em;
+
+}
+
+#stats_manage .toolbar_submit
+{
+	width: 10%;
+	height: 3em;
+}
+
+#stats_manage .toolbar_item_kw {
+	height: 2em;
+	width: 100%;
+}
+
+/************** TOOLBAR *************/
+
+.toolbar
 {
 	float: left;
 	height: 100%;
@@ -16,7 +110,58 @@
 	font-size: 14pt;
 }
 
-.emr_drop_down
+.toolbar_searchbar
+{
+	border: 1px solid #4fdfdf;
+	margin: 0;
+	box-sizing: border-box;
+	float: left;
+	font-size: inherit;
+	padding-left: 1.5%;
+}
+
+.toolbar_item_wrap {
+	float: left;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.toolbar_item_wrap:hover .toolbar_drop_down_css
+{
+	position: relative;
+	width: 100%;
+	height: auto;
+	background-color: #000;
+	z-index: 11;
+}
+
+.toolbar_item_header
+{
+	position: relative;
+	width: 100%;
+	background-color: #2D6597;
+	color: white;
+	margin: 0;
+	border: 0;
+	border-bottom: 1px solid black;
+	font-size: 14pt;
+	text-align: center;
+}
+
+
+.toolbar_item_label_inline
+{
+	box-sizing: border-box;
+	float: left;
+	border: 0;
+	margin: 0;
+	background-color: #000;
+	color: #FFF;
+	text-align: left;
+	z-index: 11;
+}
+
+.toolbar_drop_down_css
 {
 	position: relative;
 	width: 100%;
@@ -26,43 +171,17 @@
 	overflow: hidden;
 }
 
-.emr_toolbox[data-canadmit="False"]
+.toolbar_drop_down_js
 {
-	width: 76%;
-}
-
-.emr_toolbox[data-canadmit="True"]
-{
-	width: 67%;
-}
-
-.emr_toolbox_serchbar
-{
-	border: 1px solid #4fdfdf;
-	margin: 0;
-	box-sizing: border-box;
-	height: 3em;
-	float: left;
-	width: 40%;
-	font-size: inherit;
-	padding-left: 1.5%;
-}
-
-.emr_toolbox_label
-{
-	box-sizing: border-box;
-	float: left;
-	width: calc(100% - 42px);
-	height: 1.5em;
-	border: 0;
-	margin: 0;
+	position: relative;
+	width: 100%;
 	background-color: #000;
-	color: #FFF;
-	text-align: left;
 	z-index: 11;
+	overflow: hidden;
 }
 
-.emr_item_wrap
+
+.toolbar_item
 {
 	float: left;
 	width: calc(100% - 10px);
@@ -71,17 +190,7 @@
 
 }
 
-.emr_toolbox_checkbox
-{
-	display: inline-block;
-	box-sizing: border-box;
-	float: right;
-	width: 40px; height: 1.5em;
-	border: 0;	margin: 0;	padding: 0;
-	background-color: #000;
-}
-
-.emr_toolbox_action
+.toolbar_item_clickable
 {
 	box-sizing: border-box;
 	float: left;
@@ -95,50 +204,38 @@
 	z-index: 11;
 }
 
-.emr_toolbox_action:hover
+.toolbar_item_clickable:hover
 {
 	background-color: #df6845;
 }
 
-.emr_toolbox_wrap
+.toolbar_item_checkbox
+{
+	display: inline-block;
+	box-sizing: border-box;
+	float: right;
+	border: 0;	margin: 0;	padding: 0;
+	background-color: #000;
+}
+
+.toolbar_item_kw
 {
 	float: left;
-	width: 22.5%;
+	border: 0;
+	border-right: 1px solid #4fdfdf;
 	margin: 0;
 	box-sizing: border-box;
-	height: 3em;
-	font-size: 14pt;
+	font-size: inherit;
+	padding-left: 1.5%;
+	background-color: #333333;
+	color: white;
 }
 
-.emr_toolbox_wrap:hover .emr_drop_down
-{
-	position: relative;
-	width: 100%;
-	height: auto;
-	background-color: #000;
-	z-index: 11;
-}
 
-.toolbox_action[data-canadmit="False"]
-{
-	margin-left: 1%;
-	width: 11%;
-	box-shadow: 3px 3px 20px #000;
-}
-
-.toolbox_action[data-canadmit="True"]
-{
-	margin-left: 1%;
-	width: 10%;
-	box-shadow: 3px 3px 20px #000;
-}
-
-.emr_toolbox_submit
+.toolbar_submit
 {
 	box-sizing: border-box;
 	float: left;
-	width: 15%;
-	height: 3em;
 	border: 0;
 	margin: 0;
 	background-color: #df6845;
@@ -146,24 +243,6 @@
 	text-align: center;
 }
 
-.emr_toolbox_submit:hover {
-	background-color: #2D6597;
-}
-
-.emr_toolbox_item
-{
-	position: relative;
-	width: 100%;
-	height: 3em;
-	background-color: #2D6597;
-	color: white;
-	margin: 0;
-	border: 0;
-	border-bottom: 1px solid black;
-	font-size: 14pt;
-
-	text-align: center;
-}
 
 .clickable:hover
 {
@@ -174,6 +253,31 @@
 {
 	background-color: #E96F38;
 }
+
+.emr_toolbar_action[data-canadmit="False"]
+{
+	margin-left: 1%;
+	width: 11%;
+	box-shadow: 3px 3px 20px #000;
+}
+
+.emr_toolbar_action[data-canadmit="True"]
+{
+	margin-left: 1%;
+	width: 10%;
+	box-shadow: 3px 3px 20px #000;
+}
+
+#emr_toolbar[data-canadmit="False"]
+{
+	width: 76%;
+}
+
+#emr_toolbar[data-canadmit="True"]
+{
+	width: 67%;
+}
+
 
 /**********CARD**********/
 .card_wrapper
@@ -413,7 +517,13 @@
 
 .stat_tool_wrap
 {
+	float: left;
 	width: 30%;
+	margin: 0;
+	box-sizing: border-box;
+	height: 3em;
+	font-size: 14pt;
+
 }
 
 .submit_stat
@@ -428,18 +538,22 @@
 
 .split_field_stat input[type = "text"]
 {
+	float: left;
 	border: 0;
 	border-right: 1px solid #4fdfdf;
 	margin: 0;
 	box-sizing: border-box;
 	height: 2em;
-	float: left;
 	width: 49%;
 	font-size: inherit;
 	padding-left: 1.5%;
 	background-color: #333333;
 	color: white;
+}
 
+.split_field_stat .clockpicker
+{
+	float: left;
 }
 
 .stat_label
@@ -449,4 +563,13 @@
 	padding: 3px;
 	color: white;
 	border-bottom: solid 1px #E96F38;
+}
+
+.stat_drop_down
+{
+	position: relative;
+	width: 100%;
+	height: auto;
+	background-color: #000;
+	z-index: 11;
 }

@@ -179,7 +179,6 @@ function postJson(url, json) {
 	if (form !== null) {
 		form.children[1].setAttribute("value", JSON.stringify(json));
 		form.setAttribute("action", url);
-		console.log(form.innerHTML);
 		form.submit();
 	}
 }
@@ -193,7 +192,6 @@ function initBody() {
 	doTooltip();
 	initForms();
 	noteDropdown();
-	alert();
 }
 
 function noteDropdown() {
@@ -209,6 +207,21 @@ function noteDropdown() {
 
 }
 
+function doShowHide(ele) {
+	if (ele.className.indexOf("show_l") == -1)
+	{
+		ele.className = ele.className.replace("hide_l", "show_l");
+	}
+	else
+	{
+		ele.className = ele.className.replace("show_l", "hide_l");
+	}
+}
+
+function doHide_l(ele) {
+	ele.className = ele.className.replace("show_l", "hide_l");
+}
+
 function doTooltip() {
 
 	$( function() {
@@ -220,6 +233,24 @@ function doTooltip() {
 function initForms() {
 	// 1 = clock, 0 = date
 	initPickers(['dateTimeId_1', 'dateTimeIds_1', 'dateTimeIde_1'], ['dateTimeId_0', 'dateTimeIds_0', 'dateTimeIde_0']);
+	initDropDowns("toolbar_drop_down_js");
+}
+
+function initDropDowns(cname) {
+	eles = document.getElementsByClassName(cname)
+
+	for(var i = 0; i < eles.length; i++)
+	{
+		ele = document.getElementById(eles[i].dataset.toggle_id);
+
+		ele.onclick = psDropClick(eles[i])
+	}
+
+	function psDropClick(drop_ele) {
+		return function (e) {
+			doShowHide(drop_ele);
+		}
+	}
 }
 
 function initEMRForms () {
@@ -266,7 +297,6 @@ function initTimePicker(ele) {
 	ele.className += " form-control";
 	clock.body.childNodes[0].insertBefore(ele.cloneNode(), clock.body.childNodes[0].childNodes[0]);
 
-	console.log(clock.body.innerHTML);
 
 	ele.parentElement.replaceChild(clock.body.childNodes[0], ele);
 }

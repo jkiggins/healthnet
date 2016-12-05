@@ -20,5 +20,5 @@ urlpatterns = [
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
     url(r'^(?P<pk>[0-9]+)/adminDash/', views.hosAdDashView, name='hosDash'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
-    url(r'^/stats$', views.viewStats, name='stats')
+    url(r'^stats$', views.viewStats, name='stats')
     ]

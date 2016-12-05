@@ -407,6 +407,10 @@ DIV.fieldWrapper
 	overflow: hidden;
 }
 
+.hide_l{
+	display: none;
+}
+
 .drop_down_show
 {
 	position: relative;
