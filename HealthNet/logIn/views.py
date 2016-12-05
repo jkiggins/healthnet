@@ -47,6 +47,8 @@ class Register(View):
                 Syslog.userCreate(p)
                 return HttpResponseRedirect(reverse('user:eProfile' , args={user.pk}))
             else:
+
+                request.session['message'] = "Something went wrong with your registration. Please make sure that all information you entered was valid."
                 form = RegistrationForm(initial={'insuranceNum': request.POST['insuranceNum']})
 
         else:
@@ -55,7 +57,10 @@ class Register(View):
                 form = RegistrationFormFull(initial={'insuranceNum': form.cleaned_data['insuranceNum']})
 
 
-        return render(request, 'registration/register.html', {'form': form})
+        if ('message' in request.session):
+            return render(request, 'registration/register.html', {'form': form, 'message': request.session.pop('message')})
+        else:
+            return render(request, 'registration/register.html', {'form': form})
 
     def get(self, request):
         form = RegistrationForm()
@@ -105,12 +110,17 @@ class DoctorRegister(View):
                 #login(request, user)
 
                 Syslog.userCreate(d)
+                request.session[
+                    'message'] = "You have successfully registered! However, you are not allowed to log into Healthnet until you are approved by your hospital administrator."
                 return HttpResponseRedirect(reverse('login'))
 
         else:
             form = DoctorRegistrationForm(request.POST)
 
-        return render(request, 'registration/doctorRegister.html', {'form': form})
+        if ('message' in request.session):
+            return render(request, 'registration/doctorRegister.html', {'form': form, 'message': request.session.pop('message')})
+        else:
+            return render(request, 'registration/doctorRegister.html', {'form': form})
 
     def get(self, request):
         form = DoctorRegistrationForm()
@@ -138,12 +148,17 @@ class NurseRegister(View):
                 n.save()
 
                 Syslog.userCreate(n)
+                request.session[
+                    'message'] = "You have successfully registered! However, you are not allowed to log into Healthnet until you are approved by your hospital administrator."
                 return HttpResponseRedirect(reverse('login'))
 
         else:
             form = RegistrationForm(request.POST)
 
-        return render(request, 'registration/nurseRegister.html', {'form': form})
+        if ('message' in request.session):
+            return render(request, 'registration/nurseRegister.html', {'form': form, 'message': request.session.pop('message')})
+        else:
+            return render(request, 'registration/nurseRegister.html', {'form': form})
 
     def get(self, request):
         form = NurseRegistrationForm()
@@ -154,6 +169,13 @@ class LoginView(View):
     def post(self, request):
         if request.user.is_authenticated():
             return HttpResponseRedirect(reverse('user:dashboard'))
+
+        form = LoginForm()
+
+        if ('message' in request.session):
+            #print(request.session.pop('message'))
+            #code reaches here, and remembers message
+            return render(request, 'logIn/index.html', {'form': form, 'message': request.session.pop('message')})
 
         lform = LoginForm(request.POST)
 
@@ -188,7 +210,11 @@ class LoginView(View):
 
         #message = "Something went wrong with your login, check if your username and password are correct."
 
-        return render(request, 'logIn/index.html', {'form': form})
+        if ('message' in request.session):
+            #print(request.session.pop('message'))
+            return render(request, 'logIn/index.html', {'message': request.session.pop('message'), 'form': form})
+        else:
+            return render(request, 'logIn/index.html', {'form': form})
 
 
 def register_success(request):
