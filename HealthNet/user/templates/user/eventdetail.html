@@ -1,13 +1,24 @@
 {% extends 'user/base.html' %}
 {% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 {% block content %}
-<div id="registerBox">
+<div id="contentBox">
     <h2>{{ event.title|truncatewords:10 }}</h2>
 
     {% if form != None %}
         <form action="" enctype="multipart/form-data" method="POST">
             {% csrf_token %}
-            {{ form.as_ul }}
+			{% for field in form %}
+				<div class="fieldWrapper">
+					{% if field.errors %}
+						<div class="error"> {{ field.errors }} </div>
+					{% endif %}
+					
+					{{ field.label_tag }} {{ field }} 
+					{% if field.help_text %}
+						<p class="help">{{ field.help_text|safe }}</p>
+					{% endif %}
+				</div>
+			{% endfor %}
             <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
         </form>
     {% else %}
@@ -31,9 +42,9 @@
             {% if permissions.can_cancle %}
                 onclick="window.location='{% url 'user:delEvent' event.id %}'"
             {% else %}
-               title = "Events that are less than 48 hours in the future can't be cancleed"
+               title = "Events that are less than 48 hours in the future can't be cancled"
             {% endif %}
-            value = "cancle" />
+            value = "Cancel Event" />
 
         {% endif %}
     {% endif %}
