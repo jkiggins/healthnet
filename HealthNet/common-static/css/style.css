@@ -154,6 +154,11 @@ h2 {
 	font-size: 32pt;
 }
 
+.error {
+	background: #b81900 url("images/ui-bg_diagonals-thick_18_b81900_40x40.png") 50% 50% repeat;
+	color: white;
+}
+
 .cardWrapper {
 	width: 90%;
 	margin: auto;
@@ -271,7 +276,7 @@ DIV.fieldWrapper
 .horizontal_form
 {
 	position: relative;
-	top: 1em;
+	top: 4em;
 	margin: auto;
 	text-align: center;
 	width: 100%;

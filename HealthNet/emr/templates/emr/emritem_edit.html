@@ -8,9 +8,22 @@
             <h1>{{ formtitle }}</h1>
         {% endif %}
         <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-            {{ form.as_ul }}
+		{% for field in form %}
+            <div class="fieldWrapper">
+				{% if field.errors %}
+					<div class="error"> {{ field.errors }} </div>
+				{% endif %}
+				
+                {{ field.label_tag }} {{ field }} 
+                {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
 			<script>
 				initEMRForms();
+				
+				var errors = document.getElementsByClass
 			</script>
             <input type="submit" value="Save" class = "button"/>
         </form>
