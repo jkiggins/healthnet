@@ -193,6 +193,7 @@ function initBody() {
 	doTooltip();
 	initForms();
 	noteDropdown();
+	alert();
 }
 
 function noteDropdown() {
@@ -218,7 +219,7 @@ function doTooltip() {
 
 function initForms() {
 	// 1 = clock, 0 = date
-	initPickers(['dateTimeId_1'], ['dateTimeId_0']);
+	initPickers(['dateTimeId_1', 'dateTimeIds_1', 'dateTimeIde_1'], ['dateTimeId_0', 'dateTimeIds_0', 'dateTimeIde_0']);
 }
 
 function initEMRForms () {

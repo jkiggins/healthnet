@@ -1,0 +1,47 @@
+{% extends 'emr/base_emr.html' %}
+
+{% block content %}
+    <div class = "emr_action_wrap">
+        <form action="" method="POST" enctype="multipart/form-data" onkeypress="submit_on_enter()">
+            {% csrf_token %}
+            <div class = "emr_toolbox">
+                {{ form.keywords }}
+                <div class="emr_toolbox_wrap stat_tool_wrap">
+                    <input type = "button" class="emr_toolbox_item" value="Filter"/>
+                    <div class="emr_drop_down">
+                        <div class="emr_item_wrap">
+                            <input type="button" class="emr_toolbox_label" value="Average Number of patients visiting the hospital each day" />{{ form.filters.0.tag }}
+                        </div>
+                        <div class="emr_item_wrap">
+                            <input type="button" class="emr_toolbox_label" value="Average Visits for the selected patients" />{{ form.filters.1.tag }}
+                        </div>
+                        <div class="emr_item_wrap">
+                            <input type="button" class="emr_toolbox_label" value="Most common reasons for admission" />{{ form.filters.2.tag }}
+                        </div>
+                        <div class="emr_item_wrap">
+                            <input type="button" class="emr_toolbox_label" value="Most common prescriptions" />{{ form.filters.3.tag }}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="emr_toolbox_wrap stat_tool_wrap">
+                    <input type = "button" class="emr_toolbox_item" value="Timeframe"/>
+                    <div class="emr_drop_down">
+                        <div class="emr_item_wrap split_field_stat no_border">
+                            <div class="stat_label">Interval Start</div>
+                            {{ form.start }}
+                        </div>
+                        <div class="emr_item_wrap split_field_stat no_border">
+                            <div class="stat_label">Interval End</div>
+                            {{ form.end }}
+                        </div>
+                    </div>
+                </div>
+
+                <input type = "submit" value="Submit" class="emr_toolbox_submit submit_stat" />
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

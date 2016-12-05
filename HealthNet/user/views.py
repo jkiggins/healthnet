@@ -794,4 +794,10 @@ def viewStats(request):
     if not userauth.userCan_stats(user, 'view'):
         return unauth(request, "You must be a Nurse, Doctor, or Hospital Administrator to view this page")
 
+    form = None
+    if request.method == "POST":
+        pass
+    else:
+        form = statsForm()
 
+    return render(request, 'user/stats.html', getBaseContext(request, user, form=form, title="Statistics"))

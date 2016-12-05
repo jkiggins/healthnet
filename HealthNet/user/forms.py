@@ -307,11 +307,13 @@ class messagingForm(forms.Form):
 
 
 class statsForm(forms.Form):
-    startTime = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIds"}),
+    keywords = forms.CharField(
+        widget=forms.TextInput(attrs={'class': "emr_toolbox_serchbar stat_searchbar", 'placeholder': "Keywords..."}), required=False)
+    start = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIds"}),
                                          initial=timezone.now() + datetime.timedelta(days=1, minutes=30),
                                          label="Start", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
 
-    endTime = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIde"}),
+    end = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIde"}),
                                          initial=timezone.now() + datetime.timedelta(days=1, minutes=30),
                                          label="End", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
 

@@ -404,3 +404,49 @@
     float:right;
     color: black;
 }
+
+/* STATS */
+.stat_searchbar
+{
+	width: 30%;
+}
+
+.stat_tool_wrap
+{
+	width: 30%;
+}
+
+.submit_stat
+{
+	width: 10%;
+}
+
+.no_border
+{
+	border: 0;
+}
+
+.split_field_stat input[type = "text"]
+{
+	border: 0;
+	border-right: 1px solid #4fdfdf;
+	margin: 0;
+	box-sizing: border-box;
+	height: 2em;
+	float: left;
+	width: 49%;
+	font-size: inherit;
+	padding-left: 1.5%;
+	background-color: #333333;
+	color: white;
+
+}
+
+.stat_label
+{
+	float: left;
+	width: 100%;
+	padding: 3px;
+	color: white;
+	border-bottom: solid 1px #E96F38;
+}

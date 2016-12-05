@@ -236,6 +236,6 @@ def userCan_stats(user, *actions):
     auth = True
 
     if 'view' in actions:
-        auth_l = False
-        auth_l |= not isPatient(user)
-        auth &= auth_l
+        auth &= not isPatient(user)
+
+    return auth
