@@ -12,4 +12,6 @@ python manage.py migrate
 
 python manage.py db_beta
 
+python manage.py createsuperuser
+
 python manage.py runserver 127.0.0.1:80
