@@ -58,11 +58,17 @@ def get_user(request):
 
 # second argument parameter is used to represent error messages, should never exceed 1 string type message
 def unauth(request, *args):
+    user = get_user(request)
+
     if (len(args) == 0):
+        if user.getType()=='patient':
+            return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
         return HttpResponseRedirect(reverse('user:dashboard'))
 
     else:
         request.session['message']=args[0]
+        if user.getType()=='patient':
+            return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
         return HttpResponseRedirect(reverse('user:dashboard'))
 
 
@@ -188,19 +194,6 @@ def getResultsFromModelQuerySet(qset):
         results.append(getResultFromModel(q))
 
     return results
-
-
-def getTypeOfForm(request):
-    remform = RemoveApproval(request.POST)
-    appform = ApproveForm(request.POST)
-    truform = TrustedNurses(request.POST)
-
-    if remform.is_valid() or appform.is_valid():
-        return 1
-    elif truform.is_valid():
-        return 2
-    else:
-        return 3
 
 
 def try_parse(s):

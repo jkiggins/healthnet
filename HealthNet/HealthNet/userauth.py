@@ -11,6 +11,12 @@ def nurseIsTrusted(nurse, doctor):
     return (nurse in doctor.nurses.all())
 
 
+def userCanMessage(user):
+    if user.getType() == 'patient':
+        return False
+    return True
+
+
 def userCan_Event(user, event, *actions):
 
     auth = True

@@ -27,13 +27,13 @@ def eventPreSave(sender, instance, *args, **kwargs):
 
 
 @receiver(post_delete, sender=Event)
-def eventPostDel(sender, event, *args, **kwargs):
-    nbody = 'Started at: {0} and lasted for: {1} minutes'.format(event.startTime,
-                                                               (event.endTime - event.startTime).minutes)
+def eventPostDel(sender, instance, *args, **kwargs):
+    nbody = 'Started at: {0} and lasted for: {1} minutes'.format(instance.startTime,
+                                                               (instance.endTime - instance.startTime).seconds/60)
     type = "Appointment"
-    if not event.appointment:
+    if not instance.appointment:
         type = "Event"
     else:
-        Notification.push(event.patient.user, "Your {0} has been cancled".format(type), nbody, "")
+        Notification.push(instance.patient.user, "Your {0} has been cancled".format(type), nbody, "")
 
-    Notification.push(event.doctor.user, "Your {0} has been cancled".format(type), nbody, "")
+    Notification.push(instance.doctor.user, "Your {0} has been cancled".format(type), nbody, "")

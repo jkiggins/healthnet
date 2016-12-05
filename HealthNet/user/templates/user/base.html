@@ -32,15 +32,11 @@
 
 	{% if user.getType == "patient" %}
         <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
-        <li><a href="{% url 'user:sendMessage' %}">Message</a></li>
 
     {% elif user.getType == "nurse" or user.getType == "doctor"  or user.getType == "hosAdmin"%}
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
         <li><a href="{% url 'user:stats' %}">System Statistics</a></li>
-
-    {% elif user.getType == "hosAdmin" %}
-        <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
     {% endif %}
 
 

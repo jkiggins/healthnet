@@ -16,7 +16,7 @@ class view_log(View):
         form = DateSearchForm()
         message = "Log Entries: " + str(Syslog.objects.all().count())
         context = {'system_log': Syslog.objects.all(),
-                   'cuser': get_user(request),
+                   'user': get_user(request),
                    'search_form': form,
                    'message': message}
         return render(request, 'syslogging/System_Log.html', context)

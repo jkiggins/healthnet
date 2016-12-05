@@ -5,7 +5,7 @@ from . import views
 app_name = 'user'
 urlpatterns = [
     url(r'^registry/$', views.Registry.as_view(), name='registry'),
-    url(r'^(?P<pk>[0-9]+)/viewProfile/$', views.viewProfile.as_view(), name='vProfile'),
+    url(r'^(?P<pk>[0-9]+)/viewProfile/$', views.viewProfile, name='vProfile'),
     url(r'^viewProfile/$', views.viewProfileSelf, name='vProfilec'),
     url(r'^(?P<pk>[0-9]+)/EditEvent/$', views.editEvent, name='eEvent'),
     url(r'^(?P<pk>[0-9]+)/EditEvent/d$', views.editEvent, {'depend': True}, name='eEventd'),
@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
     url(r'^(?P<pk>[0-9]+)/adminDash/', views.hosAdDashView, name='hosDash'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
-    url(r'^stats$', views.viewStats, name='stats')
+    url(r'^stats$', views.viewStats, name='stats'),
+    url(r'^(?P<pk>[0-9]+)/approval$', views.approval, name='approval')
     ]

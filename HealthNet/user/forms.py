@@ -220,7 +220,7 @@ class EditProfileForm(forms.Form):
     phone = forms.CharField(max_length=10, label="Phone Number", required=False)
     address = forms.CharField(max_length=50, label="Your Address", required=False)
 
-    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), required=False)
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.all().filter(accepted=True), required=False)
     hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False)
 
     emuser = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
@@ -269,14 +269,6 @@ class SearchForm(forms.Form):
                 ('doctor', 'Doctors'),
                 ('mpatient', 'My Patients')
             )
-
-
-class ApproveForm(forms.Form):
-    approved = forms.BooleanField(label="Approved")
-
-
-class RemoveApproval(forms.Form):
-    remove = forms.BooleanField(label="Remove From Hospital")
 
 
 class TrustedNurses(forms.Form):

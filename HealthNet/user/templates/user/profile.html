@@ -19,9 +19,6 @@
             <li><a href="{% url 'user:eProfile' user.user.pk %}" class="button">Edit</a></li>
         {% endif %}
 
-        {% if user.getType == 'hosAdmin' %}
-            {% include 'user/AppRemCheckbox.html' %}
-        {% endif %}
     {% elif tuser.getType == "doctor" %}
         <li>Email:{{ tuser.user.email }}</li>
 
@@ -44,7 +41,7 @@
         {% endfor %}
 
         {% if user.getType == 'hosAdmin' %}
-            {% include 'user/AppRemCheckbox.html' %}
+            {% include 'user/AppRemLink.html' %}
         {% endif %}
     {% endif %}
 
@@ -61,7 +58,7 @@
             {% if tuser.accepted %}
                 {% include 'user/TrustDropdown.html' %}
             {% endif %}
-            {% include 'user/AppRemCheckbox.html' %}
+            {% include 'user/AppRemLink.html' %}
         {% endif %}
     {% endif %}
 
