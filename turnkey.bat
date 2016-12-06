@@ -1,6 +1,12 @@
 @echo off
 
 cd HealthNet
+python manage.py makemigrations user
+python manage.py migrate user
+
+python manage.py makemigrations emr
+python manage.py migrate emr
+
 python manage.py makemigrations
 python manage.py migrate
 
