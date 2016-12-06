@@ -190,12 +190,14 @@ def viewEMR(request, pk):
             emr = build
 
         if ff.sort != "":
-            if 'date' in form.cleaned_data['sort']:
+            if 'date' in ff.sort:
                 emr = emr.order_by('-date_created')
-            elif 'priority' in form.cleaned_data['sort']:
+            elif 'priority' in ff.sort:
                 emr = emr.order_by('-priority')
-            elif 'aplph' in form.cleaned_data['sort']:
+            elif 'aplph' in ff.sort:
                 emr = emr.order_by('content')
+            elif 'vitals' in ff.sort:
+                emr = list(emr.exclude(emrvitals=None)) + list(emr.filter(emrvitals=None))
 
     ctx = {'EMRItems': emr, 'form': form, 'patient': patient,
            'permissions': getPermissionsContext(user, patient),

@@ -24,7 +24,8 @@ class FilterSortForm(forms.ModelForm):
     sort_choices = (
         ('date', 'Date'),
         ('alph', 'Aplhabetical'),
-        ('priority', 'Priority')
+        ('priority', 'Priority'),
+        ('vitals', 'Vitals')
     )
 
     sort = forms.ChoiceField(required=False, choices=sort_choices, widget=forms.RadioSelect(attrs={'class': 'toolbar_item_checkbox'}))

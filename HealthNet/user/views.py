@@ -983,16 +983,20 @@ def importCSVView(request):
             request.session['message'] = "File successfully uploaded"
             return HttpResponseRedirect(reverse('user:dashboard'))
 
-        request.session['message'] = "File names must be: 'doctors.csv', 'nurses.csv', 'patients.csv'"
-        if "message" in request.session:
-            context['message'] = request.session.pop('message')
-        return HttpResponseRedirect(reverse('user:import'))
-    else:
-        print("get")
-        user = get_user(request)
+    return render(request, 'user/CSV.html', context)
 
-        form = importForm()
 
-        context = {'user': user,
-                   'form': form}
-        return render(request, 'user/CSV.html', context)
+def downloadCsv(request, file):
+    user = get_user(request)
+    if user is None:
+        return unauth(request, "You must be logged in to view this page")
+    if not isHosadmin(user):
+        return unauth(request, "You must be a hospital admin to download csv's")
+
+    path = None
+
+    try:
+        with open("media/csv/{0}_export.csv".format(file), "rb") as f:
+            return HttpResponse(f.read(), content_type="application/force-download")
+    except IOError:
+        return HttpResponse("FAILED")
