@@ -991,14 +991,6 @@ def viewStats(request):
                     kw_dis_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=False), kw_dis_r)
 
 
-                patients_stats.append({'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r})
-                scope_stats['patients_visiting_per'] = mergeAddDict(scope_stats['patients_visiting_per'], numAppts)
-                scope_stats['comm_pres'] = mergeAddDict(scope_stats['comm_pres'], cpres)
-                scope_stats['ave_stay_length'] += avestay
-                scope_stats['kw_admit_r'] = mergeAddDict(scope_stats['kw_admit_r'], kw_admit_r)
-                scope_stats['kw_dis_r'] = mergeAddDict(scope_stats['kw_dis_r'], kw_dis_r)
-
-            scope_stats['comm_pres'] = divideDict(scope_stats['comm_pres'], patients.count())
             scope_stats['ave_stay_length'] /= patients.count()
 
             ctx = getBaseContext(request, user, form=form, title="Statistics", scope_stats=scope_stats, patients_stats=patients_stats)
@@ -1009,3 +1001,31 @@ def viewStats(request):
         form = statsForm()
 
     return render(request, 'user/stats.html', getBaseContext(request, user, form=form, title="Statistics"))
+
+
+def viewCSV(request):
+    user = get_user(request)
+
+    context = {'user': user}
+
+    form = CSVForm()
+    content
+
+    if user is None:
+        return unauth(request, "You must be logged in to view this page")
+    if not userauth.userCan_CSV(user):
+        return  unauth(request, "You must be a Hospital Administrator to view this page.")
+
+    if request.method == "POST":
+        form = CSVForm(request.POST)
+        if (form.is_valid()):
+
+            if 'export' in form.cleaned_data['CSV']:
+                request.session['message'] = "User list exported successfully."
+                exportCSV(False)
+
+            elif 'import' in form.cleaned_data['CSV']:
+                request.session['message'] = "User list imported successfully."
+                importCSV(False)
+
+    return render(request, 'user/CSV.html', context)

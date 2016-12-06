@@ -65,6 +65,10 @@
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
         <li><a href="{% url 'user:stats' %}">System Statistics</a></li>
     {% endif %}
+	
+	{% if user.getType == "hosAdmin" %}
+		<li><a href="{% url 'user:vCSV' %}">CSV</a></li>
+	{% endif %}
 
 
 

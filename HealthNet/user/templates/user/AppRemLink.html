@@ -1,7 +1,6 @@
-<div id="contentBox">
+
     {% if accepted %}
-        <li><a href = "{% url 'user:approval' tuser.user.pk %}">Disapprove</a></li>
+        <li><a href = "{% url 'user:approval' tuser.user.pk %}" class="button">Disapprove</a></li>
     {% else %}
-        <li><a href = "{% url 'user:approval' tuser.user.pk %}">Approve</a></li>
+        <li><a href = "{% url 'user:approval' tuser.user.pk %}" class="button">Approve</a></li>
     {% endif %}
-</div>

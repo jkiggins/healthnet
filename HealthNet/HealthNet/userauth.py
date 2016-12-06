@@ -254,3 +254,11 @@ def userCan_stats(user, *actions):
         auth &= not isPatient(user)
 
     return auth
+
+def userCan_CSV(user):
+    auth = False
+
+    if user.getType() == 'hosAdmin':
+        auth = True
+
+    return auth

@@ -31,6 +31,8 @@ def getEventFormByUserType(type, **kwargs):
 
     return obj(**kwargs)
 
+class CSVForm(forms.Form):
+    CSV = forms.ChoiceField(choices=(('import', 'Import'), ('export', 'Export')), required=True, label="Do you want to Import or Export your users?")
 
 def doctor_nurse_shared_validation(event_form):
     valid = True
