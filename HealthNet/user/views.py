@@ -834,6 +834,16 @@ def viewStats(request):
     if not userauth.userCan_stats(user, 'view'):
         return unauth(request, "You must be a Nurse, Doctor, or Hospital Administrator to view this page")
 
+    start = timezone.now() - datetime.timedelta(days=30)
+    end = timezone.now()
+    kw_admit = ""
+    kw_dis = ""
+    kw_patient = ""
+
+    prescript = True
+    visits_per = True
+    ave_stay_len = True
+
     form = None
     if request.method == "POST":
         form = statsForm(request.POST)
@@ -844,57 +854,75 @@ def viewStats(request):
             end = form.cleaned_data['end']
             kw_admit = form.cleaned_data['kw_admit']
             kw_dis = form.cleaned_data['kw_dis']
-            kw_patient = form.cleaned_data['kw_dis']
+            kw_patient = form.cleaned_data['kw_patient']
 
             # filter boolean options
             prescript = 'com_press' in form.cleaned_data['filters']
             visits_per = 'patients_visiting_per' in form.cleaned_data['filters']
             ave_stay_len = 'ave_stay_length' in form.cleaned_data['filters']
-
-            scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}
-            patients_stats = []  # [{'patient': p, 'visits_per': 0, 'comm_pres': {}, 'ave_stay_length': 0}]
-
-            emritems = EMRItem.objects.none()
-
-
-            if isDoctor(user):
-                patients = user.patient_set.all()
-            else:
-                patients = user.hospital.patient_set.all()
-
-            if kw_patient != "":
-                build = patients.objects.none()
-                for w in kw_patient.split(' '):
-                    build |= patients.filter(user__first_name__contains=w)
-                    build |= patients.filter(user__last_name__contains=w)
-                    build |= patients.filter(user__username__contains=w)
-
-
-            kw_admit_r = dict.fromkeys(kw_admit.split(','))
-            kw_dis_r = dict.fromkeys(kw_admit.split(','))
-
-            for p in patients:
-                numAppts = numAppts_dwmyt(p.event_set.all(), start, end)
-                avestay = averageStay(p.emritem_set.all().exclude(emradmitstatus=None), start, end)
-                cpres = binPrescriptions(p.emritem_set.all().exclude(emrprescription=None), start, end)
-
-                if kw_admit != "":
-                    kw_admit_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=True), kw_admit_r)
-
-                if kw_dis != "":
-                    kw_dis_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=False), kw_dis_r)
-
-
-            scope_stats['ave_stay_length'] /= patients.count()
-
-            ctx = getBaseContext(request, user, form=form, title="Statistics", scope_stats=scope_stats, patients_stats=patients_stats)
-
-            return render(request, 'user/stats.html', ctx)
-
     else:
         form = statsForm()
 
-    return render(request, 'user/stats.html', getBaseContext(request, user, form=form, title="Statistics"))
+    scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}
+    patients_stats = []  # [{'patient': p, 'visits_per': 0, 'comm_pres': {}, 'ave_stay_length': 0}]
+
+    emritems = EMRItem.objects.none()
+
+
+    if isDoctor(user):
+        patients = user.patient_set.all()
+    else:
+        patients = user.hospital.patient_set.all()
+
+    if kw_patient != "":
+        build = Patient.objects.none()
+        for w in kw_patient.split(' '):
+            build |= patients.filter(user__first_name__contains=w)
+            build |= patients.filter(user__last_name__contains=w)
+            build |= patients.filter(user__username__contains=w)
+        patients = build
+
+
+    kw_admit_r = dict.fromkeys(kw_admit.split(','))
+    kw_dis_r = dict.fromkeys(kw_dis.split(','))
+
+    numAppts = None
+    avestay = 0
+    cpres = None
+    for p in patients:
+
+        if visits_per:
+            numAppts = numAppts_dwmyt(p.event_set.all(), start, end)
+            scope_stats['patients_visiting_per'] = mergeAddDict(scope_stats['patients_visiting_per'], numAppts)
+        if ave_stay_len:
+            avestay = averageStay(p.emritem_set.all().exclude(emradmitstatus=None), start, end)
+            scope_stats['ave_stay_length'] += avestay
+
+        if prescript:
+            cpres = binPrescriptions(p.emritem_set.all().exclude(emrprescription=None), start, end)
+            scope_stats['comm_pres'] = mergeAddDict(scope_stats['comm_pres'], cpres)
+
+        if kw_admit != "":
+            kw_admit_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=True), kw_admit_r)
+            scope_stats['kw_admit_r'] = mergeAddDict(scope_stats['kw_admit_r'], kw_admit_r)
+
+        if kw_dis != "":
+            kw_dis_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=False), kw_dis_r)
+            scope_stats['kw_dis_r'] = mergeAddDict(scope_stats['kw_dis_r'], kw_dis_r)
+
+        patients_stats.append({'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r})
+
+
+    if prescript:
+        scope_stats['comm_pres'] = divideDict(scope_stats['comm_pres'], patients.count())
+
+    if ave_stay_len:
+        scope_stats['ave_stay_length'] /= patients.count()
+
+    ctx = getBaseContext(request, user, form=form, title="Statistics", scope_stats=scope_stats, patients_stats=patients_stats, ave_stay_len=ave_stay_len, prescript=prescript, visits_per=visits_per)
+
+    return render(request, 'user/stats.html', ctx)
+
 
 #
 # This function displays the choice to either export or import a csv as a dropdown

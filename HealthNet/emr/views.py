@@ -89,7 +89,6 @@ def emrActionAjax(request, pk):
             return HttpResponse("PASS")
 
         item.save()
-        return emrItemAjax(request, pk)
     return HttpResponse("PASS")
 
 

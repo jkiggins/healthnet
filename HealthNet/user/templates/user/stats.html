@@ -60,6 +60,7 @@
 {#        scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}#}
         <div class="card_body">
             <table style="border-collapse: separate;border-spacing: 0 5px;">
+            {% if visits_per %}
                 <tr><td>Average Number of Patients Visiting the Hospital Per</td>
                     <td class = "stat_data_left">
                         <span class="btm_bdr_org"> Day: {{ scope_stats.patients_visiting_per.day|floatformat:2 }}</span>
@@ -69,7 +70,9 @@
                         <span class="btm_bdr_org"> Total: {{ scope_stats.patients_visiting_per.total|floatformat:2 }}</span>
                     </td>
                 </tr>
+            {% endif %}
 
+            {% if prescript %}
                 <tr>
                     <td>Prescription Frequency</td>
                     <td class = "stat_data_left">
@@ -78,10 +81,13 @@
                         {% endfor %}
                     </td>
                 </tr>
+            {% endif %}
 
+            {% if avg_stay_len %}
                 <tr><td>Average Stay Length</td><td class = "stat_data_left"><span class="btm_bdr_org"> {{ scope_stats.ave_stay_length|floatformat:2 }} Days</span></td></tr>
+            {% endif %}
                 {% if scope_stats.kw_admit_r %}
-                    <tr><td>Average Stay Length</td>
+                    <tr><td>Admit Keyword Frequency</td>
                         <td class = "stat_data_left">
                             {% for k, v in scope_stats.kw_admit_r.items %}
                                 <span class="btm_bdr_org"> {{ k }}: {{ v }}</span>
@@ -110,9 +116,10 @@
 {#                {'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r}#}
                 <div class="stat_patient_wrap">
                     <div class="stat_patient_heading">{{ dict.patient.user.get_full_name }} <a id="id_{{ dict.patient.pk }}"><div class="arrow-down"></div> </a></div>
-                    <div class="toolbar_drop_down_js hide_l" data-toggle_id="id_{{ dict.patient.pk }}">
+                    <div class="toolbar_drop_down_js no_bg hide_l" data-toggle_id="id_{{ dict.patient.pk }}">
                         <div class="card_body">
                         <table style="border-collapse: separate;border-spacing: 0 5px;">
+                            {% if visits_per %}
                             <tr><td>Average Number of Visits to Hospital</td>
                                 <td class = "stat_data_left">
                                    <span class="btm_bdr_org"> Day: {{ dict.visits_per.day|floatformat:2 }}</span>
@@ -122,7 +129,9 @@
                                    <span class="btm_bdr_org"> Total: {{ dict.visits_per.total|floatformat:2 }}</span>
                                 </td>
                             </tr>
+                            {% endif %}
 
+                            {% if prescript %}
                             <tr>
                                 <td>Prescription Frequency</td>
                                 <td class = "stat_data_left">
@@ -131,10 +140,14 @@
                                     {% endfor %}
                                 </td>
                             </tr>
+                            {% endif %}
 
-                            <tr><td>Average Stay Length</td><td class = "stat_data_left">{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
+                            {% if ave_stay_length %}
+                            <tr><td>Average Stay Length</td><td class = "stat_data_left">{{ dict.ave_stay_length|floatformat:2 }} Days</td></tr>
+                            {% endif %}
+
                             {% if scope_stats.kw_admit_r %}
-                                <tr><td>Average Stay Length</td>
+                                <tr><td>Admit Keyword Frequency</td>
                                     <td class = "stat_data_left">
                                         {% for k, v in dict.kw_admit_r.items %}
                                             <span class="btm_bdr_org">{{ k }}: {{ v }}</span>

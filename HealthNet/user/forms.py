@@ -335,11 +335,11 @@ class statsForm(forms.Form):
         required=False)
 
     start = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIds"}),
-                                         initial=timezone.now() + datetime.timedelta(days=1, minutes=30),
+                                         initial=timezone.now() - datetime.timedelta(days=-30),
                                          label="Start", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
 
     end = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeIde"}),
-                                         initial=timezone.now() + datetime.timedelta(days=1, minutes=30),
+                                         initial=timezone.now(),
                                          label="End", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
 
     filter_choices = (

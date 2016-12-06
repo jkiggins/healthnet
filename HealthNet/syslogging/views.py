@@ -19,7 +19,7 @@ def view_log(request):
 
     form = None
 
-    logs = Syslog.objects.all()
+    logs = Syslog.objects.all().order_by("date_created")
 
     if request.method == "POST":
         form = DateSearchForm(request.POST)

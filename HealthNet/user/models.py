@@ -10,8 +10,11 @@ import datetime
 
 
 # this extension of user represents a nurse
+class OrderedNotesMixin(object):
+    def getOrderedNotes(self):
+        return self.user.notification_set.all().order_by("-date_created")
 
-class Nurse(models.Model):
+class Nurse(models.Model, OrderedNotesMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     accepted = models.BooleanField(default=False)
@@ -25,7 +28,7 @@ class Nurse(models.Model):
 
 # this extension of user represents an admin
 
-class HospitalAdmin(models.Model):
+class HospitalAdmin(models.Model, OrderedNotesMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null = True, blank = True)
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     user.is_staff = True
@@ -39,7 +42,7 @@ class HospitalAdmin(models.Model):
 
 # this extension of user represents a patient
 
-class Patient(models.Model):
+class Patient(models.Model, OrderedNotesMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospital = models.ForeignKey('hospital.Hospital', null=True, blank=True)
     doctor = models.ForeignKey('Doctor', null=True, blank=True)
@@ -80,7 +83,7 @@ class Contact(models.Model, ModelDiffMixin):
 #this extension of user represents a doctor
 
 
-class Doctor(models.Model):
+class Doctor(models.Model, OrderedNotesMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     hospitals = models.ManyToManyField('hospital.Hospital')
     patientCap = models.IntegerField(default=5)  # maximum number of patients a doctor can have

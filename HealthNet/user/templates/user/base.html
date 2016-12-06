@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
 
@@ -62,13 +62,13 @@
         <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
         <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
-        <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
         <li><a href="{% url 'user:stats' %}">System Statistics</a></li>
         <li><a href="{% url 'user:sendMessage' %}">Message</a></li>
     {% endif %}
 	
 	{% if user.getType == "hosAdmin" %}
 		<li><a href="{% url 'user:vCSV' %}">CSV</a></li>
+        <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
 	{% endif %}
 
 
@@ -79,13 +79,17 @@
         </div>
         <div id = "note_drop" class="drop_down_hide">
             {% if user.user.notification_set.all.count > 0 %}
-                {% for note in user.user.notification_set.all %}
+                {% for note in user.getOrderedNotes %}
                     <div class="notice" data-dis_url="{% url 'user:disnote' note.pk %}" onfocus="this.parentElement.focus()">
                         <label>{{ note.title }}</label>
+                        <br/>
+                        <span style="font-size: 9pt;">{{ note.date_created }}</span>
+                        <br />
+                        {{ note.content }}
+                        <br />
                         <a onclick="ajax_dismiss_note(this.parentElement)">Dismiss</a>
-                        {% if note.getLine != "" %}
-                            <a href="{{ note.getLink }}">View</a>
-                        {% endif %}
+
+                        <a href="{{ note.getLink }}">View</a>
                     </div>
                 {% endfor %}
             {% else %}

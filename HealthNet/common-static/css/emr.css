@@ -654,6 +654,11 @@
 	display: block;
 }
 
+.no_bg
+{
+	background-color: transparent;
+}
+
 .half
 {
 	/* display: inline; */

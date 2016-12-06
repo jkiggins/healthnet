@@ -310,12 +310,14 @@ def importCsv(is_hash):
     call_command('db_beta', hash=is_hash)
 
 def mergeAddDict(d1, d2):
-    for key in d2:
-        if key in d1:
-            if not(d1[key] is None or d2[key] is None):
-                d1[key] += d2[key]
-        else:
-            d1[key] = d2[key]
+    if not((d1 is None) or (d2 is None)):
+        for key in d2:
+            if key in d1:
+                if not(d1[key] is None or d2[key] is None):
+                    d1[key] += d2[key]
+            else:
+                d1[key] = d2[key]
+        return d1
     return d1
 
 def divideDict(mdict, len, *args):
