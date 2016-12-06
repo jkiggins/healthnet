@@ -258,6 +258,7 @@ class AdmitDishchargeForm(EMRItemCreateForm):
             else:
                 self.fields[field].initial = value
                 self.fields[field].disabled = True
+                self.fields[field].required = False
 
     def defaults(self, model):
         super(AdmitDishchargeForm, self).defaults(model)

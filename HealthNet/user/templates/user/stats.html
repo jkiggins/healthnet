@@ -113,7 +113,7 @@
                     <div class="toolbar_drop_down_js hide_l" data-toggle_id="id_{{ p.patient.pk }}">
                         <table style="border-collapse: separate;border-spacing: 0 5px;">
                             <tr><td>Average Number of Visits to Hospital</td>
-                                <td>Day: {{ dict.visits_per.day|floatformat:2 }}<br />
+                                <td class = "stat_data_left">Day: {{ dict.visits_per.day|floatformat:2 }}<br />
                                     Week: {{ dict.visits_per.week|floatformat:2 }}<br />
                                     Month: {{ dict.visits_per.month|floatformat:2 }}<br />
                                     Year: {{ dict.visits_per.year|floatformat:2 }}<br />
@@ -123,17 +123,17 @@
 
                             <tr>
                                 <td>Prescription Frequency</td>
-                                <td>
+                                <td class = "stat_data_left">
                                     {% for key, value in dict.comm_pres.items %}
                                         {{ key }}: {{ value|floatformat:2 }}<br />
                                     {% endfor %}
                                 </td>
                             </tr>
 
-                            <tr><td>Average Stay Length</td><td>{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
+                            <tr><td>Average Stay Length</td><td class = "stat_data_left">{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
                             {% if scope_stats.kw_admit_r %}
                                 <tr><td>Average Stay Length</td>
-                                    <td>
+                                    <td class = "stat_data_left">
                                         {% for k, v in dict.kw_admit_r.items %}
                                             {{ k }}: {{ v }}<br />
                                         {% endfor %}
@@ -142,7 +142,7 @@
 
                             {% if scope_stats.kw_dis_r %}
                                 <tr><td>Discharge Keyword Frequency</td>
-                                    <td>
+                                    <td class = "stat_data_left">
                                         {% for k, v in dict.kw_dis_r.items %}
                                             {{ k }}: {{ v }}<br />
                                         {% endfor %}

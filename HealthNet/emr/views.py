@@ -413,6 +413,7 @@ class AdmitDishchargeView(DetailView):
             ctx['formtitle'] = "Admission Form"
             mdict['title'] = "Admission"
 
+
             if cuser.getType() in ['nurse', 'hosAdmin']:
                 form.lockField('hospital', cuser.hospital)
                 mdict['hospital'] = cuser.hospital
