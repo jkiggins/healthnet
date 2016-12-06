@@ -34,6 +34,31 @@ def getEventFormByUserType(type, **kwargs):
 class CSVForm(forms.Form):
     CSV = forms.ChoiceField(choices=(('import', 'Import'), ('export', 'Export')), required=True, label="Do you want to Import or Export your users?")
 
+
+class importForm(forms.Form):
+    doctorfile = forms.FileField(widget=forms.FileInput(), label="Doctor File", required=False)
+    nursefile = forms.FileField(widget=forms.FileInput(), label="Nurse File", required=False)
+    patientfile = forms.FileField(widget=forms.FileInput(), label="Patient File", required=False)
+
+    def is_valid(self):
+        valid = super(importForm, self).is_valid()
+        if not valid:
+            return valid
+
+        print(self.cleaned_data)
+
+        if self.cleaned_data['doctorfile'] is None:
+            valid = False
+            self.add_error('doctorfile', "Doctor file must be 'doctor.csv'")
+        if self.cleaned_data['nursefile'] is None:
+            valid = False
+            self.add_error('nursefile', "Nurse file must be 'doctor.csv'")
+        if self.cleaned_data['patientfile'] is None:
+            valid = False
+            self.add_error('patientfile', "Patient file must be 'doctor.csv'")
+        return valid
+
+
 def doctor_nurse_shared_validation(event_form):
     valid = True
 

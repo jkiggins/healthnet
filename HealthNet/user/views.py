@@ -898,24 +898,46 @@ def viewCSV(request):
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
             elif 'import' in form.cleaned_data['CSV']:
-                request.session['message'] = "User list imported successfully."
-                importCsv(False)
-                return HttpResponseRedirect(reverse('user:dashboard'))
+                return HttpResponseRedirect(reverse('user:import'))
 
     return render(request, 'user/CSV.html', context)
 
 
-def downloadCsv(request, file):
-    user = get_user(request)
-    if user is None:
-        return unauth(request, "You must be logged in to view this page")
-    if not isHosadmin(user):
-        return unauth(request, "You must be a hospital admin to download csv's")
+def importCSVView(request):
 
-    path = None
+    if request.method == "POST":
+        print("post")
+        user = get_user(request)
 
-    try:
-        with open("media/csv/{0}_export.csv".format(file), "rb") as f:
-            return HttpResponse(f.read(), content_type="application/force-download")
-    except IOError:
-        return HttpResponse("FAILED")
+        form = importForm(request.POST, request.FILES)
+
+        context = {'user':user}
+        if form.is_valid():
+            print("valid")
+            docfile = form.cleaned_data['doctorfile']
+            nurfile = form.cleaned_data['nursefile']
+            patfile = form.cleaned_data['patientfile']
+
+            if docfile.name != "doctor.csv" or nurfile.name != "nurse.csv" or patfile.name != "patient.csv":
+                request.session['message'] = "File names must be: 'doctors.csv', 'nurses.csv', 'patients.csv'"
+                if "message" in request.session:
+                    context['message'] = request.session.pop('message')
+                return HttpResponseRedirect(reverse('user:import', context))
+
+            importCsv(False)
+            request.session['message'] = "File successfully uploaded"
+            return HttpResponseRedirect(reverse('user:dashboard'))
+
+        request.session['message'] = "File names must be: 'doctors.csv', 'nurses.csv', 'patients.csv'"
+        if "message" in request.session:
+            context['message'] = request.session.pop('message')
+        return HttpResponseRedirect(reverse('user:import'))
+    else:
+        print("get")
+        user = get_user(request)
+
+        form = importForm()
+
+        context = {'user': user,
+                   'form': form}
+        return render(request, 'user/CSV.html', context)

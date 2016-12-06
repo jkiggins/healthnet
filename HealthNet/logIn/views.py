@@ -112,6 +112,12 @@ class DoctorRegister(View):
                 Syslog.userCreate(d)
                 request.session[
                     'message'] = "You have successfully registered! However, you are not allowed to log into Healthnet until you are approved by your hospital administrator."
+                hosads = HospitalAdmin.objects.none()
+                for hos in d.hospitals.get_queryset():
+                    hosads |= hos.hospitaladmin_set.all()
+
+                for h in hosads:
+                    Notification.push(h.user, "New Staff Approval Waiting", "", 'user:vProfile,{0}'.format(d.user.pk))
                 return HttpResponseRedirect(reverse('login'))
 
         else:
@@ -150,6 +156,9 @@ class NurseRegister(View):
                 Syslog.userCreate(n)
                 request.session[
                     'message'] = "You have successfully registered! However, you are not allowed to log into Healthnet until you are approved by your hospital administrator."
+                hosads = n.hospital.hospitaladmin_set.all()
+                for h in hosads:
+                    Notification.push(h.user, "New Staff Approval Waiting", "", 'user:vProfile,{0}'.format(n.user.pk))
                 return HttpResponseRedirect(reverse('login'))
 
         else:

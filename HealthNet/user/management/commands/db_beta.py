@@ -143,6 +143,8 @@ class Command(BaseCommand):
 
     def handle(self, **options):
 
+        Event.objects.all().delete()
+        EMRItem.objects.all().delete()
         Hospital.objects.all().delete()
         User.objects.all().delete()
         Doctor.objects.all().delete()

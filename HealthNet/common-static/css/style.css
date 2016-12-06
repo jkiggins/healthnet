@@ -429,6 +429,11 @@ DIV.fieldWrapper
 	width: 100%;
 }
 
+.note_heading[data-isnote="0"]
+{
+	background-color: black;
+}
+
 .note_heading_label
 {
 	position: absolute;

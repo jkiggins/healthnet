@@ -74,7 +74,7 @@
 
 
     <div tabindex=0 class="drop_down_wrap note_wrap">
-        <div id = "note" class="note_heading" data-isnote="">
+        <div id = "note" class="note_heading" data-isnote="{{ user.user.notification_set.all.count }}">
             Notifications
         </div>
         <div id = "note_drop" class="drop_down_hide">

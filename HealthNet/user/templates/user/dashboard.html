@@ -2,17 +2,21 @@
 
 {% block content %}
 
-    {% if user.getType != "hosAdmin" and user.getType != "nurse" %}
+    {% if user.getType == "patient" %}
         {% comment %} this displays fullcalendar.io {% endcomment %}
-
-
-        {% if user.getType != "nurse" %}
-            {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
-        {% endif %}
-
+        {% include 'user/calendar.html' %} {% comment %} This include requires access to the events context variable {% endcomment %}
         <div id='calendar' class='calendar'></div>
     {% elif user.getType == "nurse" %}
         {% include 'user/nurseDash.html' %}
+    {% elif user.getType == "doctor" %}
+        {% include 'user/calendar.html' %}
+        <div id='calendar' class='calendar'></div>
+        <div class="content_box">
+            <h2>Patients</h2>
+            {% for p in patients %}
+                <li><a href="{% url 'user:vProfile' p.user.pk %}">{{ p.user.get_full_name }}</a></li>
+            {% endfor %}
+        </div>
     {% else %}
         {% include 'user/hosAdDash.html' %}
 

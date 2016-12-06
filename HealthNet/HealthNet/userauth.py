@@ -67,7 +67,6 @@ def userCan_Event(user, event, *actions):
     if 'create' in actions:
         auth_l = True
         if utype == 'patient' and user.accepted == False:
-            print(2)
             return False
         elif utype == 'patient':
             auth |= True
