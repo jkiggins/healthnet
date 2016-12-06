@@ -1023,8 +1023,12 @@ def importCSVView(request):
             importCsv(False)
             request.session['message'] = "File successfully uploaded"
             return HttpResponseRedirect(reverse('user:dashboard'))
-
-    return render(request, 'user/CSV.html', context)
+    else:
+        user = get_user(request)
+        context = {'user': user}
+        form = importForm()
+        context['form'] = form
+        return render(request, 'user/CSV.html', context)
 
 
 def downloadCsv(request, file):
