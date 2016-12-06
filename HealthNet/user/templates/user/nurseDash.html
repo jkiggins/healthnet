@@ -1,0 +1,18 @@
+<div class="cardWrapper">
+    <div class="card" style="width: 18%;">
+        <li><h2>Trusted By</h2></li>
+        {% for doc in trustdocs %}
+            <li>{{ doc.user.get_full_name }}: <a href="{% url 'user:vProfile' doc.user.id %}">View Profile</a></li>
+        {% endfor %}
+    </div>
+    <div class="card" style="width: 18%;">
+        <li><h2>Patients</h2></li>
+        {% for pat in patients %}
+            <li>{{ pat.user.get_full_name }}: <a href="{% url 'user:vProfile' pat.user.id %}">View Profile</a></li>
+        {% endfor %}
+    </div>
+    <div class="card" style="width: 18%;">
+        <li><h2>Hospital</h2></li>
+        <li>{{ user.hospital }}</li>
+    </div>
+</div>

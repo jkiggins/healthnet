@@ -111,6 +111,8 @@ def userCan_Profile(cuser, tuser, *actions):
             auth_l |= (cuser.hospital in tuser.hospitals.all())
         elif (tutype == 'nurse' and utype == 'doctor'):
             auth_l |= (tuser.hospital in cuser.hospitals.all())
+        elif (utype == 'nurse' and tutype == 'patient'):
+            auth_l |= (cuser.hospital == tuser.hospital)
         elif (tutype == 'doctor' and utype == 'doctor'):
             auth_l |= (tuser.hospitals.all() & cuser.hospitals.all()).count() > 0
         elif (tutype == 'nurse' and utype == 'nurse'):

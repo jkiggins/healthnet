@@ -139,12 +139,42 @@ def viewProfileSelf(request):
     if (cuser.getType() == 'patient') and not userauth.userCan_Profile(cuser, cuser, 'view'):
         return HttpResponseRedirect(reverse('user:eProfile' , args={cuser.user.pk}))
     else:
-        return render(request, 'user/viewprofile.html', {'user': cuser, 'tuser': cuser})
+        if cuser.getType() == "nurse":
+            context = {'user': cuser,
+                       'tuser': cuser,
+                       'trustdocs': cuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
+                       'events': None,
+                       'view_calendar': False}
+        else:
+            context = {'user': cuser,
+                       'tuser': cuser,
+                       'events': getVisibleEvents(cuser),
+                       'view_calendar': True}
+        return render(request, 'user/viewprofile.html', context)
 
 
 def viewProfile(request, pk):
-    if not request.method == "POST":
+    if request.method == "POST":
 
+        user = get_user(request)
+
+        if user is None:
+            return HttpResponseRedirect(reverse('login'))
+
+        tuser = get_object_or_404(User, pk=pk)
+        tuser = getHealthUser(tuser)
+
+        trustform = TrustedNurses(request.POST)
+        trustform.setQuerySet(user.hospital.doctor_set.all().filter(accepted=True).exclude(pk__in = tuser.doctor_set.all()))
+        print("hello")
+        if trustform.is_valid():
+            print("valid")
+            if trustform.cleaned_data['docs']:
+                trustform.cleaned_data['docs'].nurses.add(tuser)
+
+        return HttpResponseRedirect(reverse('user:vProfile', args=(pk,)))
+    else:
+        print("hi")
         user = get_user(request)
         tuser = None
 
@@ -161,11 +191,11 @@ def viewProfile(request, pk):
         if user.user.pk == tuser.user.pk:
             return HttpResponseRedirect(reverse('user:vProfilec'))
 
-        if tuser.getType() == 'doctor' or tuser.getType() == 'nurse':
+        if tuser.getType() == 'nurse':
             if tuser.accepted:
                 if user.getType() == "hosAdmin":
                     trustform = TrustedNurses()
-                    trustform.setQuerySet(user.hospital.doctor_set.all().filter(accepted=True))
+                    trustform.setQuerySet(user.hospital.doctor_set.all().filter(accepted=True).exclude(pk__in = tuser.doctor_set.all()))
                 else:
                     trustform = None
 
@@ -218,27 +248,6 @@ def viewProfile(request, pk):
                     'view_calendar': True}
 
         return render(request, 'user/viewprofile.html', context)
-    else:
-        user = get_user(request)
-
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
-
-        tuser = get_object_or_404(User, pk=pk)
-        tuser = getHealthUser(tuser)
-
-        if not userauth.userCan_Profile(user, tuser, 'view'):
-            return HttpResponseRedirect(reverse('user:dashboard'))
-
-        if user.user.pk == tuser.user.pk:
-            return HttpResponseRedirect(reverse('user:vProfilec'))
-
-        trustform = TrustedNurses(request.POST)
-        if trustform.is_valid():
-            if trustform.cleaned_data['docs']:
-                trustform.cleaned_data['docs'].nurses.add(tuser)
-
-        return HttpResponseRedirect(reverse('user:vProfile', pk))
 
 
 def approval(request, pk):
@@ -256,6 +265,10 @@ def approval(request, pk):
             p.hospital=None
             p.save()
             Notification.push(p.user, "Your doctor no longer is active. Change doctors", "", 'user:eProfile,{0}'.format(p.user.pk))
+        user.nurses = Nurse.objects.none()
+    elif not user.accepted and user.getType()=='nurse':
+        user.doctor_set.clear()
+
 
     user.save()
 
@@ -676,9 +689,7 @@ def dashboardView(request):
         context['events'] = getVisibleEvents(user).order_by('startTime')
         context['calendarView'] = "agendaDay"
     elif(user.getType() == "nurse"):
-        context['patients'] = user.hospital.patient_set.all()
-        context['doctors'] = user.hospital.doctor_set.all()
-        context['calendarView'] = "agendaWeek"
+        return HttpResponseRedirect(reverse('user:nurseDash'))
     elif(user.getType() == "hosAdmin"):
         return HttpResponseRedirect(reverse('user:hosDash', args={user.user.pk}))
 
@@ -689,6 +700,21 @@ def dashboardView(request):
         context['message'] = message
     return render(request, 'user/dashboard.html', context)
 
+
+def nurseDashView(request):
+    user = get_user(request)
+
+    if user is None:
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('admin:index'))
+        else:
+            return HttpResponseRedirect(reverse('login'))
+
+    context = {'user': user}
+    context['trustdocs'] = user.doctor_set.all().filter(accepted=True)
+    context['patients'] = user.hospital.patient_set.all().filter(hospital=user.hospital)
+    context['title'] = "Dashboard"
+    return render(request, 'user/dashboard.html', context)
 
 def hosAdDashView(request, pk):
     user = get_user(request)

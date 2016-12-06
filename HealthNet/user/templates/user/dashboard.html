@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    {% if user.getType != "hosAdmin" %}
+    {% if user.getType != "hosAdmin" and user.getType != "nurse" %}
         {% comment %} this displays fullcalendar.io {% endcomment %}
         <script>
 
@@ -34,6 +34,8 @@
         {% endif %}
 
         <div id='calendar' class='calendar'></div>
+    {% elif user.getType == "nurse" %}
+        {% include 'user/nurseDash.html' %}
     {% else %}
         {% include 'user/hosAdDash.html' %}
 

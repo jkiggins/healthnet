@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^createEvent/d$', views.createEvent, {'depend': True}, name='veEventd'),
     url(r'^dashboard/', views.dashboardView, name='dashboard'),
     url(r'^(?P<pk>[0-9]+)/adminDash/', views.hosAdDashView, name='hosDash'),
+    url(r'nurseDash/', views.nurseDashView, name='nurseDash'),
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
     url(r'^stats$', views.viewStats, name='stats'),
     url(r'^(?P<pk>[0-9]+)/approval$', views.approval, name='approval')
