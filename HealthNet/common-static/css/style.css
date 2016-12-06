@@ -101,7 +101,7 @@ li {
 	list-style-type: none;
 	background-color: black;
 	box-shadow: 3px 3px 20px #000;
-	z-index: 11;
+	z-index: 10000;
 	padding-left: 20px;
 }
 
@@ -446,15 +446,14 @@ DIV.fieldWrapper
 }
 
 .arrow-down {
+	position: absolute;
+	top: 25px;
+	right: 10px;
 	width: 0;
 	height: 0;
 	border-left: 20px solid transparent;
 	border-right: 20px solid transparent;
-
-	border-top: 20px solid #f00;
-	margin-left: 3px;
-	margin-right: 3px;
-
+	border-top: 20px solid #e96f38;
 }
 
 .note_heading:hover, .note_wrap:hover

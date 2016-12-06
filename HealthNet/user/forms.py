@@ -231,8 +231,6 @@ class EditProfileForm(forms.Form):
         self.fields['emuser'].queryset = User.objects.all().exclude(pk = user.user.pk)
 
     def is_valid(self):
-        self.fields['doctor'].required = True
-        self.fields['hospital'].required = True
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['phone'].required = True
@@ -249,8 +247,8 @@ class EditProfileForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
-        self.fields['doctor'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
-        self.fields['hospital'].widget.attrs = {'onchange': "resolve_pd_dependancy(this)"}
+        self.fields['doctor'].widget.attrs = {'onchange': "resolve_dh_dependancy(this)"}
+        self.fields['hospital'].widget.attrs = {'onchange': "resolve_dh_dependancy(this)"}
 
 
 class HosAdminSearchForm(forms.Form):

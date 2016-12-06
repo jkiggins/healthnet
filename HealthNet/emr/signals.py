@@ -18,13 +18,15 @@ def hasattr_s(object, *args):
 @receiver(post_delete, sender=EMRItem)
 def notePostSave(sender, instance, *args, **kwargs):
     new = 'emritem_ptr' in instance.changed_fields
-    patient = instance.patient
+    if hasattr_s(instance, 'patient'):
+        patient = instance.patient
 
-    link = 'emr:vemri,{0}'.format(instance.pk)
-    if new:
-        Notification.push(patient.user, "Note added to your EMR", "", link)
-    else:
-        Notification.push(patient.user, "A note in your EMR was updated", "", link)
+        link = 'emr:vemri,{0}'.format(instance.pk)
+        if new:
+            Notification.push(patient.user, "Note added to your EMR", "", link)
+        else:
+            Notification.push(patient.user, "A note in your EMR was updated", "", link)
+
 
 @receiver(post_save, sender=EMRVitals)
 def vitalsPostSave(sender, instance, *args, **kwargs):

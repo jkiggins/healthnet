@@ -1,4 +1,5 @@
 {% extends 'user/base.html' %}
+{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 
 {% block name %} {{ user.user.get_full_name }} {% endblock %}
 

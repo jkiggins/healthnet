@@ -1,11 +1,4 @@
-{% extends 'user/base.html' %}
-{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
-{% block content %}
-
-    {% if form != None %}
-        <div id="contentBox">
-            <li>* = required</li>
-            <form id = "eprofile_form" action="" method="POST" enctype="multipart/form-data">
+<form id = "eprofile_form" action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <li><h2>Personal Information</h2></li>
                 <li>* First Name:{{ form.first_name }}</li>
@@ -30,7 +23,4 @@
                 <li>Full Name:{{ form.full_name }}</li>
                 <li>Phone Number:{{ form.emphone }}</li>
                 <input type = "button" onclick="submit_form(this)" value = "Save" class="button"/>
-            </form>
-        </div>
-    {% endif %} 
-{% endblock %}
+</form>

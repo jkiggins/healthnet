@@ -272,13 +272,13 @@ def EMRItemCreate(request, pk, type):
         if form.is_valid():
             m = form.save(commit=False, patient=patient)
 
-            print(m.__dict__.keys())
+
             if isPrescription(m):
-                print("presave")
+
                 m.provider = cuser
 
             m.save()
-            print("postsave")
+
 
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
 
@@ -417,8 +417,7 @@ class AdmitDishchargeView(DetailView):
 
 
             if cuser.getType() in ['nurse', 'hosAdmin']:
-                form.lockField('hospital', cuser.hospital)
-                form.fields['hospital'].queryset = Hospital.objects.all().filter(pk=cuser.hospital.pk)
+                form.lockField('hospital', cuser.hospital.pk)
                 mdict['hospital'] = cuser.hospital
             elif cuser.getType() == 'doctor':
                 form.fields['hospital'].queryset = cuser.hospitals.all()
@@ -432,7 +431,6 @@ class AdmitDishchargeView(DetailView):
 
 
         if form.is_valid():
-            print("hi")
             m = form.save(commit=False, patient=patient, provider=cuser)
 
             viewhelper.add_dict_to_model(mdict, m)

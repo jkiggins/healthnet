@@ -1,5 +1,5 @@
 {% extends 'emr/base_emr.html' %}
-
+{% block back %}<button onclick="go('{% url 'user:dashboard' %}')">Back</button>{% endblock %}
 {% block content %}
     <div id = stats_manage>
         <form action="" method="POST" enctype="multipart/form-data" onkeypress="submit_on_enter()">
@@ -109,15 +109,17 @@
             {% for dict in patients_stats %}
 {#                {'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r}#}
                 <div class="stat_patient_wrap">
-                    <div class="stat_patient_heading">{{ dict.patient.user.get_full_name }} <a id="id_{{ p.patient.pk }}">show</a></div>
-                    <div class="toolbar_drop_down_js hide_l" data-toggle_id="id_{{ p.patient.pk }}">
+                    <div class="stat_patient_heading">{{ dict.patient.user.get_full_name }} <a id="id_{{ dict.patient.pk }}"><div class="arrow-down"></div> </a></div>
+                    <div class="toolbar_drop_down_js hide_l" data-toggle_id="id_{{ dict.patient.pk }}">
+                        <div class="card_body">
                         <table style="border-collapse: separate;border-spacing: 0 5px;">
                             <tr><td>Average Number of Visits to Hospital</td>
-                                <td class = "stat_data_left">Day: {{ dict.visits_per.day|floatformat:2 }}<br />
-                                    Week: {{ dict.visits_per.week|floatformat:2 }}<br />
-                                    Month: {{ dict.visits_per.month|floatformat:2 }}<br />
-                                    Year: {{ dict.visits_per.year|floatformat:2 }}<br />
-                                    Total: {{ dict.visits_per.total|floatformat:2 }}<br />
+                                <td class = "stat_data_left">
+                                   <span class="btm_bdr_org"> Day: {{ dict.visits_per.day|floatformat:2 }}</span>
+                                   <span class="btm_bdr_org"> Week: {{ dict.visits_per.week|floatformat:2 }}</span>
+                                   <span class="btm_bdr_org"> Month: {{ dict.visits_per.month|floatformat:2 }}</span>
+                                   <span class="btm_bdr_org"> Year: {{ dict.visits_per.year|floatformat:2 }}</span>
+                                   <span class="btm_bdr_org"> Total: {{ dict.visits_per.total|floatformat:2 }}</span>
                                 </td>
                             </tr>
 
@@ -125,7 +127,7 @@
                                 <td>Prescription Frequency</td>
                                 <td class = "stat_data_left">
                                     {% for key, value in dict.comm_pres.items %}
-                                        {{ key }}: {{ value|floatformat:2 }}<br />
+                                        <span class="btm_bdr_org"> {{ key }}: {{ value|floatformat:2 }}</span>
                                     {% endfor %}
                                 </td>
                             </tr>
@@ -135,7 +137,7 @@
                                 <tr><td>Average Stay Length</td>
                                     <td class = "stat_data_left">
                                         {% for k, v in dict.kw_admit_r.items %}
-                                            {{ k }}: {{ v }}<br />
+                                            <span class="btm_bdr_org">{{ k }}: {{ v }}</span>
                                         {% endfor %}
                                     </td></tr>
                             {% endif %}
@@ -144,11 +146,12 @@
                                 <tr><td>Discharge Keyword Frequency</td>
                                     <td class = "stat_data_left">
                                         {% for k, v in dict.kw_dis_r.items %}
-                                            {{ k }}: {{ v }}<br />
+                                            <span class="btm_bdr_org"> {{ k }}: {{ v }}</span>
                                         {% endfor %}
                                     </td></tr>
                             {% endif %}
                         </table>
+                        </div>
                     </div>
                 </div>
             {% endfor %}

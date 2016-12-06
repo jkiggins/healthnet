@@ -150,6 +150,7 @@ class Command(BaseCommand):
         Nurse.objects.all().delete()
         HospitalAdmin.objects.all().delete()
         User.objects.all().delete()
+        Notification.objects.all().delete()
 
         self.handleDoctors('media/csv/doctor.csv')
         self.handleNurses('media/csv/nurse.csv')

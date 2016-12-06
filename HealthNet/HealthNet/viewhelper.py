@@ -312,7 +312,8 @@ def importCsv(is_hash):
 def mergeAddDict(d1, d2):
     for key in d2:
         if key in d1:
-            d1[key] += d2[key]
+            if not(d1[key] is None or d2[key] is None):
+                d1[key] += d2[key]
         else:
             d1[key] = d2[key]
     return d1

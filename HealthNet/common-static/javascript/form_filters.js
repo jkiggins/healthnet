@@ -33,6 +33,23 @@ function reqError(err) {
   console.log('Fetch Error :-S', err);
 }
 
+function resolve_dh_dependancy(e) {
+	var oReq = new XMLHttpRequest();
+    oReq.onload = dh_reqListener;
+    oReq.onerror = reqError;
+    oReq.open('POST', 'd', true);
+
+    oReq.send(new FormData(e.form));
+}
+
+function dh_reqListener() {
+	var html = this.responseText;
+	if (html.toUpperCase() != "PASS") {
+		document.getElementById('eprofile_form').innerHTML = html;
+		initForms();
+	}
+}
+
 //EMR
 function ajax_emr_item(e) {
 

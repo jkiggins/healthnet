@@ -4,50 +4,33 @@ from django.shortcuts import render
 from django.views.generic import View
 
 from HealthNet.viewhelper import get_user
+import HealthNet.viewhelper as viewhelper
 from .forms import DateSearchForm
 from .models import Syslog
 
 
-# Create your views here.
+def view_log(request):
+    user = get_user(request)
+    if (user is None):
+        return viewhelper.unauth(request, "You much be logged in to view this page")
 
-class view_log(View):
+    if not viewhelper.isHosadmin(user):
+        return viewhelper.unauth(request, "You much be a hospital admin to view the page")
 
-    def get(self, request):
-        form = DateSearchForm()
-        message = "Log Entries: " + str(Syslog.objects.all().count())
-        context = {'system_log': Syslog.objects.all(),
-                   'user': get_user(request),
-                   'search_form': form,
-                   'message': message}
-        return render(request, 'syslogging/System_Log.html', context)
+    form = None
 
-    def post(self, request):
-        """ searches the database for those items that occur between specific times"""
+    logs = Syslog.objects.all()
 
+    if request.method == "POST":
         form = DateSearchForm(request.POST)
-        if not form.is_valid():
-            return HttpResponseRedirect(reverse('syslogging:viewlog'))
-        form.full_clean()
-        start_time = form.cleaned_data['startTime']
-        end_time = form.cleaned_data['endTime']
-        if start_time < end_time:
-            relevant_logs = []
-            c=0
-            for item in Syslog.objects.all(): #if between the times
-                if (item.date_created > start_time) and (item.date_created < end_time):
-                    c += 1
-                    relevant_logs.append(item)
 
-            message = str(c) + " Results between: " + str(start_time)[:19] + " and " + str(end_time)[:19]
+        if form.is_valid():
+            logs = logs.filter(date_created__gte=form.cleaned_data['start']).filter(date_created__lte=form.cleaned_data['end'])
+            build = Syslog.objects.none()
+            for w in form.cleaned_data['keywords'].split(' '):
+                build |= logs.filter(message__icontains=w)
+            logs = build
+    else:
+        form = DateSearchForm()
 
-            context = {'system_log': relevant_logs,
-                       'cuser': get_user(request),
-                       'search_form': form,
-                       'message': message}
-        else:
-            message = "End time must occur after start time!"
-            context = {'system_log': Syslog.objects.all(),
-                       'cuser': get_user(request),
-                       'search_form': form,
-                       'message': message}
-        return render(request, 'syslogging/System_Log.html', context)
+    return render(request, 'syslogging/System_Log.html', viewhelper.getBaseContext(request, user, form=form, logs=logs, title="System Logs"))

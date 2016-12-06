@@ -281,21 +281,20 @@ def approval(request, pk):
     return HttpResponseRedirect(reverse('user:vProfile', args=(pk,)))
 
 
-def editProfile(request, pk):
+def editProfile(request, pk, depend=False):
+    user = get_user(request)
+    tuser = None
+
+    if user is None:
+        return HttpResponseRedirect(reverse('login'))
+
+    tuser = get_object_or_404(User, pk=pk)
+    tuser = getHealthUser(tuser)
+
+    if not userauth.userCan_Profile(user, tuser, 'edit'):
+        return HttpResponseRedirect(reverse('user:dashboard'))
 
     if not request.method == "POST":
-        user = get_user(request)
-        tuser = None
-
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
-
-
-        tuser = get_object_or_404(User, pk=pk)
-        tuser = getHealthUser(tuser)
-
-        if not userauth.userCan_Profile(user, tuser, 'edit'):
-            return HttpResponseRedirect(reverse('user:dashboard'))
 
         form = EditProfileForm()
         form.filterUserQuerySet(user)
@@ -304,16 +303,19 @@ def editProfile(request, pk):
 
         return render(request, 'user/editprofile.html', {'user': user, 'tuser': tuser, 'form': form})
     else:
-        user = get_user(request)
-        if user is None:
-            return HttpResponseRedirect(reverse('login'))
 
         form = EditProfileForm(request.POST)
 
         # turns true if the form fails
         failed = False
 
-        if form.is_valid():
+        if depend:
+            # AJAX response
+            form.full_clean()
+            populateDependantFieldsDH(form, Doctor.objects.all().filter(accepted=True), Hospital.objects.all())
+            return render(request, 'user/render_eprofile_form.html', {'form': form, 'user': user})
+
+        elif form.is_valid():
             tuser = get_object_or_404(User, pk=pk)
             tuser = getHealthUser(tuser)
             updateUserProfile(form, tuser)

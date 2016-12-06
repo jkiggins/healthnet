@@ -1,16 +1,62 @@
-<div class = "horizontal_form">
+{% load staticfiles %}
+{% include 'emr/sources.html' %}
 
-    <form action={% url 'syslogging:viewlog' %} method="POST" enctype="multipart/form-data">
+<style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 80%;
+            margin-left: 10%;
+        }
+
+        td, th {
+            border: 1px solid #4fdfdf;
+            padding: 15px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background-color: #BBB;
+        }
+</style>
+
+<div id = "log_manage">
+    <form action="" method="POST" enctype="multipart/form-data" onkeypress="submit_on_enter()">
         {% csrf_token %}
-        {{ search_form.as_ul }}
-        <input type="submit" class="button" value="Search" />
-        <button type="button" onclick="window.location.href='/syslog/'" class="button">Clear</button>
+        <div class="toolbar">
+            {{ form.keywords }}
+            <div class="toolbar_item_wrap">
+                <input id = "log_timeframe" type = "button" class="toolbar_item_header" value="Timeframe"/>
+                <div class="toolbar_drop_down_js hide_l" data-toggle_id="log_timeframe">
+                    <div class="toolbar_item split_field_stat no_border">
+                        <div class="stat_label">Interval Start</div>
+                        {{ form.start }}
+                    </div>
+                    <div class="toolbar_item split_field_stat no_border">
+                        <div class="stat_label">Interval End</div>
+                        {{ form.end }}
+                    </div>
+                </div>
+            </div>
+
+            <input type = "submit" value="Submit" class="toolbar_submit clickable" />
+        </div>
     </form>
-    <text>{{message}}</text>
 </div>
 
-{% for entry in system_log %}
-    <ul class="inline_card_list">
-        <li>{{entry.date_created}} {{ entry.type }} {{ entry.message}}</li>
-    </ul>
-{% endfor %}
+
+<table>
+    <tr>
+        <th>Type</th>
+        <th>Message</th>
+        <th>Date Created</th>
+    </tr>
+    {% for e in logs %}
+        <tr>
+            <td>{{ e.type }}</td>
+            <td>{{ e.message }}</td>
+            <td>{{ e.date_created }}</td>
+        </tr>
+    {% endfor %}
+</table>

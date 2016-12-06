@@ -237,6 +237,8 @@ class ProfileCreateForm(forms.ModelForm):
 
 class AdmitDishchargeForm(EMRItemCreateForm):
 
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), label="Hospital", required=False)
+
     def save(self, **kwargs):
         commit = kwargs['commit']
         kwargs['commit'] = False
@@ -259,7 +261,7 @@ class AdmitDishchargeForm(EMRItemCreateForm):
                 self.fields[field].initial = value
                 self.fields[field].disabled = True
                 self.fields[field].required = False
-                print("hello")
+
 
     def defaults(self, model):
         super(AdmitDishchargeForm, self).defaults(model)
