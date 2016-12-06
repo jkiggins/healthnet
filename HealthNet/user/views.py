@@ -1006,10 +1006,9 @@ def viewStats(request):
 def viewCSV(request):
     user = get_user(request)
 
-    context = {'user': user}
-
     form = CSVForm()
-    content
+
+    context = {'user': user, 'form' : form}
 
     if user is None:
         return unauth(request, "You must be logged in to view this page")
@@ -1022,10 +1021,12 @@ def viewCSV(request):
 
             if 'export' in form.cleaned_data['CSV']:
                 request.session['message'] = "User list exported successfully."
-                exportCSV(False)
+                exportCsv(False)
+                return HttpResponseRedirect(reverse('user:dashboard'))
 
             elif 'import' in form.cleaned_data['CSV']:
                 request.session['message'] = "User list imported successfully."
-                importCSV(False)
+                importCsv(False)
+                return HttpResponseRedirect(reverse('user:dashboard'))
 
     return render(request, 'user/CSV.html', context)
