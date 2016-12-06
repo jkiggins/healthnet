@@ -181,7 +181,7 @@ class EventCreationFormNurse(EventForm):
 
 
     def elevate_permissions(self):
-        self.elivated = True
+        self.elevated = True
 
     class Meta:
         model = Event

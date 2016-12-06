@@ -1,7 +1,7 @@
 {% extends 'user/base.html' %}
 
 {% block content %}
-    {% if view_calendar == True %}
+    {% if view_calendar == True and user.user.pk != tuser.user.pk%}
         {% include 'user/calendar.html' %}
         <div id='calendar' class="half left"></div>
         <div class="half right content_box"> {% include 'user/profile.html' %}</div>

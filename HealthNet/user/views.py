@@ -178,7 +178,6 @@ def viewProfile(request, pk):
 
         return HttpResponseRedirect(reverse('user:vProfile', args=(pk,)))
     else:
-        print("hi")
         user = get_user(request)
         tuser = None
 
@@ -281,137 +280,6 @@ def approval(request, pk):
 
     return HttpResponseRedirect(reverse('user:vProfile', args=(pk,)))
 
-# class viewProfile(View):
-#
-#     def post(self, request, **kwargs):
-#         tuser = None
-#         cuser = get_user(request)
-#         if cuser is None:
-#             return HttpResponseRedirect(reverse('login'))
-#
-#         tuser = get_object_or_404(User, pk=kwargs['pk'])
-#         tuser = getHealthUser(tuser)
-#
-#         if not userauth.userCan_Profile(cuser, tuser, 'view'):
-#             Syslog.unauth_acess(request)
-#             request.session['message']="You are not authorized to view this content."
-#             return HttpResponseRedirect(reverse('user:dashboard'))
-#             #message = "You are not authorized to view this content."
-#             #return render(request, 'user/dashboard.html', {'message': message})
-#
-#         if cuser.user.pk == tuser.user.pk:
-#             return HttpResponseRedirect(reverse('user:vProfilec'))
-#
-#         if getTypeOfForm(request) == 1:
-#             if tuser.accepted:
-#                 removeform = RemoveApproval(request.POST)
-#                 if removeform.is_valid():
-#                     if removeform.cleaned_data['remove']:
-#                         tuser.accepted = False
-#                         tuser.save()
-#                         tuser.user.is_active = False
-#                         tuser.user.save()
-#                     else:
-#                         tuser.user.is_active = True
-#                         tuser.user.save()
-#                 return HttpResponseRedirect(reverse('user:dashboard'))
-#             else:
-#                 approveform = ApproveForm(request.POST)
-#                 if approveform.is_valid():
-#                     if approveform.cleaned_data['approved']:
-#                         tuser.accepted = True
-#                         tuser.save()
-#                     else:
-#                         if tuser.getType() != 'patient':
-#                             tuser.accepted = False
-#                             tuser.save()
-#
-#                 return HttpResponseRedirect(reverse('user:dashboard'))
-#
-#         elif getTypeOfForm(request) == 2:
-#             trustform = TrustedNurses(request.POST)
-#             if trustform.is_valid():
-#                 if trustform.cleaned_data['docs']:
-#                     trustform.cleaned_data['docs'].nurses.add(tuser)
-#
-#             return HttpResponseRedirect(reverse('user:dashboard'))
-#
-#         return HttpResponseRedirect(reverse('user:dashboard'))
-#
-#
-#     def get(self, request, **kwargs):
-#         tuser=None
-#         form = None
-#         cuser = get_user(request)
-#         if cuser is None:
-#             return HttpResponseRedirect(reverse('login'))
-#
-#         tuser = get_object_or_404(User, pk=kwargs['pk'])
-#         tuser = getHealthUser(tuser)
-#
-#
-#         if not userauth.userCan_Profile(cuser, tuser, 'view'):
-#             Syslog.unauth_acess(request)
-#             return HttpResponseRedirect(reverse('user:dashboard'))
-#
-#         if cuser.user.pk == tuser.user.pk:
-#             return HttpResponseRedirect(reverse('user:vProfilec'))
-#
-#         if tuser.getType() == 'doctor' or tuser.getType() == 'nurse':
-#             if tuser.accepted:
-#                 if cuser.getType() == "hosAdmin":
-#                     trustform = TrustedNurses()
-#                     trustform.setQuerySet(cuser.hospital.doctor_set.all())
-#                 form = RemoveApproval()
-#             else:
-#                 trustform = None
-#                 form = ApproveForm()
-#         elif tuser.getType() == 'patient':
-#             form = RemoveApproval()
-#
-#         if cuser.getType() == "hosAdmin":
-#             if tuser.getType() == "nurse":
-#                 if tuser.accepted:
-#                     context = {'user': cuser,
-#                         'tuser': tuser,
-#                         'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
-#                         'events': None,
-#                         'view_calendar': False,
-#                         'trustform': trustform,
-#                         'form': form}
-#                 else:
-#                     context = {'user': cuser,
-#                         'tuser': tuser,
-#                         'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
-#                         'events': None,
-#                         'view_calendar': False,
-#                         'form': form}
-#             elif tuser.getType() == "doctor":
-#                 context = {'user': cuser,
-#                     'tuser': tuser,
-#                     'events': None,
-#                     'view_calendar': False,
-#                     'form': form}
-#             else:
-#                 context = {'user': cuser,
-#                     'tuser': tuser,
-#                     'events': None,
-#                     'view_calendar': True,
-#                     'form': form}
-#         else:
-#             if tuser.getType() == "nurse":
-#                 context = {'user': cuser,
-#                     'tuser': tuser,
-#                     'trustdocs': tuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
-#                     'events': None,
-#                     'view_calendar': False}
-#             else:
-#                 context = {'user': cuser,
-#                     'tuser': tuser,
-#                     'events': None,
-#                     'view_calendar': True}
-#
-#         return render(request, 'user/viewprofile.html', context)
 
 def editProfile(request, pk):
 
@@ -629,13 +497,16 @@ def createEvent(request, depend=False):
         if process_event:
             event_form = EventCreationFormNurse(request.POST)
 
+            event_form.full_clean()
+            if not (event_form.cleaned_data['doctor'] is None) and (user in event_form.cleaned_data['doctor'].nurses.all()):
+                event_form.elevate_permissions()
+
             if depend:
                 # Handle ajax post
                 event_form.set_patient_doctor_queryset(user.hospital.acceptedPatients(), user.hospital.doctor_set.all())
                 event_form.full_clean()
                 populateDependantFieldsPD(event_form, user.hospital.acceptedPatients(), user.hospital.doctor_set.all(), user.hospital)
                 return render(request, 'user/render_form.html', {'form': event_form})
-
             elif event_form.is_valid():
                 event = event_form.save(commit=False)
 
