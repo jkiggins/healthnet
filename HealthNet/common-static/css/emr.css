@@ -78,6 +78,7 @@
 #stats_manage .toolbar_item_header
 {
 	height: 3em;
+	border-right: solid 2px #E96F38;
 
 }
 
@@ -601,4 +602,24 @@
 	margin-right: 2%;
 	margin-left: 2%;
 	margin-top: 50px;
+}
+
+.stat_patient_wrap
+{
+	position: relative;
+	width: 100%;
+	top:0; left:0;
+}
+
+.stat_patient_heading
+{
+	box-sizing: border-box;
+	position: relative;
+	width: 100%;
+	padding: 3px;
+}
+
+.stat_patient_heading
+{
+	float: right;
 }

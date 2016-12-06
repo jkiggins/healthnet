@@ -157,7 +157,7 @@ def viewEMR(request, pk):
         form = FilterSortForm(instance=ff)
 
     if not(ff is None):
-        if ff.filters != "" :
+        if ff.filters != "":
             build = emr.none()
             if 'prescription' in ff.filters:
                 build |= emr.exclude(emrprescription=None)

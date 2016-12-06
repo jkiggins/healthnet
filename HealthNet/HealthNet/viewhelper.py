@@ -60,16 +60,18 @@ def get_user(request):
 def unauth(request, *args):
     user = get_user(request)
 
-    if (len(args) == 0):
-        if user.getType()=='patient':
-            return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
-        return HttpResponseRedirect(reverse('user:dashboard'))
+    if not(user is None):
+        if (len(args) == 0):
+            if user.getType()=='patient':
+                return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
+            return HttpResponseRedirect(reverse('user:dashboard'))
 
-    else:
-        request.session['message']=args[0]
-        if user.getType()=='patient':
-            return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
-        return HttpResponseRedirect(reverse('user:dashboard'))
+        else:
+            request.session['message']=args[0]
+            if user.getType()=='patient':
+                return HttpResponseRedirect(reverse('user:eProfile' , args={user.user.pk}))
+            return HttpResponseRedirect(reverse('user:dashboard'))
+    return HttpResponseRedirect(reverse('logIn'))
 
 
 def add_dict_to_model(dict, model):

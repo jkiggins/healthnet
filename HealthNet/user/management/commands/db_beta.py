@@ -123,6 +123,7 @@ class Command(BaseCommand):
 
                 h = getHospitalByName(row[8])
                 p = makePatient(u, d, h, row[4], row[9])
+                p.accepted=True
                 p.save()
 
 
@@ -148,6 +149,7 @@ class Command(BaseCommand):
         Patient.objects.all().delete()
         Nurse.objects.all().delete()
         HospitalAdmin.objects.all().delete()
+        User.objects.all().delete()
 
         self.handleDoctors('media/csv/doctor.csv')
         self.handleNurses('media/csv/nurse.csv')
