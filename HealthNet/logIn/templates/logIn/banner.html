@@ -5,15 +5,37 @@
     <meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <title>WelcomeToHealthNet</title>
+	{% include 'user/sources.html' %}
 </head>
 
-<body>
+<body onload="initBody()">
 
-	{% if message %}
-	<script>
-		alert('{{ message }}');
-	</script>
-	{% endif %}
+{% if message %}
+	<div id="dialog" title="Alert">
+      {{ message }}
+    </div>
+
+    <script type="text/javascript">
+	
+        $(document).ready(function() {
+            $("#dialog").dialog({
+                autoOpen: true,
+                modal: true,
+                buttons : {
+                    "Confirm" : function() {
+                        $(this).dialog("close");
+                    },
+					
+                },
+                position: { my: "center center", at: "center center"}
+            });
+            $('.ui-widget-overlay').css({'opacity': '0.5', 'background-color': 'black'});
+
+            $(function(){$(".emr_test_image_wrap").resizable({aspectRatio: true});});
+        });
+
+    </script>
+{% endif %}
 
 	<h1 id="banner">Welcome To HealthNet!</h1>
 	
