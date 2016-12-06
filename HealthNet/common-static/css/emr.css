@@ -617,9 +617,17 @@
 	position: relative;
 	width: 100%;
 	padding: 3px;
+	border-bottom: solid 2px #E96F38;
 }
 
-.stat_patient_heading
+.stat_patient_heading a
 {
 	float: right;
+	text-decoration: none;
+	color: #E96F38;
+}
+
+.stat_patient_heading a:hover
+{
+	cursor: pointer;
 }

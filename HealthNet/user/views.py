@@ -953,7 +953,7 @@ def viewStats(request):
             ave_stay_len = 'ave_stay_length' in form.cleaned_data['filters']
 
             scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}
-            patients_stats = [{}]  # [{'patient': p, 'visits_per': 0, 'comm_pres': {}, 'ave_stay_length': 0}]
+            patients_stats = []  # [{'patient': p, 'visits_per': 0, 'comm_pres': {}, 'ave_stay_length': 0}]
 
             emritems = EMRItem.objects.none()
 

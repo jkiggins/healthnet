@@ -1,4 +1,29 @@
 <script>
+
+            function dayClickLocal(date, jsEvent, view) {
+                console.log("called: ");
+                if ((buisness_hours.start < date.hour()) && (date.hour() < buisness_hours.end)) {
+                    console.log("indside business hours");
+                    postJson("{% url "user:cEvent" %}", {"moment": date.format()});
+                }
+            }
+            var customButtons = {
+                    appointment: {
+                        text: 'Create Appointment',
+                        click: function() {
+                            window.location = "{% url 'user:cEvent' %}";
+                        }
+                    }
+            };
+
+            var header = {
+				left: 'prev today appointment',
+                center: 'title',
+                right: 'agendaDay,agendaWeek,month next'
+            };
+        </script>
+
+<script>
     buisness_hours = {start: 6, end: 17};
 
 	$(document).ready(function() {

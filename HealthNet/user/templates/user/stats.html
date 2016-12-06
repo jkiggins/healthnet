@@ -105,49 +105,53 @@
         <h1>Individual Patient Statistics</h1>
 {#        scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}#}
         <div class="card_body">
-            <table style="border-collapse: separate;border-spacing: 0 5px;">
-            {% for dict in patient_stats %}
+
+            {% for dict in patients_stats %}
+{#                {'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r}#}
                 <div class="stat_patient_wrap">
-                    <span class="stat_patient_heading">{{ p.patient.user.get_full_name }} <a>show</a></span>
-                    <tr><td>Average Number of Visits to Hospital</td>
-                        <td>Day: {{ scope_stats.patients_visiting_per.day|floatformat:2 }}<br />
-                            Week: {{ scope_stats.patients_visiting_per.week|floatformat:2 }}<br />
-                            Month: {{ scope_stats.patients_visiting_per.month|floatformat:2 }}<br />
-                            Year: {{ scope_stats.patients_visiting_per.year|floatformat:2 }}<br />
-                            Total: {{ scope_stats.patients_visiting_per.total|floatformat:2 }}<br />
-                        </td>
-                    </tr>
+                    <div class="stat_patient_heading">{{ dict.patient.user.get_full_name }} <a id="id_{{ p.patient.pk }}">show</a></div>
+                    <div class="toolbar_drop_down_js hide_l" data-toggle_id="id_{{ p.patient.pk }}">
+                        <table style="border-collapse: separate;border-spacing: 0 5px;">
+                            <tr><td>Average Number of Visits to Hospital</td>
+                                <td>Day: {{ dict.visits_per.day|floatformat:2 }}<br />
+                                    Week: {{ dict.visits_per.week|floatformat:2 }}<br />
+                                    Month: {{ dict.visits_per.month|floatformat:2 }}<br />
+                                    Year: {{ dict.visits_per.year|floatformat:2 }}<br />
+                                    Total: {{ dict.visits_per.total|floatformat:2 }}<br />
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <td>Prescription Frequency</td>
-                        <td>
-                            {% for key, value in scope_stats.comm_pres.items %}
-                                {{ key }}: {{ value|floatformat:2 }}<br />
-                            {% endfor %}
-                        </td>
-                    </tr>
+                            <tr>
+                                <td>Prescription Frequency</td>
+                                <td>
+                                    {% for key, value in dict.comm_pres.items %}
+                                        {{ key }}: {{ value|floatformat:2 }}<br />
+                                    {% endfor %}
+                                </td>
+                            </tr>
 
-                    <tr><td>Average Stay Length</td><td>{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
-                    {% if scope_stats.kw_admit_r %}
-                        <tr><td>Average Stay Length</td>
-                            <td>
-                                {% for k, v in scope_stats.kw_admit_r.items %}
-                                    {{ k }}: {{ v }}<br />
-                                {% endfor %}
-                            </td></tr>
-                    {% endif %}
+                            <tr><td>Average Stay Length</td><td>{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
+                            {% if scope_stats.kw_admit_r %}
+                                <tr><td>Average Stay Length</td>
+                                    <td>
+                                        {% for k, v in dict.kw_admit_r.items %}
+                                            {{ k }}: {{ v }}<br />
+                                        {% endfor %}
+                                    </td></tr>
+                            {% endif %}
 
-                    {% if scope_stats.kw_dis_r %}
-                        <tr><td>Discharge Keyword Frequency</td>
-                            <td>
-                                {% for k, v in scope_stats.kw_dis_r.items %}
-                                    {{ k }}: {{ v }}<br />
-                                {% endfor %}
-                            </td></tr>
-                    {% endif %}
+                            {% if scope_stats.kw_dis_r %}
+                                <tr><td>Discharge Keyword Frequency</td>
+                                    <td>
+                                        {% for k, v in dict.kw_dis_r.items %}
+                                            {{ k }}: {{ v }}<br />
+                                        {% endfor %}
+                                    </td></tr>
+                            {% endif %}
+                        </table>
+                    </div>
                 </div>
             {% endfor %}
-            </table>
         </div>
     </div>
 
