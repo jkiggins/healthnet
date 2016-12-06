@@ -14,7 +14,7 @@
                 <li>* Phone Number:{{ form.phone }}</li>
                 <li>Address:{{ form.address }}</li>
                 <li><h2>Hospital Information</h2></li>
-                {% if user.hospital.name == "" %}
+                {% if user.hospital.name == "" or user.hospital == null %}
                     <li>* Hospital:{{ form.hospital }}</li>
                 {% else %}
                     <li>Hospital: {{user.hospital.name }}</li>
