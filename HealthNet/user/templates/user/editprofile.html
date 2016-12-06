@@ -4,17 +4,18 @@
 
     {% if form != None %}
         <div id="contentBox">
+            <li>* = required</li>
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <li><h2>Personal Information</h2></li>
-                <li>First Name:{{ form.first_name }}</li>
-                <li>Last Name:{{ form.last_name }}</li>
+                <li>* First Name:{{ form.first_name }}</li>
+                <li>* Last Name:{{ form.last_name }}</li>
                 <li>Email:{{ form.email }}</li>
-                <li>Phone Number:{{ form.phone }}</li>
+                <li>* Phone Number:{{ form.phone }}</li>
                 <li>Address:{{ form.address }}</li>
                 <li><h2>Hospital Information</h2></li>
-                <li>Hospital:{{ form.hospital }}</li>
-                <li>Doctor:{{ form.doctor }}</li>
+                <li>* Hospital:{{ form.hospital }}</li>
+                <li>* Doctor:{{ form.doctor }}</li>
                 <li><h2>Emergency Contact</h2></li>
                 <li>Pre-Registered User:{{ form.emuser }}</li>
                 <li>Full Name:{{ form.full_name }}</li>

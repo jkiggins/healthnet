@@ -446,12 +446,12 @@ def editProfile(request, pk):
             tuser = getHealthUser(tuser)
             updateUserProfile(form, tuser)
             Syslog.editProfile(user)
-            return HttpResponseRedirect(reverse('user:vProfilec'))
+            return HttpResponseRedirect(reverse('user:dashboard'))
         else:
             failed = True
 
         if failed:
-            return render(request, 'user/editprofile.html', {'form': form})
+            return render(request, 'user/editprofile.html', {'user': user, 'form': form})
 
 
 def getEventTitle(event):

@@ -60,16 +60,6 @@ class Patient(models.Model):
                 if hasattr(self.emrprofile.admit_status, 'hospital'):
                     return self.emrprofile.admit_status.hospital
 
-
-    def profileFinished(self):
-        auth=True
-        auth &= not((self.hospital is None) or (self.doctor is None))
-        auth &= (self.user.get_full_name() != '') and (self.phone != '') and (self.address != '')
-        auth &= not(self.contact is None)
-
-        return auth
-
-
     def getType(self):
         return "patient"
 
@@ -80,11 +70,11 @@ class Contact(models.Model, ModelDiffMixin):
     emphone = models.CharField(max_length=10)
 
     def updateFromUser(self):
-        if not(self.user is None):
-            self.full_name = self.user.get_full_name()
+        if not(self.emuser is None):
+            self.full_name = self.emuser.get_full_name()
 
-            if hasattr(self.user, 'patient'):
-                self.emphone=self.user.patient.phone
+            if hasattr(self.emuser, 'patient'):
+                self.emphone=self.emuser.patient.phone
 
 
 #this extension of user represents a doctor

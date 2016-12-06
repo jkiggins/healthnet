@@ -148,7 +148,7 @@ def updateUserProfile(form, user):
         contact.full_name = form.cleaned_data['full_name']
         contact.phone = form.cleaned_data['emphone']
     else:
-        contact.user = form.cleaned_data['emuser']
+        contact.emuser = form.cleaned_data['emuser']
         contact.updateFromUser()
 
     contact.save()

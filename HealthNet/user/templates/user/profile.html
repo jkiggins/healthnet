@@ -3,9 +3,17 @@
 
     {% if tuser.getType == "patient" %}
         <li><h2>Personal Info</h2></li>
-        <li>Email:{{ tuser.user.email }}</li>
+        {% if tuser.user.email != "" %}
+            <li>Email: {{ tuser.user.email }}</li>
+        {% else %}
+            <li>Email: N/A</li>
+        {% endif %}
         <li>Phone: {{ tuser.phone }}</li>
-        <li>Address: {{ tuser.address }}</li>
+        {% if tuser.address != "" %}
+            <li>Emergency Contact: {{ tuser.address }}</li>
+        {% else %}
+            <li>Address: N/A</li>
+        {% endif %}
         <li><h2>Medical Info</h2></li>
         <li>Insurance #: {{ tuser.insuranceNum }}</li>
         <li>Hospital: {{ tuser.hospital.name }}</li>
@@ -14,7 +22,11 @@
         {% else %}
             <li>Doctor: {{ tuser.doctor.user.get_full_name }}</li>
         {% endif %}
-        <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
+        {% if tuser.contact.full_name != "" %}
+            <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
+        {% else %}
+            <li>Emergency Contact: N/A</li>
+        {% endif %}
         {% if user.getType != 'patient' %}
             <li><a href="{% url 'emr:vemr' tuser.id %}" class="button">EMR</a></li>
         {% endif %}

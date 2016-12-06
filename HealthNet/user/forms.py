@@ -228,11 +228,14 @@ class EditProfileForm(forms.Form):
     emphone = forms.CharField(max_length=10, label="Phone Number", required=False)
 
     def filterUserQuerySet(self, user):
-        self.fields['emuser'].queryset = User.objects.all().exclude(pk = user.pk)
+        self.fields['emuser'].queryset = User.objects.all().exclude(pk = user.user.pk)
 
     def is_valid(self):
         self.fields['doctor'].required = True
         self.fields['hospital'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['phone'].required = True
         valid = super(EditProfileForm, self).is_valid()
         if not valid:
             return valid

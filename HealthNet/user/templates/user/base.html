@@ -48,13 +48,19 @@
 
 <ul id="navbar">
 	<li><a href="/logout" class="right">Log Out</a></li>
-    <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
-    <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
 
 	{% if user.getType == "patient" %}
+        {% if not user.accepted %}
+            <li><a href="{% url 'user:eProfile' user.user.pk %}">Create Profile</a></li>
+        {% else %}
+            <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
+        {% endif %}
+        <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
         <li><a href="{% url 'emr:vsemr' %}">EMR</a></li>
 
     {% elif user.getType == "nurse" or user.getType == "doctor"  or user.getType == "hosAdmin"%}
+        <li><a href="{% url 'user:vProfilec' %}">{{ user.user.first_name }}'s Profile</a></li>
+        <li><a href="{% url 'user:dashboard'%}">Dashboard</a></li>
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
         <li><a href="{% url 'user:stats' %}">System Statistics</a></li>
