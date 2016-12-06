@@ -379,8 +379,10 @@ class AdmitDishchargeView(DetailView):
 
             if cuser.getType() in ['nurse', 'hosAdmin']:
                 form.lockField('hospital', cuser.hospital)
+                form.fields['hospital'].queryset = Hospital.objects.all().filter(pk=cuser.hospital.pk)
             elif cuser.getType() == 'doctor':
                 form.fields['hospital'].queryset = cuser.hospitals.all()
+
 
         else:
             if not userauth.userCan_EMR(cuser, patient, 'discharge'):
@@ -416,6 +418,7 @@ class AdmitDishchargeView(DetailView):
 
             if cuser.getType() in ['nurse', 'hosAdmin']:
                 form.lockField('hospital', cuser.hospital)
+                form.fields['hospital'].queryset = Hospital.objects.all().filter(pk=cuser.hospital.pk)
                 mdict['hospital'] = cuser.hospital
             elif cuser.getType() == 'doctor':
                 form.fields['hospital'].queryset = cuser.hospitals.all()
@@ -429,6 +432,7 @@ class AdmitDishchargeView(DetailView):
 
 
         if form.is_valid():
+            print("hi")
             m = form.save(commit=False, patient=patient, provider=cuser)
 
             viewhelper.add_dict_to_model(mdict, m)
