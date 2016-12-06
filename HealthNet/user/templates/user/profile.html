@@ -9,7 +9,11 @@
         <li><h2>Medical Info</h2></li>
         <li>Insurance #: {{ tuser.insuranceNum }}</li>
         <li>Hospital: {{ tuser.hospital.name }}</li>
-        <li>Doctor: {{ tuser.doctor.user.get_full_name }}</li>
+        {% if user.getType == 'nurse' or user.getType == 'hosAdmin' or user.getType == 'doctor' %}
+            <li>Doctor: <a href="{% url 'user:vProfile' tuser.doctor.user.pk %}">{{ tuser.doctor.user.get_full_name }}</a></li>
+        {% else %}
+            <li>Doctor: {{ tuser.doctor.user.get_full_name }}</li>
+        {% endif %}
         <li>Emergency Contact: {{ tuser.contact.full_name }}</li>
         {% if user.getType != 'patient' %}
             <li><a href="{% url 'emr:vemr' tuser.id %}" class="button">EMR</a></li>
@@ -18,7 +22,6 @@
         {% if user.getType == 'patient' %}
             <li><a href="{% url 'user:eProfile' user.user.pk %}" class="button">Edit</a></li>
         {% endif %}
-
     {% elif tuser.getType == "doctor" %}
         <li>Email:{{ tuser.user.email }}</li>
 
@@ -43,9 +46,7 @@
         {% if user.getType == 'hosAdmin' %}
             {% include 'user/AppRemLink.html' %}
         {% endif %}
-    {% endif %}
-
-    {% if tuser.getType == "nurse" %}
+    {% elif tuser.getType == "nurse" %}
         <li>Email:{{ tuser.user.email }}</li>
 
         <h2>Trusted By:</h2>
@@ -60,9 +61,7 @@
             {% endif %}
             {% include 'user/AppRemLink.html' %}
         {% endif %}
-    {% endif %}
-
-    {% if tuser.getType == "hosAdmin" %}
+    {% elif tuser.getType == "hosAdmin" %}
         <li>Email:{{ tuser.user.email }}</li>
         <h2>Hospital</h2>
         <li>{{ tuser.hospital.name }}</li>

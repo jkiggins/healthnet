@@ -145,6 +145,9 @@ def viewProfileSelf(request):
                        'trustdocs': cuser.doctor_set.all().filter(user__is_active=True).filter(accepted=True),
                        'events': None,
                        'view_calendar': False}
+        elif cuser.getType() == "hosAdmin":
+            context = {'user': cuser,
+                       'tuser': cuser}
         else:
             context = {'user': cuser,
                        'tuser': cuser,
