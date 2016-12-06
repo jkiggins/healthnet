@@ -19,7 +19,11 @@
 	width: 22.5%;
 	height: 3em;
 	font-size: 14pt;
+}
 
+#emr_manage .toolbar_item_wrap[data-canadmit="True"]
+{
+	width: 10%;
 }
 
 #emr_manage .toolbar_item_header
@@ -572,4 +576,29 @@
 	height: auto;
 	background-color: #000;
 	z-index: 11;
+}
+
+.stat_data_left
+{
+	background-color: rgba(0,0,0,0.4);
+	color: white;
+}
+
+.btm_bdr_org
+{
+	position: relative;
+	width: 200px;
+	border: 0;
+	margin: 3px 0 3px 0;
+	border-bottom: solid 2px #E96F38;
+	display: block;
+}
+
+.half
+{
+	/* display: inline; */
+	width: 36%;
+	margin-right: 2%;
+	margin-left: 2%;
+	margin-top: 50px;
 }

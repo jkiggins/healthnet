@@ -7,6 +7,7 @@ from django.views.generic import View
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
 from django.core.exceptions import ValidationError
+import math
 
 
 from HealthNet.formhelper import *
@@ -842,6 +843,84 @@ def viewMessage(request, pk):
     return render(request, 'user/viewMessage.html', context)
 
 
+def binPrescriptions(qset, start, stop):
+    bin_prescript = {}
+    qset = qset.filter(date_created__gte=start).filter(date_created__lte=stop)
+    # counter, so that if we have already included all of the prescriptions, we don't iterate over the remaining
+    count = qset.count()
+    for p in qset:
+        # if the bin doesn't exists, make a new one
+        if not (p.emrprescription.medication in bin_prescript):
+            bin_prescript[p.emrprescription.medication] = qset.filter(emrprescription__medication__iexact=p.emrprescription.medication).count()
+        else:
+            bin_prescript[p.emrprescription.medication] += qset.filter(
+                emrprescription__medication__iexact=p.emrprescription.medication).count()
+
+        count -= bin_prescript[p.emrprescription.medication]
+        # only check count when it changes
+        if count <= 0:
+            break
+
+    return bin_prescript
+
+
+def averageStay(qset, start, stop):
+    avg_stay = 0
+    i = 0
+
+    qset = qset.filter(date_created__gte=start).filter(date_created__lte=stop).order_by('date_created')
+
+    while i < (qset.count() / 2):
+        avg_stay += (qset[i + 1].date_created - qset[i].date_created).days
+        i += 2
+
+    divisor = qset.count() / 2.0
+    if divisor != 0:
+        avg_stay /= divisor
+
+    return avg_stay
+
+
+def numAppts_dwmyt(qset, start, stop):
+    events = qset.filter(startTime__gte=start).filter(startTime__lte=stop)
+    num_events = events.count()
+    days = (stop-start).days*1.0
+
+    appt_week = 0
+    appt_month = 0
+    appt_year = 0
+
+    if days <= 0.0:
+        days = 1.0
+
+    if days >= 7:
+        appt_week = num_events / (days/7.0)
+        if days >= 30:
+            appt_montm = num_events / (days/30.4)
+            if days >= 365:
+                appt_year = days/365.0
+
+
+    return {'day': num_events / days, 'months': appt_month, 'week': appt_week ,'year': appt_year, 'total': num_events}
+
+
+def aveApptLength(qset, start, stop):
+    qset = qset.filter(startTime__gte=start).filter(startTime__lte=stop)
+    avg = datetime.timedelta(minutes=0)
+
+    for q in qset:
+        avg += q.endTime - q.startTime
+    avg /= qset.count()
+    return avg
+
+
+def binAdmitStatusKeywords(qset, kw_dict):
+    for key in kw_dict:
+        kw_dict[key] = qset.filter(content__icontains=key).count()
+
+    return kw_dict
+
+
 def viewStats(request):
     """
         number of patients visiting the hospital
@@ -860,30 +939,66 @@ def viewStats(request):
     if request.method == "POST":
         form = statsForm(request.POST)
         if form.is_valid():
-            resolution = 10
+
+            # Data from the forms
             start = form.cleaned_data['start']
             end = form.cleaned_data['end']
-            kw = form.cleaned_data['keywords']
+            kw_admit = form.cleaned_data['kw_admit']
+            kw_dis = form.cleaned_data['kw_dis']
+            kw_patient = form.cleaned_data['kw_dis']
 
-            pstats = [{}]
+            # filter boolean options
+            prescript = 'com_press' in form.cleaned_data['filters']
+            visits_per = 'patients_visiting_per' in form.cleaned_data['filters']
+            ave_stay_len = 'ave_stay_length' in form.cleaned_data['filters']
+
+            scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}
+            patients_stats = [{}]  # [{'patient': p, 'visits_per': 0, 'comm_pres': {}, 'ave_stay_length': 0}]
+
+            emritems = EMRItem.objects.none()
+
+
             if isDoctor(user):
-                for p in user.patients.all():
-                    visits = p.event_set.all().filter(starttime__geq=start, starttime__leq=end).count
-                    admission = p.emritem_set.all().exclude(emradmitstatus=None).order_by('date_created')
+                patients = user.patient_set.all()
+            else:
+                patients = user.hospital.patient_set.all()
 
-                    # calculate average stay per patient
-                    avg_stay=0
-                    i = 0
-                    while i < (len(avg_stay) / 2)*2:
-                        avg_stay += admission(i+1).date_created - admission(i).date_created
-                        i += 2
-                    avg_stay /= len(admission)/2
-
+            if kw_patient != "":
+                build = patients.objects.none()
+                for w in kw_patient.split(' '):
+                    build |= patients.filter(user__first_name__contains=w)
+                    build |= patients.filter(user__last_name__contains=w)
+                    build |= patients.filter(user__username__contains=w)
 
 
+            kw_admit_r = dict.fromkeys(kw_admit.split(','))
+            kw_dis_r = dict.fromkeys(kw_admit.split(','))
 
-                    visits += admission.filter(emradmitstatus__admit=True).count()
-                    pstats.append({'patient': p})
+            for p in patients:
+                numAppts = numAppts_dwmyt(p.event_set.all(), start, end)
+                avestay = averageStay(p.emritem_set.all().exclude(emradmitstatus=None), start, end)
+                cpres = binPrescriptions(p.emritem_set.all().exclude(emrprescription=None), start, end)
+
+                if kw_admit != "":
+                    kw_admit_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=True), kw_admit_r)
+
+                if kw_dis != "":
+                    kw_dis_r = binAdmitStatusKeywords(p.emritem_set.all().exclude(emradmitstatus=None).filter(emradmitstatus__admit=False), kw_dis_r)
+
+
+                patients_stats.append({'patient': p, 'visits_per': numAppts, 'comm_pres': cpres, 'ave_stay_length': avestay, 'kw_dis_r': kw_dis_r, 'kw_admit_r': kw_admit_r})
+                scope_stats['patients_visiting_per'] = mergeAddDict(scope_stats['patients_visiting_per'], numAppts)
+                scope_stats['comm_pres'] = mergeAddDict(scope_stats['comm_pres'], cpres)
+                scope_stats['ave_stay_length'] += avestay
+                scope_stats['kw_admit_r'] = mergeAddDict(scope_stats['kw_admit_r'], kw_admit_r)
+                scope_stats['kw_dis_r'] = mergeAddDict(scope_stats['kw_dis_r'], kw_dis_r)
+
+            scope_stats['comm_pres'] = divideDict(scope_stats['comm_pres'], patients.count())
+            scope_stats['ave_stay_length'] /= patients.count()
+
+            ctx = getBaseContext(request, user, form=form, title="Statistics", scope_stats=scope_stats, patients_stats=patients_stats)
+
+            return render(request, 'user/stats.html', ctx)
 
     else:
         form = statsForm()

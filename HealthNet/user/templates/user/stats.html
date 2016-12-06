@@ -22,21 +22,17 @@
                     <input type = "button" class="toolbar_item_header" value="Filter"/>
                     <div class="toolbar_drop_down_css">
                         <div class="toolbar_item">
-                            <input type="button" class="toolbar_item_label_inline" value="Average Number of patients visiting the hospital each day" />{{ form.filters.0.tag }}
+                            <input type="button" class="toolbar_item_label_inline" value="Average Number of patient visits each day,week,month" />{{ form.filters.0.tag }}
                         </div>
                         <div class="toolbar_item">
-                            <input type="button" class="toolbar_item_label_inline" value="Average Visits for the selected patients" />{{ form.filters.1.tag }}
+                            <input type="button" class="toolbar_item_label_inline" value="Average Length of time from admission to discharge" />{{ form.filters.1.tag }}
                         </div>
                         <div class="toolbar_item">
-                            <input type="button" class="toolbar_item_label_inline" value="Most common reasons for admission" />{{ form.filters.2.tag }}
-                        </div>
-                        <div class="toolbar_item">
-                            <input type="button" class="toolbar_item_label_inline" value="Most common prescriptions" />{{ form.filters.3.tag }}
+                            <input type="button" class="toolbar_item_label_inline" value="Prescription Frequency" />{{ form.filters.2.tag }}
                         </div>
                         <div class="toolbar_item">
                             <div class="stat_label">Patient Name</div>{{ form.kw_patient }}
                         </div>
-
                     </div>
                 </div>
 
@@ -57,6 +53,97 @@
                 <input type = "submit" value="Submit" class="toolbar_submit" />
             </div>
         </form>
+    </div>
+
+    <div class="content_box left half">
+        <h1>Hospital Statistics</h1>
+{#        scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}#}
+        <div class="card_body">
+            <table style="border-collapse: separate;border-spacing: 0 5px;">
+                <tr><td>Average Number of Patients Visiting the Hospital Per</td>
+                    <td class = "stat_data_left">
+                        <span class="btm_bdr_org"> Day: {{ scope_stats.patients_visiting_per.day|floatformat:2 }}</span>
+                        <span class="btm_bdr_org"> Week: {{ scope_stats.patients_visiting_per.week|floatformat:2 }}</span>
+                        <span class="btm_bdr_org"> Month: {{ scope_stats.patients_visiting_per.month|floatformat:2 }}</span>
+                        <span class="btm_bdr_org"> Year: {{ scope_stats.patients_visiting_per.year|floatformat:2 }}</span>
+                        <span class="btm_bdr_org"> Total: {{ scope_stats.patients_visiting_per.total|floatformat:2 }}</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Prescription Frequency</td>
+                    <td class = "stat_data_left">
+                        {% for key, value in scope_stats.comm_pres.items %}
+                            <span class="btm_bdr_org"> {{ key }}: {{ value|floatformat:2 }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+
+                <tr><td>Average Stay Length</td><td class = "stat_data_left"><span class="btm_bdr_org"> {{ scope_stats.ave_stay_length|floatformat:2 }} Days</span></td></tr>
+                {% if scope_stats.kw_admit_r %}
+                    <tr><td>Average Stay Length</td>
+                        <td class = "stat_data_left">
+                            {% for k, v in scope_stats.kw_admit_r.items %}
+                                <span class="btm_bdr_org"> {{ k }}: {{ v }}</span>
+                            {% endfor %}
+                        </td></tr>
+                {% endif %}
+
+                {% if scope_stats.kw_dis_r %}
+                    <tr><td>Discharge Keyword Frequency</td>
+                        <td class = "stat_data_left">
+                            {% for k, v in scope_stats.kw_dis_r.items %}
+                                <span class="btm_bdr_org"> {{ k }}: {{ v }}</span>
+                            {% endfor %}
+                        </td></tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <div class="content_box right half">
+        <h1>Individual Patient Statistics</h1>
+{#        scope_stats = {'patients_visiting_per': {'day': 0, 'week': 0, 'month': 0, 'year': 0, 'total': 0}, 'comm_pres': {}, 'ave_stay_length': 0, 'kw_admit_r':{}, 'kw_dis_r':{}}#}
+        <div class="card_body">
+            <table style="border-collapse: separate;border-spacing: 0 5px;">
+                <tr><td>Average Number of Patients Visiting the Hospital Per</td>
+                    <td>Day: {{ scope_stats.patients_visiting_per.day|floatformat:2 }}<br />
+                        Week: {{ scope_stats.patients_visiting_per.week|floatformat:2 }}<br />
+                        Month: {{ scope_stats.patients_visiting_per.month|floatformat:2 }}<br />
+                        Year: {{ scope_stats.patients_visiting_per.year|floatformat:2 }}<br />
+                        Total: {{ scope_stats.patients_visiting_per.total|floatformat:2 }}<br />
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Prescription Frequency</td>
+                    <td>
+                        {% for key, value in scope_stats.comm_pres.items %}
+                            {{ key }}: {{ value|floatformat:2 }}<br />
+                        {% endfor %}
+                    </td>
+                </tr>
+
+                <tr><td>Average Stay Length</td><td>{{ scope_stats.ave_stay_length|floatformat:2 }} Days</td></tr>
+                {% if scope_stats.kw_admit_r %}
+                    <tr><td>Average Stay Length</td>
+                        <td>
+                            {% for k, v in scope_stats.kw_admit_r.items %}
+                                {{ k }}: {{ v }}<br />
+                            {% endfor %}
+                        </td></tr>
+                {% endif %}
+
+                {% if scope_stats.kw_dis_r %}
+                    <tr><td>Discharge Keyword Frequency</td>
+                        <td>
+                            {% for k, v in scope_stats.kw_dis_r.items %}
+                                {{ k }}: {{ v }}<br />
+                            {% endfor %}
+                        </td></tr>
+                {% endif %}
+            </table>
+        </div>
     </div>
 
 {% endblock %}

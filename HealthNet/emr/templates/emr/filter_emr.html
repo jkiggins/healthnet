@@ -70,7 +70,7 @@
 
 
         {% if permissions.canAdmit %}
-            <div class="toolbar_item_wrap emr_toolbar_action" data-canadmit="{{ permissions.canAdmit }}">
+            <div class="toolbar_item_wrap" data-canadmit="{{ permissions.canAdmit }}">
                 {% if admit %}
                     <input type = "button" class="toolbar_item_header clickable" value="Discharge" onclick="window.location='{% url 'emr:admitdischarge' patient.id %}'"/>
                 {% else %}
@@ -78,7 +78,7 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div class="toolbar_item_wrap emr_toolbar_action" data-canadmit="{{ permissions.canAdmit }}">
+        <div class="toolbar_item_wrap" data-canadmit="{{ permissions.canAdmit }}">
             <input type = "button" class="toolbar_item_header clickable" value="Export" onclick="newTab('{% url 'emr:eemr' patient.id %}')"/>
         </div>
     </div>

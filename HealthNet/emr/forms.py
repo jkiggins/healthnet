@@ -111,11 +111,15 @@ class TestCreateForm(EMRItemCreateForm):
         m = super(TestCreateForm, self).save(**kwargs)
 
         if 'update' in kwargs:
+            if self.cleaned_data['images'] is None:
+                del self.cleaned_data['images']
+
             self.saveToModel(kwargs['update'].emrtest)
 
         if 'commit' in kwargs:
             if kwargs['commit']:
                 m.save()
+                m.emrtest.save()
         return m
 
 
@@ -143,6 +147,7 @@ class VitalsCreateForm(EMRItemCreateForm):
             self.saveToModel(m.emrvitals)
 
         if commit:
+            m.emrvitals.save()
             m.save()
 
         return m
@@ -165,6 +170,7 @@ class prescriptionCreateForm(EMRItemCreateForm):
             self.saveToModel(m.emrprescription)
 
         if commit:
+            m.emrprescription.save()
             m.save()
 
         return m

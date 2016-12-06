@@ -40,8 +40,7 @@ def doctor_nurse_shared_validation(event_form):
     # valid &= EventCreationFormValidator.startDateInXhoursFuture(event_form, hours, {
     #     'startTime': "Start Time must be at least "+ str(hours) +" hours in the future"}, {})
 
-    if event_form.instance is None:
-        valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
+    valid &= EventCreationFormValidator.eventValidateRequestTimeingOffset(event_form, 2, 0, {'startTime': "Events cannot start in the past"}, {})
 
     valid &= EventCreationFormValidator.eventPositiveDuration(event_form, datetime.timedelta(minutes=15),
                                                              {'duration': "Duration must be at least 15 minutes"},
@@ -85,8 +84,7 @@ class EventCreationFormPatient(EventForm):
         if not valid:
             return valid
 
-        if self.instance is None:
-            valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 24, {'startTime': "Start Time must be atleast 24 hours in the future"}, {})
+        valid &= EventCreationFormValidator.startDateInXhoursFuture(self, 48, {'startTime': "Start Time must be atleast 48 hours in the future"}, {})
 
         return valid
 
@@ -320,9 +318,8 @@ class statsForm(forms.Form):
                                          label="End", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
 
     filter_choices = (
-        ('ave_patient', "Average Number of patients visiting the hospital each day"),
-        ('ave_visits', "Average Visits for the selected patients"),
-        ('comm_admit', "Most common reasons for admission"),
+        ('patients_visiting_per', "Average Number of patients visiting the hospital each day,week,month,year"),
+        ('ave_stay_length', "Average Length from admission to dishcharge"),
         ('comm_pres', "Most common prescriptions"),
     )
 

@@ -336,8 +336,15 @@ def editEmrItem(request, pk):
         form = getFormFromReqType(emrItemType(emritem), emritem.patient, user, post=request.POST,
                                        files=request.FILES)
         if form.is_valid():
-            form.save(update=emritem, commit=True)
-            return HttpResponseRedirect(reverse('emr:vemr', args=(emritem.patient.pk,)))
+            if isPrescription(emritem):
+                m = form.save(update=emritem, commit=False)
+                m.emrprescription.provider = user
+                m.emrprescription.save()
+                m.save()
+            else:
+                form.save(update=emritem, commit=True)
+
+            return HttpResponseRedirect(reverse('emr:vemri', args=(emritem.pk,)))
 
     return render(request, 'emr/emritem_edit.html', viewhelper.getBaseContext(request, user, form=form, patient=emritem.patient))
 

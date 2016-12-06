@@ -368,16 +368,6 @@ DIV.fieldWrapper
 	width: 6em;
 }
 
-
-.half
-{
-	display: inline;
-	width: 45%;
-	margin-right: 1%;
-	margin-left: 1%;
-	margin-top: 80px;
-}
-
 .content_box
 {
 	margin: auto;
@@ -538,6 +528,12 @@ DIV.fieldWrapper
 }
 
 
-
-
+.half
+{
+	display: inline;
+	width: 46%;
+	margin-right: 2%;
+	margin-left: 2%;
+	margin-top: 80px;
+}
 
