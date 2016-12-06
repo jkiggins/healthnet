@@ -598,6 +598,11 @@ def nurseDashView(request):
     context['title'] = "Dashboard"
     return render(request, 'user/dashboard.html', context)
 
+
+#
+#
+#
+#
 def hosAdDashView(request, pk):
     user = get_user(request)
 
@@ -626,6 +631,9 @@ def hosAdDashView(request, pk):
     return render(request, 'user/dashboard.html', context)
 
 
+#
+# This will remove a note from your notification dropdown
+#
 def dismissNote(request, pk):
     user = get_user(request)
     if user is None:
@@ -637,6 +645,10 @@ def dismissNote(request, pk):
     return HttpResponse("EMPTY")
 
 
+#
+# The view button on a notification will bring you to a seperate page to view the note
+# in a larger scale, some views will take you to an action page instead
+#
 def viewNote(request, pk):
     user = get_user(request)
     if user is None:
@@ -658,6 +670,10 @@ def viewNote(request, pk):
     return HttpResponseRedirect(redir)
 
 
+#
+# Takes you to a page to send a message and prompts for a user to send to. After clicking send,
+# it goes to the post and notifies the user it was sent to
+#
 class sendMessage(View):
 
 
@@ -709,6 +725,9 @@ class sendMessage(View):
         return render(request, 'user/sendMessage.html', context)
 
 
+#
+# Takes you to a page to view a message sent to you from another user
+#
 def viewMessage(request, pk):
 
     notification = get_object_or_404(Notification, pk=pk)
@@ -798,7 +817,9 @@ def binAdmitStatusKeywords(qset, kw_dict):
 
     return kw_dict
 
-
+#
+# Checks if the user is allowed to view system statistics and displays the stats accordingly
+#
 def viewStats(request):
     """
         number of patients visiting the hospital
@@ -875,7 +896,10 @@ def viewStats(request):
 
     return render(request, 'user/stats.html', getBaseContext(request, user, form=form, title="Statistics"))
 
-
+#
+# This function displays the choice to either export or import a csv as a dropdown
+# and redirects based on the dropdown choice
+#
 def viewCSV(request):
     user = get_user(request)
 
@@ -902,7 +926,10 @@ def viewCSV(request):
 
     return render(request, 'user/CSV.html', context)
 
-
+#
+# This function displays if they choose to import csv and runs the import if they
+# select the correct files
+#
 def importCSVView(request):
 
     if request.method == "POST":

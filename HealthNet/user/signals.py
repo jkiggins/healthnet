@@ -1,15 +1,15 @@
 # Notification Signals
-from django.db.models.signals import post_delete, pre_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from user.models import *
 
 
 
 # Event Signals
-@receiver(pre_save, sender=Event)
-def eventPreSave(sender, instance, *args, **kwargs):
-    pass
-    new = instance.pk is None
+@receiver(post_save, sender=Event)
+def eventPostSave(sender, instance, *args, **kwargs):
+    print(instance.diff)
+    new = "patient" in instance.changed_fields
 
     nbody = 'Starts at: {0} and lasts for: {1} minutes'.format(instance.startTime, (instance.endTime - instance.startTime).seconds / 60)
     title = ""
