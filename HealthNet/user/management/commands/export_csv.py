@@ -58,11 +58,13 @@ class Command(BaseCommand):
             patients = csv.writer(csvfile)
             row = []
             for p in Patient.objects.all().filter(accepted=True):
-
-
                 row = [p.user.username, "", p.user.first_name, p.user.last_name, p.insuranceNum,
-                       p.emrprofile.birthdate.strftime('%m/%d/%Y'), p.emrprofile.gender, p.doctor.user.username,
+                       "", "", p.doctor.user.username,
                        p.hospital.name, p.phone, p.address, "", "", ""]
+
+                if hasattr(p, "emrprofile") and not (p.emrprofile is None):
+                    row[5] = p.emrprofile.birthdate.strftime('%m/%d/%Y')
+                    row[6] = p.emrprofile.gender
 
                 self.set_pass(row, 1, p.user.password)
 

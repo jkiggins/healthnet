@@ -64,6 +64,7 @@
         <li><a href="{% url 'user:registry' %}">Search Healthnet</a></li>
         <li><a href="{% url 'syslogging:viewlog' %}">Hospital Log</a></li>
         <li><a href="{% url 'user:stats' %}">System Statistics</a></li>
+        <li><a href="{% url 'user:sendMessage' %}">Message</a></li>
     {% endif %}
 	
 	{% if user.getType == "hosAdmin" %}
@@ -73,7 +74,7 @@
 
 
     <div tabindex=0 class="drop_down_wrap note_wrap">
-        <div id = "note" class="note_heading">
+        <div id = "note" class="note_heading" data-isnote="">
             Notifications
         </div>
         <div id = "note_drop" class="drop_down_hide">
