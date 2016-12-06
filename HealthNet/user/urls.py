@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/dismissNote$', views.dismissNote, name='disnote'),
     url(r'^stats$', views.viewStats, name='stats'),
     url(r'^(?P<pk>[0-9]+)/approval$', views.approval, name='approval'),
-    url(r'^CSV/', views.viewCSV, name="vCSV")
+    url(r'^CSV/', views.viewCSV, name="vCSV"),
+    url(r'^(?P<file>(doctor|nurse|patient)).csv', views.downloadCsv, name="dcsv")
 ]

@@ -903,3 +903,19 @@ def viewCSV(request):
                 return HttpResponseRedirect(reverse('user:dashboard'))
 
     return render(request, 'user/CSV.html', context)
+
+
+def downloadCsv(request, file):
+    user = get_user(request)
+    if user is None:
+        return unauth(request, "You must be logged in to view this page")
+    if not isHosadmin(user):
+        return unauth(request, "You must be a hospital admin to download csv's")
+
+    path = None
+
+    try:
+        with open("media/csv/{0}_export.csv".format(file), "rb") as f:
+            return HttpResponse(f.read(), content_type="application/force-download")
+    except IOError:
+        return HttpResponse("FAILED")
