@@ -541,3 +541,9 @@ DIV.fieldWrapper
 	margin-top: 80px;
 }
 
+#note_drop
+{
+	max-height: 800px;
+	overflow: auto;
+}
+

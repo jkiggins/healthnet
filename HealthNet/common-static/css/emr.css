@@ -23,8 +23,18 @@
 
 #emr_manage .toolbar_item_wrap[data-canadmit="True"]
 {
+	margin-left: 1%;
 	width: 10%;
+	box-shadow: 3px 3px 20px #000;
 }
+
+#emr_manage .toolbar_item_wrap[data-canadmit="False"]
+{
+	margin-left: 1%;
+	width: 11%;
+	box-shadow: 3px 3px 20px #000;
+}
+
 
 #emr_manage .toolbar_item_header
 {
@@ -318,19 +328,6 @@
 	background-color: #E96F38;
 }
 
-.emr_toolbar_action[data-canadmit="False"]
-{
-	margin-left: 1%;
-	width: 11%;
-	box-shadow: 3px 3px 20px #000;
-}
-
-.emr_toolbar_action[data-canadmit="True"]
-{
-	margin-left: 1%;
-	width: 10%;
-	box-shadow: 3px 3px 20px #000;
-}
 
 #emr_toolbar[data-canadmit="False"]
 {

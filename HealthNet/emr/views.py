@@ -367,7 +367,7 @@ class AdmitDishchargeView(DetailView):
         if not canCreateEditEmr(self.type, patient, cuser) or not userauth.userCan_EMR(cuser, patient, 'admit'):
             return self.kick(patient)
 
-        form = AdmitDishchargeForm(initial={'emrpatient': patient.pk})
+        form = AdmitDishchargeForm()
 
         title=""
 
@@ -443,6 +443,7 @@ class AdmitDishchargeView(DetailView):
 
             patient.emrprofile.admit_status = m
             patient.emrprofile.save()
+            patient.save()
 
             return HttpResponseRedirect(reverse('emr:vemr', args=(patient.pk,)))
         else:
