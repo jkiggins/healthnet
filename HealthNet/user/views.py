@@ -1,12 +1,9 @@
 import HealthNet.userauth as userauth
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
 from django.views.generic import View
 from HealthNet.formhelper import *
 from HealthNet.viewhelper import *
-from django.core.exceptions import ValidationError
 import math
 
 
@@ -17,7 +14,11 @@ from syslogging.models import *
 
 import json
 
-
+#
+# This class handles the searching implementation for staff and hospital admins. Different fields are able to
+# be filled out depending n what kind of user is using the app. Hospital admins can view pending staff
+# members by selecting the pending staff checkbox
+#
 class Registry(View):
 
     def filterByUser(self, user, qset):
@@ -132,6 +133,10 @@ class Registry(View):
             return render(request, 'user/registry.html', {'search_form': form, 'user': cuser})
 
 
+#
+# This handles if the user is trying to view their own profile
+# Called from viewProfile
+#
 def viewProfileSelf(request):
     cuser = get_user(request)
     if cuser is None:
@@ -157,6 +162,10 @@ def viewProfileSelf(request):
         return render(request, 'user/viewprofile.html', context)
 
 
+#
+# This renders a users profile based on who is viewing the profile and who they are trying to view
+# Different fields are rendered based on who the current user is
+#
 def viewProfile(request, pk):
     if request.method == "POST":
 
@@ -256,6 +265,9 @@ def viewProfile(request, pk):
         return render(request, 'user/viewprofile.html', context)
 
 
+#
+# This handle if a hos admin approves or disapproves a staff member
+#
 def approval(request, pk):
 
     user = get_object_or_404(User, pk=pk)
@@ -281,6 +293,10 @@ def approval(request, pk):
     return HttpResponseRedirect(reverse('user:vProfile', args=(pk,)))
 
 
+#
+# This renders the edit profile page for patients and populates fields based on what is already
+# saved into the profile. If they are new, they cannot visit another page until they complete the profile
+#
 def editProfile(request, pk, depend=False):
     user = get_user(request)
     tuser = None
@@ -336,6 +352,9 @@ def getEventTitle(event):
     return title
 
 
+#
+# This renders a page for editing an event if the user is able to edit
+#
 def editEvent(request, pk, depend=False):
     user = get_user(request)
     if user is None:
@@ -402,6 +421,9 @@ def editEvent(request, pk, depend=False):
     return render(request, 'user/eventdetail.html', getBaseContext(request, user, form=event_form, event=event, title=getEventTitle(event)))
 
 
+#
+# This renders a page to view details for an event that is selected
+#
 def viewEvent(request, pk):
     user = get_user(request)
     if user is None:
@@ -420,6 +442,10 @@ def viewEvent(request, pk):
         return unauth(request)
 
 
+#
+# This handles if the user is able to create an event and also handles the fields that show in the form
+# It will also save and notify users when the appointment is created
+#
 def createEvent(request, depend=False):
     user = get_user(request)
     if user is None:
@@ -533,6 +559,9 @@ def createEvent(request, depend=False):
     return render(request, 'user/eventhandle.html', ctx)
 
 
+#
+# This handles if the cancel event button is pushed
+#
 def cancleEvent(request, pk):
     user = get_user(request)
     event = get_object_or_404(Event, pk=pk)
@@ -547,6 +576,10 @@ def cancleEvent(request, pk):
     return HttpResponseRedirect(reverse('user:dashboard'))
 
 
+#
+# This view will render information based on if the user is a doctor
+# or if the user is a patient
+#
 def dashboardView(request):
     user = get_user(request)
     if user is None:
@@ -583,6 +616,10 @@ def dashboardView(request):
     return render(request, 'user/dashboard.html', context)
 
 
+#
+# This is the dashboard for the nurses only and renders only information
+# needed by the nurses
+#
 def nurseDashView(request):
     user = get_user(request)
 
@@ -600,8 +637,8 @@ def nurseDashView(request):
 
 
 #
-#
-#
+# This is the dashboard for the hospital admins only and renders only information
+# needed by the hospital admin
 #
 def hosAdDashView(request, pk):
     user = get_user(request)
@@ -947,7 +984,10 @@ def viewCSV(request):
             if 'export' in form.cleaned_data['CSV']:
                 request.session['message'] = "User list exported successfully."
                 exportCsv(False)
-                return HttpResponseRedirect(reverse('user:dashboard'))
+                context['links'] = {'doc': '/user/doctor.csv',
+                                    'nur': '/user/nurse.csv',
+                                    'pat': '/user/patient.csv',
+                                    'true': True}
 
             elif 'import' in form.cleaned_data['CSV']:
                 return HttpResponseRedirect(reverse('user:import'))
@@ -966,7 +1006,8 @@ def importCSVView(request):
 
         form = importForm(request.POST, request.FILES)
 
-        context = {'user':user}
+        context = {'user':user,
+                   'true': False}
         if form.is_valid():
             print("valid")
             docfile = form.cleaned_data['doctorfile']

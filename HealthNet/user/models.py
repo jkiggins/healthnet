@@ -66,6 +66,7 @@ class Patient(models.Model, OrderedNotesMixin):
     def getType(self):
         return "patient"
 
+# this extension of user represents a patients emergency contact
 
 class Contact(models.Model, ModelDiffMixin):
     emuser = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -99,6 +100,7 @@ class Doctor(models.Model, OrderedNotesMixin):
     def getType(self):
         return "doctor"
 
+# this is an event model that links to a patient and doctor
 
 class Event(models.Model, ModelDiffMixin):
     APP_BUFFER = datetime.timedelta(minutes=15)
@@ -140,6 +142,7 @@ class Event(models.Model, ModelDiffMixin):
     def getType(self):
         return "event"
 
+# this is a notification that links to different user depending on the note
 
 class Notification(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)

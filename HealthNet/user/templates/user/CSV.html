@@ -18,6 +18,11 @@
             </div>
         {% endfor %}
         <input type = "submit" value = "Save" class="button"/>
-    </form>
+        </form>
+        {% if links.true %}
+            <li>Doctor file: <a href={{ links.doc }}>doctor.csv</a></li>
+            <li>Nurse file: <a href={{ links.nur }}>nurse.csv</a></li>
+            <li>Patient file: <a href={{ links.pat }}>patient.csv</a></li>
+        {% endif %}
 	</div>
 {% endblock %}

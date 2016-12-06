@@ -31,10 +31,15 @@ def getEventFormByUserType(type, **kwargs):
 
     return obj(**kwargs)
 
+#
+# This renders a dropdown to choose import or export
+#
 class CSVForm(forms.Form):
     CSV = forms.ChoiceField(choices=(('import', 'Import'), ('export', 'Export')), required=True, label="Do you want to Import or Export your users?")
 
-
+#
+# This renders three file selection fields for CSV importing
+#
 class importForm(forms.Form):
     doctorfile = forms.FileField(widget=forms.FileInput(), label="Doctor File", required=False)
     nursefile = forms.FileField(widget=forms.FileInput(), label="Nurse File", required=False)
@@ -75,6 +80,9 @@ def doctor_nurse_shared_validation(event_form):
     return valid
 
 
+#
+# This renders all fields required for an event to be created
+#
 class EventForm(forms.ModelForm):
     startTime = forms.SplitDateTimeField(widget=forms.SplitDateTimeWidget(attrs={'id': "dateTimeId"}), initial=timezone.now()+datetime.timedelta(days=1, minutes=30),
                                          label="Start", input_time_formats=['%H:%M', '%I:%M%p', '%I:%M %p', '%H:%M:%S'])
@@ -96,7 +104,9 @@ class EventForm(forms.ModelForm):
 
 
 
-
+#
+# Extension of EventForm that is specific to patients
+#
 class EventCreationFormPatient(EventForm):
 
     def __init__(self, *args, **kwargs):
@@ -119,7 +129,9 @@ class EventCreationFormPatient(EventForm):
         model = Event
         fields = ['startTime', 'description']
 
-
+#
+# Extension of EventForm that is specific to doctors
+#
 class EventCreationFormDoctor(EventForm):
 
     def __init__(self, *args, **kwargs):
@@ -166,6 +178,9 @@ class EventCreationFormDoctor(EventForm):
         fields = ["patient", "hospital", "startTime", "description"]
 
 
+#
+# Extension of EventForm that is specific to nurses
+#
 class EventCreationFormNurse(EventForm):
 
     def __init__(self, *args, **kwargs):
@@ -213,6 +228,9 @@ class EventCreationFormNurse(EventForm):
         fields = ["patient", "doctor", "startTime", "description"]
 
 
+#
+# Extension of EventForm that is specific to hospital admins
+#
 class EventCreationFormHadmin(EventForm):
     type = forms.ChoiceField(widget=forms.RadioSelect, choices=(('1', 'Generic'), ('2', 'Appointment')))
 
@@ -238,6 +256,9 @@ class EventCreationFormHadmin(EventForm):
         fields = ["patient", "doctor", "startTime", "description"]
 
 
+#
+# This renders all fields required (and not required) to complete a patient profile
+#
 class EditProfileForm(forms.Form):
     first_name = forms.CharField(max_length=20, required=False)
     last_name = forms.CharField(max_length=20, required=False)
@@ -276,12 +297,18 @@ class EditProfileForm(forms.Form):
         self.fields['hospital'].widget.attrs = {'onchange': "resolve_dh_dependancy(this)"}
 
 
+#
+# This renders all search options for hospital admins only in the search function
+#
 class HosAdminSearchForm(forms.Form):
     keywords = forms.CharField(max_length=50, label="Keywords", required=False)
     choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'), ('nurse', 'Nurses'), ('pending', 'Pending Staff'))
     filterBy = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=choices, required=False, label="")
 
 
+#
+# This renders search options that pertain to all users who can search
+#
 class SearchForm(forms.Form):
     keywords = forms.CharField(max_length=50, label="Keywords", required=False)
     choices = (('event', 'Events'), ('patient', 'Patients'), ('doctor', 'Doctors'))
@@ -297,6 +324,9 @@ class SearchForm(forms.Form):
             )
 
 
+#
+# This renders for hospital admins only and is a dropdown to select doctors that trust a specific nurse
+#
 class TrustedNurses(forms.Form):
     docs = forms.ModelChoiceField(queryset=Doctor.objects.none(), label="Doctors")
 
@@ -304,6 +334,10 @@ class TrustedNurses(forms.Form):
         self.fields['docs'].queryset = qset
         self.fields['docs'].queryset = qset
 
+
+#
+# This renders the form that pertains to sending a message to a user
+#
 class messagingForm(forms.Form):
     userTO = forms.ModelChoiceField(queryset=Doctor.objects.all(), label="To:", required=True)
     messageContent = forms.CharField(widget=forms.Textarea, max_length=None, label="Message", min_length=1, required=True)
