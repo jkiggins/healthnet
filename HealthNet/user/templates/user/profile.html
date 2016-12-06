@@ -41,8 +41,11 @@
         <h3>Patients</h3>
 
         {% for p in tuser.patient_set.all %}
-
-            <li><a href = "{% url 'user:vProfile' p.user.id %}">{{ p.user.get_full_name }}</a></li>
+            {% if user.hospital == p.hospital %}
+                <li><a href = "{% url 'user:vProfile' p.user.id %}">{{ p.user.get_full_name }}</a></li>
+            {% else %}
+                <li>{{ p.user.get_full_name }}</li>
+            {% endif %}
 
         {% endfor %}
 

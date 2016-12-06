@@ -14,8 +14,17 @@
                 <li>* Phone Number:{{ form.phone }}</li>
                 <li>Address:{{ form.address }}</li>
                 <li><h2>Hospital Information</h2></li>
-                <li>* Hospital:{{ form.hospital }}</li>
-                <li>* Doctor:{{ form.doctor }}</li>
+                {% if user.hospital.name == "" %}
+                    <li>* Hospital:{{ form.hospital }}</li>
+                {% else %}
+                    <li>Hospital: {{user.hospital.name }}</li>
+                {% endif %}
+
+                {% if user.doctor == Null %}
+                    <li>* Doctor:{{ form.doctor }}</li>
+                {% else %}
+                    <li>Doctor: {{user.doctor.user.get_full_name }}</li>
+                {% endif %}
                 <li><h2>Emergency Contact</h2></li>
                 <li>Pre-Registered User:{{ form.emuser }}</li>
                 <li>Full Name:{{ form.full_name }}</li>

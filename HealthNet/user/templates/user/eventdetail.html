@@ -29,7 +29,11 @@
         <li>End Time: {{ event.endTime }}</li>
 
         {% if event.patient != None %}
-        <li>Patient: <a href="{% url 'user:vProfile' event.patient.user.id%}">{{ event.patient.user.get_full_name }}</a></li>
+            {% if user.hospital == event.patient.hospital %}
+                <li>Patient: <a href="{% url 'user:vProfile' event.patient.user.id%}">{{ event.patient.user.get_full_name }}</a></li>
+            {% else %}
+                <li>Patient: {{ event.patient.user.get_full_name }}</li>
+            {% endif %}
         {% endif %}
 
         <li>Doctor: <a href="{% url 'user:vProfile' event.doctor.user.id %}">{{ event.doctor.user.get_full_name }}</a></li>

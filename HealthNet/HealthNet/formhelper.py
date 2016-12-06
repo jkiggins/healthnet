@@ -61,6 +61,7 @@ def setEditFormDefault(user, form):
         form.fields['hospital'].initial = getattr(user, 'hospital')
 
     if user.contact is not None:
-        form.fields['emuser'].initial = user.contact.emuser.pk
+        if user.contact.emuser is not None:
+            form.fields['emuser'].initial = user.contact.emuser.pk
         form.fields['full_name'].initial = getattr(user.contact, 'full_name')
         form.fields['emphone'].initial = getattr(user.contact, 'emphone')

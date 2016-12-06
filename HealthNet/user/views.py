@@ -226,18 +226,21 @@ def viewProfile(request, pk):
                         'tuser': tuser,
                         'events': getVisibleEvents(tuser),
                         'view_calendar': True,
+                        'calendarView': "month",
                         'accepted': True}
                 else:
                     context = {'user': user,
                         'tuser': tuser,
                         'events': getVisibleEvents(tuser),
                         'view_calendar': True,
+                        'calendarView': "month",
                         'accepted': False}
             else:
                 context = {'user': user,
                     'tuser': tuser,
                     'events': getVisibleEvents(tuser),
-                    'view_calendar': True}
+                    'view_calendar': True,
+                    'calendarView': "month"}
         else:
             if tuser.getType() == "nurse":
                 context = {'user': user,
@@ -249,8 +252,8 @@ def viewProfile(request, pk):
                 context = {'user': user,
                     'tuser': tuser,
                     'events': getVisibleEvents(tuser),
-                    'view_calendar': True}
-
+                    'view_calendar': True,
+                    'calendarView': "month"}
         return render(request, 'user/viewprofile.html', context)
 
 
@@ -683,10 +686,12 @@ def dashboardView(request):
 
 
     if isPatient(user):
-        context['events'] = getVisibleEvents(user).order_by('startTime')
         if user.accepted:
             context['other_events'] = user.doctor.event_set.all().order_by('startTime')
             context['calendarView'] = "month"
+        else:
+            return HttpResponseRedirect(reverse('user:eProfile', args=(user.user.pk,)))
+        context['events'] = getVisibleEvents(user).order_by('startTime')
     elif(user.getType() == "doctor"):
         context['patients'] = user.patient_set.all()
         context['hosptials'] = user.hospitals.all()
