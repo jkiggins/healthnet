@@ -78,7 +78,7 @@ class NurseRegistrationForm(StaffRegistrationForm):
     hospital = forms.ModelChoiceField(Hospital.objects.all(), label="Hospital Selection", required=True)
 
 class UserSelectForm(forms.Form):
-    typeOfUser = forms.MultipleChoiceField(choices=(('doctor', 'Doctor'), ('nurse', 'Nurse')), required=True, label="Are you a doctor or a nurse?")
+    typeOfUser = forms.ChoiceField(choices=(('doctor', 'Doctor'), ('nurse', 'Nurse')), required=True, label="Are you a doctor or a nurse?")
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=30, required=True, label="Username")
