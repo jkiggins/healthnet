@@ -194,7 +194,7 @@ def viewEMR(request, pk):
                 emr = emr.order_by('-date_created')
             elif 'priority' in ff.sort:
                 emr = emr.order_by('-priority')
-            elif 'aplph' in ff.sort:
+            elif 'alph' in ff.sort:
                 emr = emr.order_by('content')
             elif 'vitals' in ff.sort:
                 emr = list(emr.exclude(emrvitals=None)) + list(emr.filter(emrvitals=None))
